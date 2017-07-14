@@ -21,9 +21,9 @@ namespace GameSparks.Editor
 			PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.InternetClientServer, true);
 			}
 			#else
-			if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.MetroPlayer)
+			if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WSAPlayer)
 			{
-				PlayerSettings.Metro.SetCapability(PlayerSettings.MetroCapability.InternetClientServer, true);
+				PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.InternetClientServer, true);
 			}
 			#endif
 

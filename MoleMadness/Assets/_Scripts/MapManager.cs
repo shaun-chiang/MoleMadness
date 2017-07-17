@@ -156,13 +156,13 @@ public class MapManager : MonoBehaviour {
                 switch (map[x, z].tileType)
                 {
                     case Tile.TileType.FLAT:
-                        map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                         break;
                     case Tile.TileType.HILL:
-                        map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                         break;
                     case Tile.TileType.HOLE:
-                        map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                         break;
                     default:
                         break;

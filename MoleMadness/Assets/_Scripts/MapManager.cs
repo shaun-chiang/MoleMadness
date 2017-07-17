@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class MapGenerator : MonoBehaviour {
+public class MapManager : MonoBehaviour {
 
     bool generating;
+
+    MapManager instance;
 
     public int width;
     public int height;
@@ -22,8 +24,8 @@ public class MapGenerator : MonoBehaviour {
 
     const int initHoleNumber = 8;
 
-    const float xInterval = 1;
-    const float zInterval = 1;
+    private const float TILE_SIZE = 1;
+    private const float TILE_OFFSET = 0.5f;
 
     Tile[,] map;
 
@@ -133,13 +135,13 @@ public class MapGenerator : MonoBehaviour {
                 {
                     Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HOLE;
-                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
                 }
                 else if (map[x, z].tileType == Tile.TileType.HOLE)
                 {
                     Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HILL;
-                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
                 }
             }
         }
@@ -154,17 +156,18 @@ public class MapGenerator : MonoBehaviour {
                 switch (map[x, z].tileType)
                 {
                     case Tile.TileType.FLAT:
-                        map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
                         break;
                     case Tile.TileType.HILL:
-                        map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
                         break;
                     case Tile.TileType.HOLE:
-                        map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
                         break;
                     default:
                         break;
                 }
+                map[x, z].tileObject.transform.SetParent(transform);
             }
         }
     }
@@ -180,43 +183,5 @@ public class MapGenerator : MonoBehaviour {
             }
         }
     }
-
-    //void OnDrawGizmos()
-    //{
-    //    if (map != null)
-    //    {
-    //        for (int x = 0; x < width; x++)
-    //        {
-    //            for (int y = 0; y < height; y++)
-    //            {
-    //                Vector3 pos;
-    //                switch (map[x, y])
-    //                {
-    //                    case BORDER:
-    //                        Gizmos.color = Color.black;
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0, -height / 2 + y + .5f);
-    //                        break;
-    //                    case FLAT:
-    //                        Gizmos.color = Color.green;
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0, -height / 2 + y + .5f);
-    //                        break;
-    //                    case HOLE:
-    //                        Gizmos.color = Color.red;
-    //                        pos = new Vector3(-width / 2 + x + .5f, -0.5f, -height / 2 + y + .5f);
-    //                        break;
-    //                    case HILL:
-    //                        Gizmos.color = Color.blue;
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0.5f, -height / 2 + y + .5f);
-    //                        break;
-    //                    default:
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0, -height / 2 + y + .5f);
-    //                        break;
-    //                }
-
-    //                Gizmos.DrawCube(pos, Vector3.one);
-    //            }
-    //        }
-    //    }
-    //}
 
 }

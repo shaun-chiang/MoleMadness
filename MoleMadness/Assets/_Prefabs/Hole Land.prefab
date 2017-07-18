@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23466502351286626}
   m_Layer: 0
   m_Name: Hole Land
-  m_TagString: Untagged
+  m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

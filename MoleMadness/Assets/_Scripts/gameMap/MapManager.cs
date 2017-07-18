@@ -17,6 +17,7 @@ public class MapManager : MonoBehaviour {
     public GameObject hillPrefab;
     public GameObject flatPrefab;
     public GameObject holePrefab;
+    public GameObject[] projections;
 
     System.Random pseudoRandom;
     int randomX = 0;
@@ -24,14 +25,20 @@ public class MapManager : MonoBehaviour {
 
     const int initHoleNumber = 8;
 
+    private Ray ray;
+    private RaycastHit hit;
+
     private const float TILE_SIZE = 1;
     private const float TILE_OFFSET = 0.5f;
 
     Tile[,] map;
+    private GameObject[,] selectProjectors;
 
     private void Start()
     {
         generating = true;
+        selectProjectors = new GameObject[10,10];
+
         map = new Tile[width, height];
         if (useRandomSeed)
         {
@@ -92,8 +99,22 @@ public class MapManager : MonoBehaviour {
             }
         }
 
-        //if (Input.GetMouseButtonDown(2))
-        //    Debug.Log("Pressed middle click.");
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Input.GetMouseButtonDown(2))
+        {
+            if (Physics.Raycast(ray, out hit, 100f))
+            {
+                if (hit.collider.tag == "Tile")
+                {
+                    int x = (int) hit.point.x;
+                    int z = (int)hit.point.z;
+                    Debug.Log("Found Tile.");
+                    castProjection(x, z);
+                    //Debug.Log(hit.point.ToString());
+                    //Debug.Log(string.Format("x: {0}, z: {1}",x,z));
+                }
+            }
+        }
 
     }
 
@@ -135,13 +156,13 @@ public class MapManager : MonoBehaviour {
                 {
                     Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HOLE;
-                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
+                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                 }
                 else if (map[x, z].tileType == Tile.TileType.HOLE)
                 {
                     Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HILL;
-                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_SIZE * x, 0, transform.position.y + TILE_SIZE * z), transform.rotation);
+                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                 }
             }
         }
@@ -181,6 +202,14 @@ public class MapManager : MonoBehaviour {
                 map[x, z].tileType = Tile.TileType.FLAT;
                 Destroy(map[x, z].tileObject);
             }
+        }
+    }
+
+    void castProjection(int x, int z)
+    {
+        if (selectProjectors[x,z] == null)
+        {
+            selectProjectors[x, z] = Instantiate(projections[0],new Vector3(x + TILE_OFFSET, 4, z + TILE_OFFSET), Quaternion.Euler(new Vector3(90, 0, 0)));
         }
     }
 

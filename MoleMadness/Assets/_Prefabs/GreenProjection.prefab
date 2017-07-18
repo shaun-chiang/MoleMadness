@@ -9,30 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1136340574043452}
+  m_RootGameObject: {fileID: 1251946591267896}
   m_IsPrefabParent: 1
---- !u!1 &1136340574043452
+--- !u!1 &1251946591267896
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4988066959327176}
-  - component: {fileID: 119936584744799974}
+  - component: {fileID: 4519186307650708}
+  - component: {fileID: 119847723939350820}
   m_Layer: 0
-  m_Name: Projections
+  m_Name: GreenProjection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4988066959327176
+--- !u!4 &4519186307650708
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1136340574043452}
+  m_GameObject: {fileID: 1251946591267896}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0.5, y: 2, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,21 +40,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!119 &119936584744799974
+--- !u!119 &119847723939350820
 Projector:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1136340574043452}
+  m_GameObject: {fileID: 1251946591267896}
   m_Enabled: 1
   serializedVersion: 2
   m_NearClipPlane: 0.1
   m_FarClipPlane: 30
-  m_FieldOfView: 28
+  m_FieldOfView: 10
   m_AspectRatio: 1
   m_Orthographic: 0
   m_OrthographicSize: 10
-  m_Material: {fileID: 2100000, guid: c7d1a73cf0f423947bae4e238665d9c5, type: 2}
+  m_Material: {fileID: 2100000, guid: a39a757e83c193f489f61b1f13931640, type: 2}
   m_IgnoreLayers:
     serializedVersion: 2
     m_Bits: 0

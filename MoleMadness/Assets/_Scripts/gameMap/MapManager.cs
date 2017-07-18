@@ -13,10 +13,14 @@ public class MapManager : MonoBehaviour {
     public int height;
     public string seed;
     public bool useRandomSeed;
+    public int x;
+    public int z;
+    public GameObject player;
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
     public GameObject holePrefab;
+    public GameObject playerPrefab;
     public GameObject[] projections;
 
     System.Random pseudoRandom;
@@ -30,6 +34,8 @@ public class MapManager : MonoBehaviour {
 
     private const float TILE_SIZE = 1;
     private const float TILE_OFFSET = 0.5f;
+    // subject to changes
+    private const float PLAYER_HEIGHT = 0.5f;
 
     Tile[,] map;
     private GameObject[,] selectProjectors;
@@ -47,6 +53,7 @@ public class MapManager : MonoBehaviour {
         pseudoRandom = new System.Random(seed.GetHashCode());
         RandomFillMap();
         createTilesFromMap();
+        initPlayer();
         generating = false;
     }
 
@@ -69,10 +76,11 @@ public class MapManager : MonoBehaviour {
     void Update()
     {
         // For testing only
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.G))
+        {
             if (!generating)
             {
-                Debug.Log("Generating with left click");
+                Debug.Log("Generating with G");
                 generating = true;
                 destroyMap();
                 //RandomFillMap();
@@ -82,8 +90,22 @@ public class MapManager : MonoBehaviour {
             }
             else
             {
-                Debug.Log("Pressed Left click when generating.");
+                Debug.Log("Pressed G when generating.");
             }
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(ray, out hit, 100f))
+            {
+                if (hit.collider.tag == "Tile")
+                {
+                    int x = (int)hit.point.x;
+                    int z = (int)hit.point.z;
+                    movePlayer(x, z);
+                }
+            }
+        }
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -207,10 +229,23 @@ public class MapManager : MonoBehaviour {
 
     void castProjection(int x, int z)
     {
-        if (selectProjectors[x,z] == null)
+        if (selectProjectors[x, z] == null)
         {
-            selectProjectors[x, z] = Instantiate(projections[0],new Vector3(x + TILE_OFFSET, 4, z + TILE_OFFSET), Quaternion.Euler(new Vector3(90, 0, 0)));
+            selectProjectors[x, z] = Instantiate(projections[0], new Vector3(x + TILE_OFFSET, 4, z + TILE_OFFSET), Quaternion.Euler(new Vector3(90, 0, 0)));
         }
+    }
+
+    void initPlayer()
+    {
+        x = 4;
+        z = 4;
+        player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET,PLAYER_HEIGHT,z + TILE_OFFSET), Quaternion.identity);
+    }
+
+    void movePlayer(int x, int z)
+    {
+        player.transform.position = new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET);
+        //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
     }
 
 }

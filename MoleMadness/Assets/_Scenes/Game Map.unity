@@ -296,9 +296,14 @@ MonoBehaviour:
   height: 10
   seed: 
   useRandomSeed: 1
+  x: 0
+  z: 0
+  player: {fileID: 0}
   hillPrefab: {fileID: 1230882764779850, guid: 3cdd478d892d2214a884e9869ef99f4b, type: 2}
   flatPrefab: {fileID: 1265083789625872, guid: d81c6c46b5e428a47a2af360a0126a4b, type: 2}
   holePrefab: {fileID: 1910280733447762, guid: 6493d97b8739f3141b2594e6d53a609b, type: 2}
+  playerPrefab: {fileID: 1136946661782348, guid: ff96a38e20582124b8537ffe58aaa0c4,
+    type: 2}
   projections:
   - {fileID: 1478731078883836, guid: 05894455ee6ab4d4f91e2754d48fb32c, type: 2}
   - {fileID: 1251946591267896, guid: 328734236288da44ca2a9902913a2923, type: 2}
@@ -397,10 +402,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2081211269}
-  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 5, y: 5, z: -3}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 5, y: 10, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}

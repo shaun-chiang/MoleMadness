@@ -8,9 +8,19 @@ public class Tile {
 
     public GameObject tileObject;
     public TileType tileType;
+	public int x;
+	public int z;
 
-    public Tile()
+	public List<Tile> links;
+	public bool status = false;
+
+	public Tile()
     {
 
     }
+	public Tile(int x, int z)
+	{
+		this.x = x;
+		this.z = z;
+	}
 }

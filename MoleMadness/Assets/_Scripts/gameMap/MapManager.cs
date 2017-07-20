@@ -3,18 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class MapGenerator : MonoBehaviour {
+public class MapManager : MonoBehaviour {
 
     bool generating;
+
+    MapManager instance;
 
     public int width;
     public int height;
     public string seed;
     public bool useRandomSeed;
+    public int x;
+    public int z;
+    public GameObject player;
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
     public GameObject holePrefab;
+    public GameObject playerPrefab;
+    public GameObject[] projections;
 
     System.Random pseudoRandom;
     int randomX = 0;
@@ -22,14 +29,22 @@ public class MapGenerator : MonoBehaviour {
 
     const int initHoleNumber = 8;
 
-    const float xInterval = 1;
-    const float zInterval = 1;
+    private Ray ray;
+    private RaycastHit hit;
+
+    private const float TILE_SIZE = 1;
+    private const float TILE_OFFSET = 0.5f;
+    // subject to changes
+    private const float PLAYER_HEIGHT = 0.5f;
 
     Tile[,] map;
+    private GameObject[,] selectProjectors;
 
     private void Start()
     {
         generating = true;
+        selectProjectors = new GameObject[10,10];
+
         map = new Tile[width, height];
         if (useRandomSeed)
         {
@@ -38,6 +53,7 @@ public class MapGenerator : MonoBehaviour {
         pseudoRandom = new System.Random(seed.GetHashCode());
         RandomFillMap();
         createTilesFromMap();
+        initPlayer();
         generating = false;
     }
 
@@ -60,10 +76,11 @@ public class MapGenerator : MonoBehaviour {
     void Update()
     {
         // For testing only
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.G))
+        {
             if (!generating)
             {
-                Debug.Log("Generating with left click");
+                Debug.Log("Generating with G");
                 generating = true;
                 destroyMap();
                 //RandomFillMap();
@@ -73,8 +90,22 @@ public class MapGenerator : MonoBehaviour {
             }
             else
             {
-                Debug.Log("Pressed Left click when generating.");
+                Debug.Log("Pressed G when generating.");
             }
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(ray, out hit, 100f))
+            {
+                if (hit.collider.tag == "Tile")
+                {
+                    int x = (int)hit.point.x;
+                    int z = (int)hit.point.z;
+                    movePlayer(x, z);
+                }
+            }
+        }
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -90,8 +121,22 @@ public class MapGenerator : MonoBehaviour {
             }
         }
 
-        //if (Input.GetMouseButtonDown(2))
-        //    Debug.Log("Pressed middle click.");
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Input.GetMouseButtonDown(2))
+        {
+            if (Physics.Raycast(ray, out hit, 100f))
+            {
+                if (hit.collider.tag == "Tile")
+                {
+                    int x = (int) hit.point.x;
+                    int z = (int)hit.point.z;
+                    Debug.Log("Found Tile.");
+                    castProjection(x, z);
+                    //Debug.Log(hit.point.ToString());
+                    //Debug.Log(string.Format("x: {0}, z: {1}",x,z));
+                }
+            }
+        }
 
     }
 
@@ -133,13 +178,13 @@ public class MapGenerator : MonoBehaviour {
                 {
                     Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HOLE;
-                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                 }
                 else if (map[x, z].tileType == Tile.TileType.HOLE)
                 {
                     Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HILL;
-                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                 }
             }
         }
@@ -154,17 +199,18 @@ public class MapGenerator : MonoBehaviour {
                 switch (map[x, z].tileType)
                 {
                     case Tile.TileType.FLAT:
-                        map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                         break;
                     case Tile.TileType.HILL:
-                        map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                         break;
                     case Tile.TileType.HOLE:
-                        map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + xInterval * x, 0, transform.position.y + zInterval * z), transform.rotation);
+                        map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                         break;
                     default:
                         break;
                 }
+                map[x, z].tileObject.transform.SetParent(transform);
             }
         }
     }
@@ -181,42 +227,25 @@ public class MapGenerator : MonoBehaviour {
         }
     }
 
-    //void OnDrawGizmos()
-    //{
-    //    if (map != null)
-    //    {
-    //        for (int x = 0; x < width; x++)
-    //        {
-    //            for (int y = 0; y < height; y++)
-    //            {
-    //                Vector3 pos;
-    //                switch (map[x, y])
-    //                {
-    //                    case BORDER:
-    //                        Gizmos.color = Color.black;
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0, -height / 2 + y + .5f);
-    //                        break;
-    //                    case FLAT:
-    //                        Gizmos.color = Color.green;
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0, -height / 2 + y + .5f);
-    //                        break;
-    //                    case HOLE:
-    //                        Gizmos.color = Color.red;
-    //                        pos = new Vector3(-width / 2 + x + .5f, -0.5f, -height / 2 + y + .5f);
-    //                        break;
-    //                    case HILL:
-    //                        Gizmos.color = Color.blue;
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0.5f, -height / 2 + y + .5f);
-    //                        break;
-    //                    default:
-    //                        pos = new Vector3(-width / 2 + x + .5f, 0, -height / 2 + y + .5f);
-    //                        break;
-    //                }
+    void castProjection(int x, int z)
+    {
+        if (selectProjectors[x, z] == null)
+        {
+            selectProjectors[x, z] = Instantiate(projections[0], new Vector3(x + TILE_OFFSET, 4, z + TILE_OFFSET), Quaternion.Euler(new Vector3(90, 0, 0)));
+        }
+    }
 
-    //                Gizmos.DrawCube(pos, Vector3.one);
-    //            }
-    //        }
-    //    }
-    //}
+    void initPlayer()
+    {
+        x = 4;
+        z = 4;
+        player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET,PLAYER_HEIGHT,z + TILE_OFFSET), Quaternion.identity);
+    }
+
+    void movePlayer(int x, int z)
+    {
+        player.transform.position = new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET);
+        //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
+    }
 
 }

@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23274049964051632}
   m_Layer: 0
   m_Name: Flat Land
-  m_TagString: Untagged
+  m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

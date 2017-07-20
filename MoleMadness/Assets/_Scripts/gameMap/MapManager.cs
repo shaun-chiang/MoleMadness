@@ -16,6 +16,9 @@ public class MapManager : MonoBehaviour {
     public int x;
     public int z;
     public GameObject player;
+	public GUIText TextDisplay;
+
+
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
@@ -55,6 +58,7 @@ public class MapManager : MonoBehaviour {
         createTilesFromMap();
         initPlayer();
         generating = false;
+		UpdateText("Blank");
     }
 
     void RandomFillMap()
@@ -64,7 +68,7 @@ public class MapManager : MonoBehaviour {
         {
             for (int z = 0; z < height; z++)
             {
-                map[x, z] = new Tile();
+				map[x, z] = new Tile(x,z);
                 map[x, z].tileType = Tile.TileType.FLAT;
             }
         }
@@ -103,6 +107,8 @@ public class MapManager : MonoBehaviour {
                     int x = (int)hit.point.x;
                     int z = (int)hit.point.z;
                     movePlayer(x, z);
+					UpdateText (map[x,z].x + "_" + map[x,z].z);
+					getPaths (x, z, 2);
                 }
             }
         }
@@ -211,6 +217,7 @@ public class MapManager : MonoBehaviour {
                         break;
                 }
                 map[x, z].tileObject.transform.SetParent(transform);
+				map [x, z].links = GenerateLinks (x, z);
             }
         }
     }
@@ -248,4 +255,44 @@ public class MapManager : MonoBehaviour {
         //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
     }
 
+	void UpdateText (string s)
+	{
+		TextDisplay.text = "Info: " + s;
+	}
+
+	List<Tile> GenerateLinks(int x, int z)
+	{
+		List<Tile> output = new List<Tile>();
+		if (x + 1 <= 9) 
+		{
+			output.Add (map[x + 1, z]);
+		}
+		if (x - 1 >= 0) 
+		{
+			output.Add (map[x - 1, z]);
+		}
+		if (z + 1 <= 9) 
+		{
+			output.Add (map[x, z + 1]);
+		}
+		if (z - 1 >= 0) 
+		{
+			output.Add (map[x, z - 1]);
+		}
+		return output;
+	}
+
+	List<Tile> getPaths(int x, int z, int steps)
+	{
+		List<Tile> output = new List<Tile> ();
+		foreach (Tile link in map[x,z].links) {
+			output.Add (link);
+			castProjection (link.x, link.z);
+			if (link.tileType == Tile.TileType.HOLE) {
+				output.AddRange(getPaths (link.x, link.z, 2));
+			}
+		}
+		return output;
+
+	}
 }

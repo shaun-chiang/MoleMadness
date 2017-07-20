@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222679379410575924}
   - component: {fileID: 114979025819616876}
   - component: {fileID: 114307523748523518}
+  - component: {fileID: 114566665050764808}
   m_Layer: 5
   m_Name: scythe
   m_TagString: Untagged
@@ -67,9 +68,32 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114979025819616876}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114566665050764808}
+        m_MethodName: changeMole
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1331901040693006, guid: 2df8c70f66ef1ee4c8006f172f97ad98,
+            type: 2}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114566665050764808
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1723356363150600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f42a718d399c0d40b49ec7f35dddba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114979025819616876
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -89,7 +113,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 25876df2441a45d429458f7c35660b16, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98017271caf7cf34da941b6bda054fd0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

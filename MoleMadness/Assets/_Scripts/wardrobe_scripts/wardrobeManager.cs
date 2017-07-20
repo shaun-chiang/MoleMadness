@@ -11,8 +11,9 @@ public class wardrobeManager : MonoBehaviour {
     public List<GameObject> baby_list = new List<GameObject>();
 
     //POSITIONS 
-    // for equipping: -225, -30
     // for buttons: 37.5, + 75 (x); 82.5, -75 (y)
+
+
 
     // Use this for initialization
     void Start () {

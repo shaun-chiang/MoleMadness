@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Tile
+  - baby
+  - hat
+  - weapon
   layers:
   - Default
   - TransparentFX

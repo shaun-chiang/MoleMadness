@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114307523748523518}
   - component: {fileID: 114566665050764808}
   m_Layer: 5
-  m_Name: scythe
+  m_Name: pickaxe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114566665050764808}
-        m_MethodName: changeMole
+        m_MethodName: changeWeapon
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 1331901040693006, guid: 2df8c70f66ef1ee4c8006f172f97ad98,

@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4799331697739660}
   - component: {fileID: 212319270017140858}
   m_Layer: 0
-  m_Name: scythe_on
+  m_Name: pickaxe_on
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

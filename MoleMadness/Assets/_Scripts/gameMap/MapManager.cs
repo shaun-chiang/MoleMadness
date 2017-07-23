@@ -7,7 +7,7 @@ public class MapManager : MonoBehaviour {
 
     bool generating;
 
-    MapManager instance;
+    public static MapManager instance;
 
     public int width;
     public int height;
@@ -18,13 +18,12 @@ public class MapManager : MonoBehaviour {
     public GameObject player;
 	public GUIText TextDisplay;
 
-
-
     public GameObject hillPrefab;
     public GameObject flatPrefab;
     public GameObject holePrefab;
     public GameObject playerPrefab;
     public GameObject[] projections;
+    public GameObject[] powers;
 
     System.Random pseudoRandom;
     int randomX = 0;
@@ -35,13 +34,24 @@ public class MapManager : MonoBehaviour {
     private Ray ray;
     private RaycastHit hit;
 
-    private const float TILE_SIZE = 1;
-    private const float TILE_OFFSET = 0.5f;
+    public const float TILE_SIZE = 1;
+    public const float TILE_OFFSET = 0.5f;
     // subject to changes
     private const float PLAYER_HEIGHT = 0.5f;
 
-    Tile[,] map;
+    public Tile[,] map;
     private GameObject[,] selectProjectors;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            DestroyObject(gameObject);
+        } else
+        {
+            instance = this;
+        }
+    }
 
     private void Start()
     {
@@ -59,6 +69,11 @@ public class MapManager : MonoBehaviour {
         initPlayer();
         generating = false;
 		UpdateText("Blank");
+    }
+
+    public static MapManager getInstance()
+    {
+        return instance;
     }
 
     void RandomFillMap()
@@ -117,14 +132,28 @@ public class MapManager : MonoBehaviour {
         {
             if (!generating)
             {
-                Debug.Log("Inverting with right click");
+                PowerManager.PowerType powerRandom = (PowerManager.PowerType) pseudoRandom.Next(4);
+
+                Debug.Log("Spawn power with right click");
                 generating = true;
-                invertMap();
+                PowerManager.spawnPower(3, 6, powerRandom);
                 generating = false;
-            } else
+            }
+            else
             {
                 Debug.Log("Pressed right click when generating.");
             }
+
+            //if (!generating)
+            //{
+            //    Debug.Log("Inverting with right click");
+            //    generating = true;
+            //    invertMap();
+            //    generating = false;
+            //} else
+            //{
+            //    Debug.Log("Pressed right click when generating.");
+            //}
         }
 
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);

@@ -16,13 +16,8 @@ public class changeTab : MonoBehaviour {
         tabsList.Add(hats);
         tabsList.Add(clothes);
         tabsList.Add(baby);
-
-        foreach (GameObject i in tabsList)
-        {
-            i.SetActive(false);
-        }
-        tabsList[0].SetActive(true);
-	}
+        
+    }
 	
 	// Update is called once per frame
 	void Update () {

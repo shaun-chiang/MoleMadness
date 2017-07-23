@@ -97,7 +97,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114770534090435012}
-        m_MethodName: changeMole
+        m_MethodName: changeHat
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 1047211656601148, guid: 4965e1f9e499c6f49a1e5e321f08ddfe,

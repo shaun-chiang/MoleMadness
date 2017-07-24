@@ -7,7 +7,8 @@ public class MapManager : MonoBehaviour {
 
     bool generating;
 
-    public static MapManager instance;
+    public static MapManager mapManagerInstance;
+    public static GameManager gameManagerInstance;
 
     public int width;
     public int height;
@@ -15,13 +16,15 @@ public class MapManager : MonoBehaviour {
     public bool useRandomSeed;
     public int x;
     public int z;
-    public GameObject player;
-	public GUIText TextDisplay;
+    public GameObject mother;
+    public GameObject baby;
+    public GUIText TextDisplay;
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
     public GameObject holePrefab;
-    public GameObject playerPrefab;
+    public GameObject motherPrefab;
+    public GameObject babyPrefab;
     public GameObject[] projections;
     public GameObject[] powers;
 
@@ -37,20 +40,23 @@ public class MapManager : MonoBehaviour {
     public const float TILE_SIZE = 1;
     public const float TILE_OFFSET = 0.5f;
     // subject to changes
-    private const float PLAYER_HEIGHT = 0.5f;
+    private const float MOTHER_HEIGHT = 0.5f;
 
     public Tile[,] map;
     private GameObject[,] selectProjectors;
 
     private void Awake()
     {
-        if (instance != null)
+        if (mapManagerInstance != null)
         {
             DestroyObject(gameObject);
         } else
         {
-            instance = this;
+            mapManagerInstance = this;
         }
+
+        GameManager gameManager = new GameManager(GameManager.GameState.SPAWNINGMOTHER);
+        gameManagerInstance = GameManager.getInstance();
     }
 
     private void Start()
@@ -66,14 +72,14 @@ public class MapManager : MonoBehaviour {
         pseudoRandom = new System.Random(seed.GetHashCode());
         RandomFillMap();
         createTilesFromMap();
-        initPlayer();
+        showAvailableSpawnLocations();
         generating = false;
 		UpdateText("Blank");
     }
 
     public static MapManager getInstance()
     {
-        return instance;
+        return mapManagerInstance;
     }
 
     void RandomFillMap()
@@ -117,13 +123,46 @@ public class MapManager : MonoBehaviour {
         {
             if (Physics.Raycast(ray, out hit, 100f))
             {
-                if (hit.collider.tag == "Tile")
+                int x = (int)hit.point.x;
+                int z = (int)hit.point.z;
+                // logic for handling SPAWNINGMOTHER state
+                if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
                 {
-                    int x = (int)hit.point.x;
-                    int z = (int)hit.point.z;
-                    movePlayer(x, z);
-					UpdateText (map[x,z].x + "_" + map[x,z].z);
-					getPaths (x, z, 2);
+                    // check if tile selected is a hole, valid spawning location.
+                    if (map[x, z].tileType == Tile.TileType.HOLE)
+                    {
+                        initMother(x, z);
+                        UpdateText(string.Format("Spawn Mother at {0},{1}", x, z));
+                        gameManagerInstance.currentGameState = GameManager.GameState.SPAWNINGBABY;
+                        clearProjection(x, z);
+                    }
+                    else
+                    {
+                        UpdateText("Target tile is not valid spawning location, please select a hole");
+                    }
+                } else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY)
+                {
+                    // check if tile selected is a hole, valid spawning location.
+                    if (map[x, z].tileType == Tile.TileType.HOLE)
+                    {
+                        if (map[x, z].tileType == Tile.TileType.HOLE)
+                        initBaby(x, z);
+                        UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
+                        gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
+                        clearAllProjections();
+                    }
+                    else
+                    {
+                        UpdateText("Target tile is not valid spawning location, please select a hole");
+                    }
+                } else
+                {
+                    if (hit.collider.tag == "Tile")
+                    {
+                        movePlayer(x, z);
+                        UpdateText(map[x, z].x + "_" + map[x, z].z);
+                        getPaths(x, z, 2);
+                    }
                 }
             }
         }
@@ -263,6 +302,30 @@ public class MapManager : MonoBehaviour {
         }
     }
 
+    void clearAllProjections()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (selectProjectors[x, z] != null)
+                {
+                    DestroyObject(selectProjectors[x, z]);
+                    selectProjectors[x, z] = null;
+                }
+            }
+        }
+    }
+
+    void clearProjection(int x, int z)
+    {
+        if (selectProjectors[x, z] != null)
+        {
+            DestroyObject(selectProjectors[x, z]);
+            selectProjectors[x, z] = null;
+        }
+    }
+
     void castProjection(int x, int z)
     {
         if (selectProjectors[x, z] == null)
@@ -271,16 +334,33 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    void initPlayer()
+    void showAvailableSpawnLocations()
     {
-        x = 4;
-        z = 4;
-        player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET,PLAYER_HEIGHT,z + TILE_OFFSET), Quaternion.identity);
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (map[x, z].tileType == Tile.TileType.HOLE)
+                {
+                    castProjection(x, z);
+                }
+            }
+        }
+    }
+
+    void initMother(int x,int z)
+    {
+        mother = Instantiate(motherPrefab, new Vector3(x + TILE_OFFSET,MOTHER_HEIGHT,z + TILE_OFFSET), Quaternion.identity);
+    }
+
+    void initBaby(int x, int z)
+    {
+        baby = Instantiate(babyPrefab, new Vector3(x + TILE_OFFSET, MOTHER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
     }
 
     void movePlayer(int x, int z)
     {
-        player.transform.position = new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET);
+        mother.transform.position = new Vector3(x + TILE_OFFSET, MOTHER_HEIGHT, z + TILE_OFFSET);
         //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
     }
 

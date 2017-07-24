@@ -145,11 +145,19 @@ public class MapManager : MonoBehaviour {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
                     {
-                        if (map[x, z].tileType == Tile.TileType.HOLE)
-                        initBaby(x, z);
-                        UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
-                        gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
-                        clearAllProjections();
+                        int motherX = (int) mother.transform.position.x;
+                        int motherZ = (int) mother.transform.position.z;
+                        Debug.Log(motherX + "," + motherZ);
+                        if (motherX == x && motherZ == z)
+                        {
+                            UpdateText("You must spawn baby away from mother.");
+                        } else
+                        {
+                            initBaby(x, z);
+                            UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
+                            gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
+                            clearAllProjections();
+                        }
                     }
                     else
                     {

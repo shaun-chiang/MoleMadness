@@ -26,6 +26,16 @@ public class MapManager : MonoBehaviour {
     public GameObject playerPrefab;
     public GameObject[] projections;
 
+	public Color c1 = Color.yellow;
+	public Color c2 = Color.red;
+	public LineRenderer lineRenderer;
+	public Tile currentTile;
+	public Tile playerTile;
+	public int playerSteps;
+	public int steps = 3;
+	public List<Vector3> positions;
+	public bool canMove = false;
+
     System.Random pseudoRandom;
     int randomX = 0;
     int randomZ = 0;
@@ -59,6 +69,26 @@ public class MapManager : MonoBehaviour {
         initPlayer();
         generating = false;
 		UpdateText("Blank");
+
+		lineRenderer = gameObject.AddComponent<LineRenderer>();
+		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
+		lineRenderer.widthMultiplier = 0.2f;
+
+
+		// A simple 2 color gradient with a fixed alpha of 1.0f.
+		float alpha = 1.0f;
+		Gradient gradient = new Gradient();
+		gradient.SetKeys(
+			new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
+			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
+		);
+		lineRenderer.colorGradient = gradient;
+
+		getPaths (x, z, steps, new List<Tile>());	
+		positions = new List<Vector3> ();
+		positions.Add (new Vector3 (x + TILE_OFFSET, 0.5f, z + TILE_OFFSET));
+		currentTile = map [x, z];
+		playerTile = map [x, z];
     }
 
     void RandomFillMap()
@@ -101,17 +131,68 @@ public class MapManager : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             if (Physics.Raycast(ray, out hit, 100f))
-            {
-                if (hit.collider.tag == "Tile")
-                {
-                    int x = (int)hit.point.x;
-                    int z = (int)hit.point.z;
-                    movePlayer(x, z);
-					UpdateText (map[x,z].x + "_" + map[x,z].z);
-					getPaths (x, z, 2);
-                }
+            {	
+				if (hit.collider.tag == "Tile") {
+					int x = (int)hit.point.x;
+					int z = (int)hit.point.z;
+					if (map [x, z] == playerTile) {
+						canMove = true;
+					}
+				}
             }
         }
+		if (Input.GetMouseButton (0)) {	
+			if (Physics.Raycast (ray, out hit, 100f)) {	
+				if (hit.collider.tag == "Tile" && canMove) {
+					int x = (int)hit.point.x;
+					int z = (int)hit.point.z;
+					if (map [x, z] != currentTile) {
+						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
+							currentTile = map [x, z];
+							positions.Add (new Vector3 (x + TILE_OFFSET, 0.5f, z + TILE_OFFSET));
+							if (currentTile.tileType != Tile.TileType.HOLE) {
+								steps -= 1;
+							}
+							UpdateText (steps + "");
+							clearProjection ();
+							getPaths (x, z, steps, new List<Tile> ());
+							lineRenderer.positionCount = positions.Count;
+							lineRenderer.SetPositions (positions.ToArray ());
+						}
+					}
+				}
+			}
+		}
+		if (Input.GetMouseButtonUp (0)) {
+			positions = new List<Vector3> ();
+			if (canMove) {
+				if (Physics.Raycast (ray, out hit, 100f)) {	
+					if (hit.collider.tag == "Tile") {
+						int x = (int)hit.point.x;
+						int z = (int)hit.point.z;
+						if (map [x, z] == currentTile) {
+							movePlayer (x, z);
+							playerSteps = 2;
+							steps = playerSteps;
+							playerTile = map [x, z];
+							currentTile = playerTile;
+						} else {
+							currentTile = playerTile;
+							steps = playerSteps;
+						}
+						clearProjection();
+						getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
+						positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, 0.5f, playerTile.z + TILE_OFFSET));
+					}
+				}
+			}
+			UpdateText (steps + "");
+			canMove = false;
+			lineRenderer.positionCount = 0;
+			lineRenderer.SetPositions (new Vector3[0]);
+		}
+		
+
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -135,7 +216,7 @@ public class MapManager : MonoBehaviour {
                 if (hit.collider.tag == "Tile")
                 {
                     int x = (int) hit.point.x;
-                    int z = (int)hit.point.z;
+                    int z = (int) hit.point.z;
                     Debug.Log("Found Tile.");
                     castProjection(x, z);
                     //Debug.Log(hit.point.ToString());
@@ -241,6 +322,17 @@ public class MapManager : MonoBehaviour {
             selectProjectors[x, z] = Instantiate(projections[0], new Vector3(x + TILE_OFFSET, 4, z + TILE_OFFSET), Quaternion.Euler(new Vector3(90, 0, 0)));
         }
     }
+	void clearProjection()
+	{
+		for (int x = 0; x < width; x++)
+		{
+			for (int z = 0; z < height; z++)
+			{
+				Destroy (selectProjectors [x, z]);
+				selectProjectors [x, z] = null;
+			}
+		}
+	}
 
     void initPlayer()
     {
@@ -257,7 +349,7 @@ public class MapManager : MonoBehaviour {
 
 	void UpdateText (string s)
 	{
-		TextDisplay.text = "Info: " + s;
+		TextDisplay.text = "Steps: " + s;
 	}
 
 	List<Tile> GenerateLinks(int x, int z)
@@ -282,17 +374,32 @@ public class MapManager : MonoBehaviour {
 		return output;
 	}
 
-	List<Tile> getPaths(int x, int z, int steps)
+	List<Tile> getPaths(int x, int z, int steps, List<Tile> explored,bool showProjections = true)
 	{
 		List<Tile> output = new List<Tile> ();
-		foreach (Tile link in map[x,z].links) {
-			output.Add (link);
-			castProjection (link.x, link.z);
-			if (link.tileType == Tile.TileType.HOLE) {
-				output.AddRange(getPaths (link.x, link.z, 2));
+		if (steps !=0){
+		output.Add (map [x, z]);
+		if (showProjections) {
+			castProjection (x, z);
+		}
+			foreach (Tile link in map[x,z].links) {
+				if (!explored.Contains (link)) {
+					output.Add (link);
+					if (showProjections) {
+						castProjection (link.x, link.z);
+					}
+					if (link.tileType == Tile.TileType.HOLE) {
+						output.AddRange (getPaths (link.x, link.z, steps, output));
+					}
+					for (int step = steps - 1; step > 0; step--) {
+						output.AddRange (getPaths (link.x, link.z, step, output));
+					}
+				}
 			}
 		}
+	
 		return output;
 
 	}
+		
 }

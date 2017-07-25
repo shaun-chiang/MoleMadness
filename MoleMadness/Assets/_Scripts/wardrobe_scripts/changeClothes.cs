@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class changeClothes : MonoBehaviour {
 
-    public List<GameObject> hats_list = new List<GameObject>();
-    public List<GameObject> clothes_list = new List<GameObject>();
-    public List<GameObject> baby_list = new List<GameObject>();
 
     // POSITIONS
-    // for equipping: -225, -30
+    // for equipping: -220, -30
+    // baby: -80, -45 
 
     // Use this for initialization
     void Start () {
@@ -20,4 +18,34 @@ public class changeClothes : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void changeHat(GameObject clothes)
+    {
+        GameObject.Destroy(GameObject.FindGameObjectWithTag("hat"));
+
+        GameObject test = Instantiate(clothes);
+        test.transform.position = new Vector3(-220, -30, 0);
+        test.transform.localRotation = Quaternion.identity;
+        test.tag = "hat";
+    }
+
+    public void changeWeapon(GameObject clothes)
+    {
+        GameObject.Destroy(GameObject.FindGameObjectWithTag("weapon"));
+
+        GameObject test = Instantiate(clothes);
+        test.transform.position = new Vector3(-220, -30, 0);
+        test.transform.localRotation = Quaternion.identity;
+        test.tag = "weapon";
+    }
+
+    public void changeBaby(GameObject baby)
+    {
+        GameObject.Destroy(GameObject.FindGameObjectWithTag("baby"));
+
+        GameObject test = Instantiate(baby);
+        test.transform.position = new Vector3(-80, -45, 0);
+        test.transform.localRotation = Quaternion.identity;
+        test.tag = "baby";
+    }
 }

@@ -10,21 +10,39 @@ public class wardrobeManager : MonoBehaviour {
     public List<GameObject> clothes_list = new List<GameObject>();
     public List<GameObject> baby_list = new List<GameObject>();
 
+    public GameObject hats;
+    public GameObject clothes;
+    public GameObject baby;
+
+    public List<GameObject> tabsList = new List<GameObject>();
+
     //POSITIONS 
-    // for equipping: -225, -30
     // for buttons: 37.5, + 75 (x); 82.5, -75 (y)
+
+    // somehow need to get current configuration of clothes? 
 
     // Use this for initialization
     void Start () {
+
         initializeLists("hats", hats_list);
         initializeLists("clothes", clothes_list);
         initializeLists("baby", baby_list);
+
+        tabsList.Add(hats);
+        tabsList.Add(clothes);
+        tabsList.Add(baby);
+
+        foreach (GameObject i in tabsList)
+        {
+            i.SetActive(false);
+        }
+        tabsList[0].SetActive(true);
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+
+    }
 
     void initializeLists(string name, List<GameObject> list)
     {

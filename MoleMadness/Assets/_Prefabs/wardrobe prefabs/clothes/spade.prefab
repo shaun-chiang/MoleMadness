@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222674276484812204}
   - component: {fileID: 114868784037326760}
   - component: {fileID: 114889514322163746}
+  - component: {fileID: 114119227344003670}
   m_Layer: 5
   m_Name: spade
   m_TagString: Untagged
@@ -29,6 +30,17 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114119227344003670
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1714303654068006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f42a718d399c0d40b49ec7f35dddba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114868784037326760
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -94,7 +106,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114868784037326760}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114119227344003670}
+        m_MethodName: changeWeapon
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1077464109830918, guid: 21b7af9202c2a3f4aa26f82b1632a2a9,
+            type: 2}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!222 &222674276484812204

@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4071147244372292}
   - component: {fileID: 212779029418976798}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Mother Mole Sprite 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

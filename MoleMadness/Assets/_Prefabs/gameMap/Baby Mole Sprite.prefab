@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4409694233430868}
   - component: {fileID: 212908697163201278}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Baby Mole Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}

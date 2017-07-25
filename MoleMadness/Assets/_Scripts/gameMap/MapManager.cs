@@ -390,7 +390,7 @@ public class MapManager : MonoBehaviour {
                         break;
                 }
                 map[x, z].tileObject.transform.SetParent(transform);
-				map [x, z].links = GenerateLinks (x, z);
+				map[x, z].links = GenerateLinks (x, z);
             }
         }
     }
@@ -436,6 +436,7 @@ public class MapManager : MonoBehaviour {
         if (selectProjectors[x, z] == null)
         {
             selectProjectors[x, z] = Instantiate(selections[0], new Vector3(x + TILE_OFFSET, PROJECTION_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
+            selectProjectors[x, z].transform.SetParent(transform);
         }
     }
 

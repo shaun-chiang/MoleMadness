@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager{
 
-    public enum GameState { SPAWNINGMOTHER, SPAWNINGBABY, PLAYERTURN, OPPONENTTURN };
+    public enum GameState { SPAWNINGMOTHER, SPAWNINGBABY, PLAYERTURN, OPPONENTTURN, RESPAWNBABY };
 
     public GameState currentGameState;
     public static GameManager instance;

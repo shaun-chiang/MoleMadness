@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.45140117, g: 0.5008937, b: 0.5723182, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -499,13 +499,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 724908182}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.25000006, y: -0.24999997, z: 0.066987306, w: 0.9330127}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: -30, z: 0}
 --- !u!1 &912570005
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,15 +698,24 @@ MonoBehaviour:
   motherPrefab: {fileID: 1756596325735290, guid: 7bf7de99d084d1640b5d1ae73a86ca2a,
     type: 2}
   babyPrefab: {fileID: 1997182225553914, guid: a346fe5a36ec9464e8ebb49f04452024, type: 2}
-  projections:
-  - {fileID: 1478731078883836, guid: 05894455ee6ab4d4f91e2754d48fb32c, type: 2}
-  - {fileID: 1251946591267896, guid: 328734236288da44ca2a9902913a2923, type: 2}
+  selections:
+  - {fileID: 1823903531620974, guid: fe15a64bf16bf8942b99e0edc71da58b, type: 2}
+  - {fileID: 1404299718011032, guid: 5a1bcd2949110674fa74c9879bf13990, type: 2}
+  - {fileID: 1047453265820018, guid: b118cfd3b2f4d07469e8b1ee6034dae9, type: 2}
   powers:
   - {fileID: 1030173267538722, guid: 29b80c6ba67cbca46b95af6e3e6240b8, type: 2}
   - {fileID: 1562591966779698, guid: 5a48d4a1544c8144b97c05b4ede4f90f, type: 2}
   - {fileID: 1962910800195232, guid: 977764fd625eb944ab0d40d2466be82f, type: 2}
   - {fileID: 1255502146233446, guid: f3a514cff87118749b4eb1c8c286170a, type: 2}
   - {fileID: 1699473592672994, guid: 806e4b210ec4e0a4e8c34f3df9937363, type: 2}
+  c1: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  c2: {r: 1, g: 0, b: 0, a: 1}
+  lineRenderer: {fileID: 0}
+  playerSteps: 0
+  steps: 3
+  positions: []
+  canMove: 0
+  pathHeight: 1
 --- !u!4 &1195734646
 Transform:
   m_ObjectHideFlags: 0

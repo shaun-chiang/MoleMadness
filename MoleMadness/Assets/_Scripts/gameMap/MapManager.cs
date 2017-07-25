@@ -33,11 +33,11 @@ public class MapManager : MonoBehaviour {
 	public LineRenderer lineRenderer;
 	public Tile currentTile;
 	public Tile playerTile;
-	public int playerSteps;
+	public int playerSteps = 2;
 	public int steps = 3;
 	public List<Vector3> positions;
 	public bool canMove = false;
-	public int pathHeight = 1;
+	public float pathHeight = 0.2f;
 
     System.Random pseudoRandom;
     int randomX = 0;
@@ -90,7 +90,7 @@ public class MapManager : MonoBehaviour {
 		UpdateText("Blank");
 
 		lineRenderer = gameObject.AddComponent<LineRenderer>();
-		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
+//		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
 		lineRenderer.widthMultiplier = 0.2f;
 
 
@@ -102,12 +102,6 @@ public class MapManager : MonoBehaviour {
 			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
 		);
 		lineRenderer.colorGradient = gradient;
-
-		getPaths (x, z, steps, new List<Tile>());	
-		positions = new List<Vector3> ();
-		positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
-		currentTile = map [x, z];
-		playerTile = map [x, z];
     }
 
     public static MapManager getInstance()
@@ -201,11 +195,19 @@ public class MapManager : MonoBehaviour {
                 } else
                 {
                     if (hit.collider.tag == "Tile")
-                    {
-						if (map [x, z] == playerTile) {
+                    {	
+						UpdateText ("Tile");
+						int motherX = (int) mother.transform.position.x;
+						int motherZ = (int) mother.transform.position.z;
+						if (motherX == x && motherZ == z)
+						{
 							canMove = true;
+							positions = new List<Vector3> ();
+							playerTile = map [x, z];
+							currentTile = map [x, z];
+							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 						}
-                    }
+					} 
                 }
             }
         }
@@ -248,11 +250,10 @@ public class MapManager : MonoBehaviour {
 							currentTile = playerTile;
 							steps = playerSteps;
 						}
-						clearAllSelections();
-						getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
-						positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 					}
 				}
+				clearAllSelections();
+				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
 			}
 			UpdateText (steps + "");
 			canMove = false;

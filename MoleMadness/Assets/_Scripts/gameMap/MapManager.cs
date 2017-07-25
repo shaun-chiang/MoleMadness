@@ -25,7 +25,7 @@ public class MapManager : MonoBehaviour {
     public GameObject holePrefab;
     public GameObject motherPrefab;
     public GameObject babyPrefab;
-    public GameObject[] projections;
+    public GameObject[] selections;
     public GameObject[] powers;
 
 	public Color c1 = Color.yellow;
@@ -37,6 +37,7 @@ public class MapManager : MonoBehaviour {
 	public int steps = 3;
 	public List<Vector3> positions;
 	public bool canMove = false;
+	public int pathHeight = 1;
 
     System.Random pseudoRandom;
     int randomX = 0;
@@ -49,8 +50,10 @@ public class MapManager : MonoBehaviour {
 
     public const float TILE_SIZE = 1;
     public const float TILE_OFFSET = 0.5f;
-    // subject to changes
-    private const float MOTHER_HEIGHT = 0.5f;
+    
+    private const float CHARACTER_HEIGHT = 0.01f;
+    private const float PROJECTION_HEIGHT = 0.00f;
+    private Quaternion CHARACTER_ROTATION = Quaternion.Euler(new Vector3(90,0,0));
 
     public Tile[,] map;
     private GameObject[,] selectProjectors;
@@ -102,7 +105,7 @@ public class MapManager : MonoBehaviour {
 
 		getPaths (x, z, steps, new List<Tile>());	
 		positions = new List<Vector3> ();
-		positions.Add (new Vector3 (x + TILE_OFFSET, 0.5f, z + TILE_OFFSET));
+		positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
 		currentTile = map [x, z];
 		playerTile = map [x, z];
     }
@@ -164,8 +167,9 @@ public class MapManager : MonoBehaviour {
                         initMother(x, z);
                         UpdateText(string.Format("Spawn Mother at {0},{1}", x, z));
                         gameManagerInstance.currentGameState = GameManager.GameState.SPAWNINGBABY;
-                        clearProjection(x, z);
+
 						playerTile = map [x, z];
+                        clearSelection(x, z);
                     }
                     else
                     {
@@ -187,7 +191,7 @@ public class MapManager : MonoBehaviour {
                             initBaby(x, z);
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
                             gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
-                            clearAllProjections();
+                            clearAllSelections();
                         }
                     }
                     else
@@ -213,12 +217,12 @@ public class MapManager : MonoBehaviour {
 					if (map [x, z] != currentTile) {
 						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
 							currentTile = map [x, z];
-							positions.Add (new Vector3 (x + TILE_OFFSET, 0.5f, z + TILE_OFFSET));
+							positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
 							if (currentTile.tileType != Tile.TileType.HOLE) {
 								steps -= 1;
 							}
 							UpdateText (steps + "");
-							clearProjection ();
+							clearAllSelections();
 							getPaths (x, z, steps, new List<Tile> ());
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
@@ -244,9 +248,9 @@ public class MapManager : MonoBehaviour {
 							currentTile = playerTile;
 							steps = playerSteps;
 						}
-						clearProjection();
+						clearAllSelections();
 						getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
-						positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, 0.5f, playerTile.z + TILE_OFFSET));
+						positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 					}
 				}
 			}
@@ -296,7 +300,7 @@ public class MapManager : MonoBehaviour {
                     int x = (int) hit.point.x;
                     int z = (int) hit.point.z;
                     Debug.Log("Found Tile.");
-                    castProjection(x, z);
+                    castSelection(x, z);
                     //Debug.Log(hit.point.ToString());
                     //Debug.Log(string.Format("x: {0}, z: {1}",x,z));
                 }
@@ -393,7 +397,7 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    void clearAllProjections()
+    void clearAllSelections()
     {
         for (int x = 0; x < width; x++)
         {
@@ -408,7 +412,7 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    void clearProjection(int x, int z)
+    void clearSelection(int x, int z)
     {
         if (selectProjectors[x, z] != null)
         {
@@ -417,24 +421,14 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    void castProjection(int x, int z)
+    void castSelection(int x, int z)
     {
         if (selectProjectors[x, z] == null)
         {
-            selectProjectors[x, z] = Instantiate(projections[0], new Vector3(x + TILE_OFFSET, 4, z + TILE_OFFSET), Quaternion.Euler(new Vector3(90, 0, 0)));
+            selectProjectors[x, z] = Instantiate(selections[0], new Vector3(x + TILE_OFFSET, PROJECTION_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
         }
     }
-	void clearProjection()
-	{
-		for (int x = 0; x < width; x++)
-		{
-			for (int z = 0; z < height; z++)
-			{
-				Destroy (selectProjectors [x, z]);
-				selectProjectors [x, z] = null;
-			}
-		}
-	}
+
 
     void showAvailableSpawnLocations()
     {
@@ -444,7 +438,7 @@ public class MapManager : MonoBehaviour {
             {
                 if (map[x, z].tileType == Tile.TileType.HOLE)
                 {
-                    castProjection(x, z);
+                    castSelection(x, z);
                 }
             }
         }
@@ -452,17 +446,17 @@ public class MapManager : MonoBehaviour {
 
     void initMother(int x,int z)
     {
-        mother = Instantiate(motherPrefab, new Vector3(x + TILE_OFFSET,MOTHER_HEIGHT,z + TILE_OFFSET), Quaternion.identity);
+        mother = Instantiate(motherPrefab, new Vector3(x + TILE_OFFSET,CHARACTER_HEIGHT,z + TILE_OFFSET), CHARACTER_ROTATION);
     }
 
     void initBaby(int x, int z)
     {
-        baby = Instantiate(babyPrefab, new Vector3(x + TILE_OFFSET, MOTHER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
+        baby = Instantiate(babyPrefab, new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET), CHARACTER_ROTATION);
     }
 
     void movePlayer(int x, int z)
     {
-        mother.transform.position = new Vector3(x + TILE_OFFSET, MOTHER_HEIGHT, z + TILE_OFFSET);
+        mother.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
         //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
     }
 
@@ -499,13 +493,13 @@ public class MapManager : MonoBehaviour {
 		if (steps !=0){
 		output.Add (map [x, z]);
 		if (showProjections) {
-			castProjection (x, z);
+				castSelection(x, z);
 		}
 			foreach (Tile link in map[x,z].links) {
 				if (!explored.Contains (link)) {
 					output.Add (link);
 					if (showProjections) {
-						castProjection (link.x, link.z);
+						castSelection (link.x, link.z);
 					}
 					if (link.tileType == Tile.TileType.HOLE) {
 						output.AddRange (getPaths (link.x, link.z, steps, output));

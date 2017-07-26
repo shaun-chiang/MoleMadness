@@ -37,6 +37,7 @@ public class MapManager : MonoBehaviour {
 	public int steps = 3;
 	public List<Vector3> positions;
 	public bool canMove = false;
+
 	public float pathHeight = 0.02f;
 
     System.Random pseudoRandom;
@@ -201,6 +202,7 @@ public class MapManager : MonoBehaviour {
 						int motherZ = (int) mother.transform.position.z;
 						if (motherX == x && motherZ == z)
 						{
+							// Set true when player is clicked to allow tracking when mouse held down
 							canMove = true;
 							positions = new List<Vector3> ();
 							playerTile = map [x, z];
@@ -216,12 +218,16 @@ public class MapManager : MonoBehaviour {
 				if (hit.collider.tag == "Tile" && canMove) {
 					int x = (int)hit.point.x;
 					int z = (int)hit.point.z;
+					Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
 					if (map [x, z] != currentTile) {
 						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
 							currentTile = map [x, z];
 							positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
 							if (currentTile.tileType != Tile.TileType.HOLE) {
 								steps -= 1;
+							}
+							if (currentTile.tileType == Tile.TileType.HILL) {
+								steps = 0;
 							}
 							UpdateText (steps + "");
 							clearAllSelections();
@@ -238,23 +244,27 @@ public class MapManager : MonoBehaviour {
 			if (canMove) {
 				if (Physics.Raycast (ray, out hit, 100f)) {	
 					if (hit.collider.tag == "Tile") {
-						int x = (int)hit.point.x;
-						int z = (int)hit.point.z;
-						if (map [x, z] == currentTile) {
-							movePlayer (x, z);
-							playerSteps = 2;
-							steps = playerSteps;
-							playerTile = map [x, z];
+						float x = hit.point.x;
+						float z = hit.point.z;
+						Debug.Log (string.Format ("UPPP x: {0}, z: {1}", x, z));
+						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
+						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
+							Debug.Log ("in");
+							//							movePlayer ((int)x, (int)z);
+							movePlayer(currentTile.x,currentTile.z);
+//							playerTile = map [(int)x, (int)z];
+							playerTile = currentTile;
 							currentTile = playerTile;
 						} else {
 							currentTile = playerTile;
-							steps = playerSteps;
 						}
 					}
 				}
 				clearAllSelections();
 				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
 			}
+			playerSteps = 2;
+			steps = playerSteps;
 			UpdateText (steps + "");
 			canMove = false;
 			lineRenderer.positionCount = 0;

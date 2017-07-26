@@ -14,8 +14,6 @@ public class MapManager : MonoBehaviour {
     public int height;
     public string seed;
     public bool useRandomSeed;
-    public int x;
-    public int z;
     public GameObject mother;
     public GameObject baby;
     public GUIText TextDisplay;
@@ -41,8 +39,6 @@ public class MapManager : MonoBehaviour {
 	public float pathHeight = 0.02f;
 
     System.Random pseudoRandom;
-    int randomX = 0;
-    int randomZ = 0;
 
     const int initHoleNumber = 8;
 
@@ -170,7 +166,7 @@ public class MapManager : MonoBehaviour {
                     {
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
-                } else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY)
+                } else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY || gameManagerInstance.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
@@ -178,9 +174,9 @@ public class MapManager : MonoBehaviour {
                         int motherX = (int) mother.transform.position.x;
                         int motherZ = (int) mother.transform.position.z;
                         Debug.Log(motherX + "," + motherZ);
-                        if (motherX == x && motherZ == z)
+                        if (motherX == x && motherZ == z && gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY)
                         {
-                            UpdateText("You must spawn baby away from mother.");
+                            UpdateText("You must spawn baby away from mother for the start of the game");
                         } else
                         {
                             initBaby(x, z);
@@ -324,6 +320,8 @@ public class MapManager : MonoBehaviour {
     {
         // Init holes
         int holeCount = 0;
+        int randomX = 0;
+        int randomZ = 0;
         while (holeCount < initHoleNumber)
         {
             randomX = pseudoRandom.Next(0, width);

@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4777537090814030}
   - component: {fileID: 212726681758069376}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Hole Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}

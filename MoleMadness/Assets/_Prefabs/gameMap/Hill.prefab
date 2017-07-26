@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4368393043026494}
   - component: {fileID: 212290513712601026}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Hill Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -37,7 +37,7 @@ public class MapManager : MonoBehaviour {
 	public int steps = 3;
 	public List<Vector3> positions;
 	public bool canMove = false;
-	public float pathHeight = 0.2f;
+	public float pathHeight = 0.02f;
 
     System.Random pseudoRandom;
     int randomX = 0;

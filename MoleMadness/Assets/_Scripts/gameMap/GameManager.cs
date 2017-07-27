@@ -35,11 +35,29 @@ public class GameManager{
         return PlayerPrefs.GetString("GameSeed");
     }
 
+    public static void getPlayerId()
+    {
+        new AccountDetailsRequest().Send((response) =>
+        {
+            Debug.Log("Requesting Account Details...");
+            if (!response.HasErrors)
+            {
+                Debug.Log("Got Player Details");
+                Debug.Log(response.JSONString);
+            }
+            else
+            {
+                Debug.Log("Error Receiving Account Details");
+            }
+        });
+    }
+
     public static void initPosition(int MotherX, int MotherZ, int BabyX, int BabyZ)
     {
-        
+        string cid = getChallengeId();
+        Debug.Log(string.Format("Init mother at {0},{1} and baby at {2},{3} using challengeId {4}",MotherX,MotherZ,BabyX,BabyZ,cid));
         new LogChallengeEventRequest().SetEventKey("action_SETPOS")
-           .SetEventAttribute("challengeInstanceId",getChallengeId())
+           .SetEventAttribute("challengeInstanceId", cid)
            .SetEventAttribute("babyX", BabyX)
            .SetEventAttribute("babyY", BabyZ)
            .SetEventAttribute("motherX", MotherX)
@@ -54,6 +72,7 @@ public class GameManager{
                else
                {
                    Debug.Log("Error with Positions");
+                   Debug.Log(response.JSONString);
                }
            });
 

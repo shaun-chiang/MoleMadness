@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 public class GameSparksListener : MonoBehaviour {
     // Use this for initialization
     private string seed;
-    private string myID;
     void Awake()
     {
         ChallengeStartedMessage.Listener += ChallengeStartedMessageHandler;
@@ -15,18 +14,25 @@ public class GameSparksListener : MonoBehaviour {
     void ChallengeStartedMessageHandler(ChallengeStartedMessage message)
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
+        Debug.Log(jsonmessage);
         seed = jsonmessage["challenge"]["challengeId"].ToString();
+        seed = seed.Substring(1, seed.Length - 2);
         Debug.Log(seed);
         PlayerPrefs.SetString("GameSeed",seed); //use this as seed for match
-        myID = jsonmessage["challenge"]["playerId"].ToString();
-        string player1ID = jsonmessage["challenge"]["player1"].ToString();
-        if (myID == player1ID)
+        //string myId = PlayerPrefs.GetString("playerId");
+        // testing only
+        string myId = "12345";
+        Debug.Log(myId);
+        string player1Id = jsonmessage["challenge"]["scriptData"]["player1"].ToString();
+        Debug.Log(player1Id);
+        if (myId == player1Id)
         {
             PlayerPrefs.SetInt("player1", 1);
         } else
         {
             PlayerPrefs.SetInt("player1", 0);
         }
-        SceneManager.LoadScene(4);
+        Debug.Log("Loading Game Map");
+        SceneManager.LoadScene("Game Map");
     }
 }

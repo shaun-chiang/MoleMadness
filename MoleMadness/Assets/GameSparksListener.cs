@@ -14,5 +14,6 @@ public class GameSparksListener : MonoBehaviour {
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
         Debug.Log(jsonmessage["challenge"]["challengeId"]); //use this as seed for match
+        GameManager gameManager = GameManager.getInstance();
     }
 }

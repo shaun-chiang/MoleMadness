@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using GameSparks.Api.Responses;
+using GameSparks.Api.Requests;
 
 public class MapManager : MonoBehaviour {
 

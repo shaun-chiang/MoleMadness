@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GameSparks.Api.Requests;
 
 public class wardrobeManager : MonoBehaviour {
 
@@ -22,9 +23,32 @@ public class wardrobeManager : MonoBehaviour {
     // somehow need to get current configuration of clothes? 
 
     // Use this for initialization
+
+
     void Start () {
 
-        initializeEquipped(); 
+        initializeEquipped();
+
+        // Sample: How to get shop items. Categories are "Hat", "Baby", "Weapon" //
+        List<string> tags = new List<string>();
+        tags.Add("Hat");
+        new ListVirtualGoodsRequest()
+            .SetTags(tags) // set this to Tag above^
+            .Send((response) =>
+            {
+                Debug.Log("Requesting Virtual Goods...");
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Got virtual goods details");
+                    Debug.Log(response.JSONString);
+                }
+                else
+                {
+                    Debug.Log("Error Receiving virtual goods details");
+                }
+            });
+
+        // End sample //
 
         initializeLists("hats", hats_list);
         initializeLists("clothes", clothes_list);

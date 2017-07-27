@@ -26,3 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/PostMatch.unity
     guid: 3be981681d48ec146800d0495d0e6fd5
+  - enabled: 1
+    path: Assets/_Scenes/Wardrobe.unity
+    guid: 00000000000000000000000000000000

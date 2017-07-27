@@ -9,6 +9,17 @@ using Facebook.Unity;
 
 public class RegisterPlayer : MonoBehaviour
 {
+    private void Start()
+    {
+        if (PlayerPrefs.HasKey("username"))
+        {
+            userNameInput.text = PlayerPrefs.GetString("PlayerName");
+        }
+        else if (PlayerPrefs.HasKey("Facebook"))
+        {
+            FacebookConnect_bttn();
+        }
+    }
 
     public Text displayNameInput, userNameInput, passwordInput, notificationText;
     public void RegisterPlayerBttn()
@@ -25,6 +36,7 @@ public class RegisterPlayer : MonoBehaviour
               {
                   Debug.Log("Player Registered");
                   notificationText.text = "Player Registered";
+                  AuthorizePlayerBttn();
               }
               else
               {
@@ -48,7 +60,7 @@ public class RegisterPlayer : MonoBehaviour
                     Debug.Log("Player Authenticated...");
                     notificationText.text = "Player Authenticated";
                     PlayerPrefs.SetString("PlayerName", userNameInput.text);
-                    SceneManager.LoadScene(2);
+                    SceneManager.LoadScene("PreMatch");
 
                 }
                 else
@@ -95,8 +107,8 @@ public class RegisterPlayer : MonoBehaviour
                         if (!fbauth_response.HasErrors){
                             notificationText.text = "GameSparks Authenticated With Facebook...";
                             Debug.Log(fbauth_response.DisplayName);
-
-                            SceneManager.LoadScene(1);
+                            PlayerPrefs.SetInt("Facebook", 1);
+                            SceneManager.LoadScene("PreMatch");
                         }
                         else{
                             Debug.LogWarning(fbauth_response.Errors.JSON);//if we have errors, print them out

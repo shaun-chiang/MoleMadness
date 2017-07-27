@@ -11,11 +11,12 @@ public class MapManager : MonoBehaviour {
 
     public static MapManager mapManagerInstance;
     public static GameManager gameManagerInstance;
+    public static GameObject mapInstance;
 
     public int width;
     public int height;
     public string seed;
-    public bool useRandomSeed;
+    public bool player1;
     public GameObject mother;
     public GameObject baby;
     public GUIText TextDisplay;
@@ -69,6 +70,7 @@ public class MapManager : MonoBehaviour {
 
         GameManager gameManager = new GameManager(GameManager.GameState.SPAWNINGMOTHER);
         gameManagerInstance = GameManager.getInstance();
+        mapInstance = gameObject;
     }
 
     private void Start()
@@ -77,12 +79,17 @@ public class MapManager : MonoBehaviour {
         selectProjectors = new GameObject[10,10];
 
         map = new Tile[width, height];
-        if (useRandomSeed)
-        {
-            seed = DateTime.Now.ToString();
-        }
+        seed = GameManager.getChallengeId();
         pseudoRandom = new System.Random(seed.GetHashCode());
         RandomFillMap();
+        if (PlayerPrefs.GetInt("player1") == 1)
+        {
+            player1 = true;
+        } else
+        {
+            player1 = false;
+            invertMap();
+        }
         createTilesFromMap();
         showAvailableSpawnLocations();
         generating = false;
@@ -185,6 +192,7 @@ public class MapManager : MonoBehaviour {
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
                             gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
                             clearAllSelections();
+                            GameManager.initPosition(motherX,motherZ,x,z);
                         }
                     }
                     else
@@ -348,6 +356,8 @@ public class MapManager : MonoBehaviour {
         }
     }
 
+    // invert the map before they are generated, change hill to hole and vice versa
+    // method is called for player 2
     void invertMap()
     {
         for (int x = 0; x < width; x++)
@@ -356,15 +366,15 @@ public class MapManager : MonoBehaviour {
             {
                 if (map[x, z].tileType == Tile.TileType.HILL)
                 {
-                    Destroy(map[x, z].tileObject);
+                    //Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HOLE;
-                    map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                    //map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                 }
                 else if (map[x, z].tileType == Tile.TileType.HOLE)
                 {
-                    Destroy(map[x, z].tileObject);
+                    //Destroy(map[x, z].tileObject);
                     map[x, z].tileType = Tile.TileType.HILL;
-                    map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                    //map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
                 }
             }
         }

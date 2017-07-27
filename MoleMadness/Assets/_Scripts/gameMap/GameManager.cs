@@ -10,7 +10,8 @@ public class GameManager{
     public enum Characters { MOTHER, BABY }
 
     public GameState currentGameState;
-    public static GameManager instance;
+    public static GameManager gameManagerinstance;
+    public static MapManager mapManagerinstance;
     public bool player1;
 
     public GameManager(GameState gameState)
@@ -18,22 +19,27 @@ public class GameManager{
         currentGameState = gameState;
         // for testing, to be init from gamespark
         player1 = true;
-        if (instance == null)
+        if (gameManagerinstance == null)
         {
-            instance = this;
+            gameManagerinstance = this;
         }
     }
 
     public static GameManager getInstance()
     {
-        return instance;
+        return gameManagerinstance;
+    }
+
+    public static string getChallengeId()
+    {
+        return PlayerPrefs.GetString("GameSeed");
     }
 
     public static void initPosition(int MotherX, int MotherZ, int BabyX, int BabyZ)
     {
         
         new LogChallengeEventRequest().SetEventKey("action_SETPOS")
-           .SetEventAttribute("challengeInstanceId","597957ae57203b04d00739ea")
+           .SetEventAttribute("challengeInstanceId",getChallengeId())
            .SetEventAttribute("babyX", BabyX)
            .SetEventAttribute("babyY", BabyZ)
            .SetEventAttribute("motherX", MotherX)

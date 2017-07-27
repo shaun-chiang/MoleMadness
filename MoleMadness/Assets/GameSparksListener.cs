@@ -15,14 +15,11 @@ public class GameSparksListener : MonoBehaviour {
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
         Debug.Log(jsonmessage);
-        seed = jsonmessage["challenge"]["challengeId"].ToString();
-        seed = seed.Substring(1, seed.Length - 2);
+        seed = jsonmessage["challenge"]["challengeId"].ToString().Replace("\"", "");
         Debug.Log(seed);
         PlayerPrefs.SetString("GameSeed",seed); //use this as seed for match
-        //string myId = PlayerPrefs.GetString("playerId");
-        // testing only
-        string myId = "12345";
-        Debug.Log(myId);
+        string myId = PlayerPrefs.GetString("playerId").Replace("\"","");
+        Debug.Log(string.Format("myID: {0}", myId));
         string player1Id = jsonmessage["challenge"]["scriptData"]["player1"].ToString();
         Debug.Log(player1Id);
         if (myId == player1Id)

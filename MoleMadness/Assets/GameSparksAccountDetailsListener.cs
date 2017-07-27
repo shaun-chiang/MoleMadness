@@ -20,7 +20,7 @@ public class GameSparksAccountDetailsListener : MonoBehaviour {
                 Debug.Log(jsonmessage);
                 Debug.Log(jsonmessage["scriptData"]["equippedItems"]);
                 PlayerPrefs.SetString("playerId", jsonmessage["userId"].ToString());
-                PlayerPrefs.SetString("equipped", jsonmessage["scriptData"]["equippedItems"].ToString());
+                PlayerPrefs.SetString("equipped", jsonmessage["scriptData"]["equippedItems"]["equip"].ToString());
                 PlayerPrefs.SetString("virtualgoods", jsonmessage["virtualGoods"].ToString());
                 PlayerPrefs.SetString("rank", jsonmessage["scriptData"]["rank"].ToString());
                 PlayerPrefs.SetString("stars", jsonmessage["scriptData"]["stars"].ToString());

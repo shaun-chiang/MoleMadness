@@ -48,7 +48,7 @@ public class RegisterPlayer : MonoBehaviour
                     Debug.Log("Player Authenticated...");
                     notificationText.text = "Player Authenticated";
                     PlayerPrefs.SetString("PlayerName", userNameInput.text);
-                    SceneManager.LoadScene(1);
+                    SceneManager.LoadScene(2);
 
                 }
                 else

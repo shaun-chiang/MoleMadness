@@ -21,6 +21,10 @@ public class MapManager : MonoBehaviour
     public GameObject mother;
     public GameObject baby;
     public GUIText TextDisplay;
+    public GUIText moveText;
+    public GUIText instructionText;
+    public GUIText myBabyText;
+    public GUIText oppBabyText;
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
@@ -169,6 +173,7 @@ public class MapManager : MonoBehaviour
                     {
                         initMother(x, z);
                         UpdateText(string.Format("Spawn Mother at {0},{1}", x, z));
+                        instructionText.text = "Place Baby";
                         gameManagerInstance.currentGameState = GameManager.GameState.SPAWNINGBABY;
 
                         playerTile = map[x, z];
@@ -275,7 +280,7 @@ public class MapManager : MonoBehaviour
                         {
                             Debug.Log("in");
                             //							movePlayer ((int)x, (int)z);
-                            movePlayer(currentTile.x, currentTile.z);
+                            checkMove(currentTile.x, currentTile.z);
                             //							playerTile = map [(int)x, (int)z];
                             playerTile = currentTile;
                             currentTile = playerTile;

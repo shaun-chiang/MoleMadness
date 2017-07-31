@@ -14,12 +14,11 @@ public class GameManager
     public GameState currentGameState;
     public static GameManager gameManagerinstance;
     public static MapManager mapManagerinstance;
-    public bool player1;
-    public int movesLeft;
-    public bool myTurn;
+    public static bool player1;
+    public static int movesLeft;
+    public static bool myTurn;
     public static int myBabyHealth;
     public static int oppBabyHealth;
-    private MoveResult moveResultHolder;
 
     public GameManager(GameState gameState)
     {
@@ -27,6 +26,10 @@ public class GameManager
         if (gameManagerinstance == null)
         {
             gameManagerinstance = this;
+        }
+        if (mapManagerinstance == null)
+        {
+            mapManagerinstance = MapManager.getInstance();
         }
     }
 
@@ -43,14 +46,14 @@ public class GameManager
     public static void initGame(JSONObject jsonmessage)
     {
         // init new game
-        Debug.Log(jsonmessage);
+        //Debug.Log(jsonmessage);
         string seed = jsonmessage["challenge"]["challengeId"].ToString().Replace("\"", "");
-        Debug.Log(seed);
+        //Debug.Log(seed);
         PlayerPrefs.SetString("GameSeed", seed); //use this as seed for match
         string myId = PlayerPrefs.GetString("playerId").Replace("\"", "");
-        Debug.Log(string.Format("myID: {0}", myId));
+        //Debug.Log(string.Format("myID: {0}", myId));
         string player1Id = jsonmessage["challenge"]["scriptData"]["player1"].ToString().Replace("\"", "");
-        Debug.Log(string.Format("player1Id: {0}", player1Id));
+        //Debug.Log(string.Format("player1Id: {0}", player1Id));
         if (myId == player1Id)
         {
             PlayerPrefs.SetInt("player1", 1);
@@ -63,6 +66,11 @@ public class GameManager
         // init Baby Health
         myBabyHealth = 3;
         oppBabyHealth = 3;
+        mapManagerinstance.oppBabyText.text = "My Baby: " + myBabyHealth;
+        mapManagerinstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+
+        // set Instruction to place Mother Mole
+        mapManagerinstance.instructionText.text = "Place Mother";
     }
 
     public static void initPosition(int MotherX, int MotherZ, int BabyX, int BabyZ)
@@ -80,7 +88,18 @@ public class GameManager
                if (!response.HasErrors)
                {
                    Debug.Log("Positions Set");
-
+                   if (PlayerPrefs.GetInt("player1") == 1)
+                   {
+                       player1 = true;
+                       myTurn = true;
+                       mapManagerinstance.instructionText.text = "Move Mother";
+                   }
+                   else
+                   {
+                       player1 = false;
+                       myTurn = false;
+                       mapManagerinstance.instructionText.text = "Opponent's turn";
+                   }
                }
                else
                {
@@ -100,19 +119,23 @@ public class GameManager
             .Send((response) =>
             {
                 if (!response.HasErrors)
-                { 
-                    JSONObject jsonmessage = new JSONObject((JSONObject)response.JSONData);
-                    Debug.Log(jsonmessage["scriptData"]);
+                {
+                    //Debug.Log(response.JSONString);
+                    JSONObject jsonmessage = new JSONObject(response.JSONString);
+                    //Debug.Log(jsonmessage["scriptData"]);
                     if (jsonmessage["scriptData"]["Result"].ToString() == "Hit Baby")
                     {
                         Debug.Log("Opponent baby mole hit");
                         oppBabyHealth -= 1;
+                        mapManagerinstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
                     }
                     else
                     {
                         Debug.Log("Nothing particular happen");
                     }
                     mapManagerinstance.movePlayer(x, z);
+                    movesLeft -= 1;
+                    mapManagerinstance.moveText.text = "Move: " + movesLeft;
                 }
                 else
                 {

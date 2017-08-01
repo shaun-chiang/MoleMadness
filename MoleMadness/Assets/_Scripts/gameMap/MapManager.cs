@@ -5,7 +5,8 @@ using System;
 using GameSparks.Api.Responses;
 using GameSparks.Api.Requests;
 
-public class MapManager : MonoBehaviour {
+public class MapManager : MonoBehaviour
+{
 
     bool generating;
 
@@ -20,6 +21,10 @@ public class MapManager : MonoBehaviour {
     public GameObject mother;
     public GameObject baby;
     public GUIText TextDisplay;
+    public GUIText moveText;
+    public GUIText instructionText;
+    public GUIText myBabyText;
+    public GUIText oppBabyText;
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
@@ -29,17 +34,17 @@ public class MapManager : MonoBehaviour {
     public GameObject[] selections;
     public GameObject[] powers;
 
-	public Color c1 = Color.yellow;
-	public Color c2 = Color.red;
-	public LineRenderer lineRenderer;
-	public Tile currentTile;
-	public Tile playerTile;
-	public int playerSteps = 2;
-	public int steps = 3;
-	public List<Vector3> positions;
-	public bool canMove = false;
+    public Color c1 = Color.yellow;
+    public Color c2 = Color.red;
+    public LineRenderer lineRenderer;
+    public Tile currentTile;
+    public Tile playerTile;
+    public int playerSteps = 2;
+    public int steps = 3;
+    public List<Vector3> positions;
+    public bool canMove = false;
 
-	public float pathHeight = 0.02f;
+    public float pathHeight = 0.02f;
 
     System.Random pseudoRandom;
 
@@ -50,10 +55,10 @@ public class MapManager : MonoBehaviour {
 
     public const float TILE_SIZE = 1;
     public const float TILE_OFFSET = 0.5f;
-    
+
     private const float CHARACTER_HEIGHT = 0.01f;
     private const float PROJECTION_HEIGHT = 0.00f;
-    private Quaternion CHARACTER_ROTATION = Quaternion.Euler(new Vector3(90,0,0));
+    private Quaternion CHARACTER_ROTATION = Quaternion.Euler(new Vector3(90, 0, 0));
 
     public Tile[,] map;
     private GameObject[,] selectProjectors;
@@ -63,7 +68,8 @@ public class MapManager : MonoBehaviour {
         if (mapManagerInstance != null)
         {
             DestroyObject(gameObject);
-        } else
+        }
+        else
         {
             mapManagerInstance = this;
         }
@@ -76,7 +82,7 @@ public class MapManager : MonoBehaviour {
     private void Start()
     {
         generating = true;
-        selectProjectors = new GameObject[10,10];
+        selectProjectors = new GameObject[10, 10];
 
         map = new Tile[width, height];
         seed = GameManager.getChallengeId();
@@ -85,7 +91,8 @@ public class MapManager : MonoBehaviour {
         if (PlayerPrefs.GetInt("player1") == 1)
         {
             player1 = true;
-        } else
+        }
+        else
         {
             player1 = false;
             invertMap();
@@ -93,21 +100,21 @@ public class MapManager : MonoBehaviour {
         createTilesFromMap();
         showAvailableSpawnLocations();
         generating = false;
-		UpdateText("Blank");
+        UpdateText("Blank");
 
-		lineRenderer = gameObject.AddComponent<LineRenderer>();
-//		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
-		lineRenderer.widthMultiplier = 0.2f;
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        //		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
+        lineRenderer.widthMultiplier = 0.2f;
 
 
-		// A simple 2 color gradient with a fixed alpha of 1.0f.
-		float alpha = 1.0f;
-		Gradient gradient = new Gradient();
-		gradient.SetKeys(
-			new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
-			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
-		);
-		lineRenderer.colorGradient = gradient;
+        // A simple 2 color gradient with a fixed alpha of 1.0f.
+        float alpha = 1.0f;
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
+        );
+        lineRenderer.colorGradient = gradient;
     }
 
     public static MapManager getInstance()
@@ -122,13 +129,13 @@ public class MapManager : MonoBehaviour {
         {
             for (int z = 0; z < height; z++)
             {
-				map[x, z] = new Tile(x,z);
+                map[x, z] = new Tile(x, z);
                 map[x, z].tileType = Tile.TileType.FLAT;
             }
         }
 
         randomGenerateHolesAndHills();
-        
+
     }
 
     void Update()
@@ -155,7 +162,7 @@ public class MapManager : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             if (Physics.Raycast(ray, out hit, 100f))
-            {	
+            {
                 int x = (int)hit.point.x;
                 int z = (int)hit.point.z;
                 // logic for handling SPAWNINGMOTHER state
@@ -166,124 +173,142 @@ public class MapManager : MonoBehaviour {
                     {
                         initMother(x, z);
                         UpdateText(string.Format("Spawn Mother at {0},{1}", x, z));
+                        instructionText.text = "Place Baby";
                         gameManagerInstance.currentGameState = GameManager.GameState.SPAWNINGBABY;
 
-						playerTile = map [x, z];
+                        playerTile = map[x, z];
                         clearSelection(x, z);
                     }
                     else
                     {
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
-                } else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY || gameManagerInstance.currentGameState == GameManager.GameState.RESPAWNBABY)
+                }
+                else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY || gameManagerInstance.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
                     {
-                        int motherX = (int) mother.transform.position.x;
-                        int motherZ = (int) mother.transform.position.z;
+                        int motherX = (int)mother.transform.position.x;
+                        int motherZ = (int)mother.transform.position.z;
                         Debug.Log(motherX + "," + motherZ);
                         if (motherX == x && motherZ == z && gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY)
                         {
                             UpdateText("You must spawn baby away from mother for the start of the game");
-                        } else
+                        }
+                        else
                         {
                             initBaby(x, z);
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
                             gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
                             clearAllSelections();
-                            GameManager.initPosition(motherX,motherZ,x,z);
+                            GameManager.initPosition(motherX, motherZ, x, z);
                         }
                     }
                     else
                     {
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
-                } else
+                }
+                else
                 {
                     if (hit.collider.tag == "Tile")
-                    {	
-						UpdateText ("Tile");
-						int motherX = (int) mother.transform.position.x;
-						int motherZ = (int) mother.transform.position.z;
-						if (motherX == x && motherZ == z)
-						{
-							// Set true when player is clicked to allow tracking when mouse held down
-							canMove = true;
-							positions = new List<Vector3> ();
-							playerTile = map [x, z];
-							currentTile = map [x, z];
-							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
-						}
-					} 
+                    {
+                        UpdateText("Tile");
+                        int motherX = (int)mother.transform.position.x;
+                        int motherZ = (int)mother.transform.position.z;
+                        if (motherX == x && motherZ == z)
+                        {
+                            // Set true when player is clicked to allow tracking when mouse held down
+                            canMove = true;
+                            positions = new List<Vector3>();
+                            playerTile = map[x, z];
+                            currentTile = map[x, z];
+                            positions.Add(new Vector3(playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
+                        }
+                    }
                 }
             }
         }
-		if (Input.GetMouseButton (0)) {	
-			if (Physics.Raycast (ray, out hit, 100f)) {	
-				if (hit.collider.tag == "Tile" && canMove) {
-					int x = (int)hit.point.x;
-					int z = (int)hit.point.z;
-					Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
-					if (map [x, z] != currentTile) {
-						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
-							currentTile = map [x, z];
-							positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
-							if (currentTile.tileType != Tile.TileType.HOLE) {
-								steps -= 1;
-							}
-							if (currentTile.tileType == Tile.TileType.HILL) {
-								steps = 0;
-							}
-							UpdateText (steps + "");
-							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> ());
-							lineRenderer.positionCount = positions.Count;
-							lineRenderer.SetPositions (positions.ToArray ());
-						}
-					}
-				}
-			}
-		}
-		if (Input.GetMouseButtonUp (0)) {
-			positions = new List<Vector3> ();
-			if (canMove) {
-				if (Physics.Raycast (ray, out hit, 100f)) {	
-					if (hit.collider.tag == "Tile") {
-						float x = hit.point.x;
-						float z = hit.point.z;
-						Debug.Log (string.Format ("UPPP x: {0}, z: {1}", x, z));
-						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
-						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
-							Debug.Log ("in");
-							//							movePlayer ((int)x, (int)z);
-							movePlayer(currentTile.x,currentTile.z);
-//							playerTile = map [(int)x, (int)z];
-							playerTile = currentTile;
-							currentTile = playerTile;
-						} else {
-							currentTile = playerTile;
-						}
-					}
-				}
-				clearAllSelections();
-				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
-			}
-			playerSteps = 2;
-			steps = playerSteps;
-			UpdateText (steps + "");
-			canMove = false;
-			lineRenderer.positionCount = 0;
-			lineRenderer.SetPositions (new Vector3[0]);
-		}
-		
+        if (Input.GetMouseButton(0))
+        {
+            if (Physics.Raycast(ray, out hit, 100f))
+            {
+                if (hit.collider.tag == "Tile" && canMove)
+                {
+                    int x = (int)hit.point.x;
+                    int z = (int)hit.point.z;
+                    Debug.Log(string.Format("x: {0}, z: {1}", x, z));
+                    if (map[x, z] != currentTile)
+                    {
+                        if (steps != 0 && currentTile.links.Contains(map[x, z]))
+                        {
+                            currentTile = map[x, z];
+                            positions.Add(new Vector3(x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
+                            if (currentTile.tileType != Tile.TileType.HOLE)
+                            {
+                                steps -= 1;
+                            }
+                            if (currentTile.tileType == Tile.TileType.HILL)
+                            {
+                                steps = 0;
+                            }
+                            UpdateText(steps + "");
+                            clearAllSelections();
+                            getPaths(x, z, steps, new List<Tile>());
+                            lineRenderer.positionCount = positions.Count;
+                            lineRenderer.SetPositions(positions.ToArray());
+                        }
+                    }
+                }
+            }
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            positions = new List<Vector3>();
+            if (canMove)
+            {
+                if (Physics.Raycast(ray, out hit, 100f))
+                {
+                    if (hit.collider.tag == "Tile")
+                    {
+                        float x = hit.point.x;
+                        float z = hit.point.z;
+                        Debug.Log(string.Format("UPPP x: {0}, z: {1}", x, z));
+                        Debug.Log(string.Format("current x: {0}, z: {1}", currentTile.x, currentTile.z));
+                        if (x >= currentTile.x && x <= currentTile.x + 1 && z >= currentTile.z && z <= currentTile.z + 1)
+                        {
+                            Debug.Log("in");
+                            //							movePlayer ((int)x, (int)z);
+                            checkMove(currentTile.x, currentTile.z);
+                            //							playerTile = map [(int)x, (int)z];
+                            playerTile = currentTile;
+                            currentTile = playerTile;
+                        }
+                        else
+                        {
+                            currentTile = playerTile;
+                        }
+                    }
+                }
+                clearAllSelections();
+                getPaths(playerTile.x, playerTile.z, playerSteps, new List<Tile>());
+            }
+            playerSteps = 2;
+            steps = playerSteps;
+            UpdateText(steps + "");
+            canMove = false;
+            lineRenderer.positionCount = 0;
+            lineRenderer.SetPositions(new Vector3[0]);
+        }
+
 
 
         if (Input.GetMouseButtonDown(1))
         {
             if (!generating)
             {
-                PowerManager.PowerType powerRandom = (PowerManager.PowerType) pseudoRandom.Next(4);
+                PowerManager.PowerType powerRandom = (PowerManager.PowerType)pseudoRandom.Next(4);
 
                 Debug.Log("Spawn power with right click");
                 generating = true;
@@ -314,8 +339,8 @@ public class MapManager : MonoBehaviour {
             {
                 if (hit.collider.tag == "Tile")
                 {
-                    int x = (int) hit.point.x;
-                    int z = (int) hit.point.z;
+                    int x = (int)hit.point.x;
+                    int z = (int)hit.point.z;
                     Debug.Log("Found Tile.");
                     castSelection(x, z);
                     //Debug.Log(hit.point.ToString());
@@ -401,7 +426,7 @@ public class MapManager : MonoBehaviour {
                         break;
                 }
                 map[x, z].tileObject.transform.SetParent(transform);
-				map[x, z].links = GenerateLinks (x, z);
+                map[x, z].links = GenerateLinks(x, z);
             }
         }
     }
@@ -466,9 +491,9 @@ public class MapManager : MonoBehaviour {
         }
     }
 
-    void initMother(int x,int z)
+    void initMother(int x, int z)
     {
-        mother = Instantiate(motherPrefab, new Vector3(x + TILE_OFFSET,CHARACTER_HEIGHT,z + TILE_OFFSET), CHARACTER_ROTATION);
+        mother = Instantiate(motherPrefab, new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET), CHARACTER_ROTATION);
     }
 
     void initBaby(int x, int z)
@@ -476,65 +501,79 @@ public class MapManager : MonoBehaviour {
         baby = Instantiate(babyPrefab, new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET), CHARACTER_ROTATION);
     }
 
-    void movePlayer(int x, int z)
+    void checkMove(int x, int z)
     {
-        mother.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
-        //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
+        // check with server if move causes any feedback
+        GameManager.sendMove(x, z);
     }
 
-	void UpdateText (string s)
-	{
-		TextDisplay.text = "Steps: " + s;
-	}
+    public void movePlayer(int x, int z)
+    {
+        // never call directly, only called by GameManager after checking
+        Debug.Log(string.Format("Moving to {0},{1}",x,z));
+        mother.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
+    }
 
-	List<Tile> GenerateLinks(int x, int z)
-	{
-		List<Tile> output = new List<Tile>();
-		if (x + 1 <= 9) 
-		{
-			output.Add (map[x + 1, z]);
-		}
-		if (x - 1 >= 0) 
-		{
-			output.Add (map[x - 1, z]);
-		}
-		if (z + 1 <= 9) 
-		{
-			output.Add (map[x, z + 1]);
-		}
-		if (z - 1 >= 0) 
-		{
-			output.Add (map[x, z - 1]);
-		}
-		return output;
-	}
+    void UpdateText(string s)
+    {
+        TextDisplay.text = "Steps: " + s;
+    }
 
-	List<Tile> getPaths(int x, int z, int steps, List<Tile> explored,bool showProjections = true)
-	{
-		List<Tile> output = new List<Tile> ();
-		if (steps !=0){
-		output.Add (map [x, z]);
-		if (showProjections) {
-				castSelection(x, z);
-		}
-			foreach (Tile link in map[x,z].links) {
-				if (!explored.Contains (link)) {
-					output.Add (link);
-					if (showProjections) {
-						castSelection (link.x, link.z);
-					}
-					if (link.tileType == Tile.TileType.HOLE) {
-						output.AddRange (getPaths (link.x, link.z, steps, output));
-					}
-					for (int step = steps - 1; step > 0; step--) {
-						output.AddRange (getPaths (link.x, link.z, step, output));
-					}
-				}
-			}
-		}
-	
-		return output;
+    List<Tile> GenerateLinks(int x, int z)
+    {
+        List<Tile> output = new List<Tile>();
+        if (x + 1 <= 9)
+        {
+            output.Add(map[x + 1, z]);
+        }
+        if (x - 1 >= 0)
+        {
+            output.Add(map[x - 1, z]);
+        }
+        if (z + 1 <= 9)
+        {
+            output.Add(map[x, z + 1]);
+        }
+        if (z - 1 >= 0)
+        {
+            output.Add(map[x, z - 1]);
+        }
+        return output;
+    }
 
-	}
-		
+    List<Tile> getPaths(int x, int z, int steps, List<Tile> explored, bool showProjections = true)
+    {
+        List<Tile> output = new List<Tile>();
+        if (steps != 0)
+        {
+            output.Add(map[x, z]);
+            if (showProjections)
+            {
+                castSelection(x, z);
+            }
+            foreach (Tile link in map[x, z].links)
+            {
+                if (!explored.Contains(link))
+                {
+                    output.Add(link);
+                    if (showProjections)
+                    {
+                        castSelection(link.x, link.z);
+                    }
+                    if (link.tileType == Tile.TileType.HOLE)
+                    {
+                        output.AddRange(getPaths(link.x, link.z, steps, output));
+                    }
+                    for (int step = steps - 1; step > 0; step--)
+                    {
+                        output.AddRange(getPaths(link.x, link.z, step, output));
+                    }
+                }
+            }
+        }
+
+        return output;
+
+    }
+
 }

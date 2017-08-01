@@ -58,7 +58,7 @@ public class MapManager : MonoBehaviour
 
     private const float CHARACTER_HEIGHT = 0.01f;
     private const float PROJECTION_HEIGHT = 0.00f;
-    private Quaternion CHARACTER_ROTATION = Quaternion.Euler(new Vector3(90, 0, 0));
+    private Quaternion CHARACTER_ROTATION = Quaternion.Euler(90, 0, 0);
 
     public Tile[,] map;
     private GameObject[,] selectProjectors;
@@ -73,10 +73,9 @@ public class MapManager : MonoBehaviour
         {
             mapManagerInstance = this;
         }
-
+        mapInstance = gameObject;
         GameManager gameManager = new GameManager(GameManager.GameState.SPAWNINGMOTHER);
         gameManagerInstance = GameManager.getInstance();
-        mapInstance = gameObject;
     }
 
     private void Start()
@@ -115,11 +114,25 @@ public class MapManager : MonoBehaviour
             new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
         );
         lineRenderer.colorGradient = gradient;
+
+        // init text after scene load finish
+        GameManager.initText();
     }
 
     public static MapManager getInstance()
     {
-        return mapManagerInstance;
+        if (mapManagerInstance == null)
+        {
+            Debug.Log("Finding Map Manager");
+            GameObject go = GameObject.FindGameObjectWithTag("Map");
+            MapManager instance = go.GetComponent<MapManager>();
+            return instance;
+        }
+        else
+        {
+            Debug.Log("Returning Map Manager");
+            return mapManagerInstance;
+        }
     }
 
     void RandomFillMap()

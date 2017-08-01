@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using GameSparks.Api.Responses;
 using GameSparks.Api.Requests;
+using UnityEngine.SceneManagement;
 
 public class GameManager
 {
@@ -13,7 +14,7 @@ public class GameManager
 
     public GameState currentGameState;
     public static GameManager gameManagerinstance;
-    public static MapManager mapManagerinstance;
+    public static MapManager mapManagerInstance;
     public static bool player1;
     public static int movesLeft;
     public static bool myTurn;
@@ -27,9 +28,9 @@ public class GameManager
         {
             gameManagerinstance = this;
         }
-        if (mapManagerinstance == null)
+        if (mapManagerInstance == null)
         {
-            mapManagerinstance = MapManager.getInstance();
+            mapManagerInstance = MapManager.getInstance();
         }
     }
 
@@ -46,14 +47,14 @@ public class GameManager
     public static void initGame(JSONObject jsonmessage)
     {
         // init new game
-        //Debug.Log(jsonmessage);
+        Debug.Log(jsonmessage);
         string seed = jsonmessage["challenge"]["challengeId"].ToString().Replace("\"", "");
-        //Debug.Log(seed);
+        Debug.Log(seed);
         PlayerPrefs.SetString("GameSeed", seed); //use this as seed for match
         string myId = PlayerPrefs.GetString("playerId").Replace("\"", "");
-        //Debug.Log(string.Format("myID: {0}", myId));
+        Debug.Log(string.Format("myID: {0}", myId));
         string player1Id = jsonmessage["challenge"]["scriptData"]["player1"].ToString().Replace("\"", "");
-        //Debug.Log(string.Format("player1Id: {0}", player1Id));
+        Debug.Log(string.Format("player1Id: {0}", player1Id));
         if (myId == player1Id)
         {
             PlayerPrefs.SetInt("player1", 1);
@@ -63,14 +64,25 @@ public class GameManager
             PlayerPrefs.SetInt("player1", 0);
         }
 
+        // Load Game Map first to init mapManagerInstance
+        Debug.Log("Loading Game Map");
+        SceneManager.LoadScene("Game Map");
+    }
+
+    public static void initText()
+    {
         // init Baby Health
         myBabyHealth = 3;
         oppBabyHealth = 3;
-        mapManagerinstance.oppBabyText.text = "My Baby: " + myBabyHealth;
-        mapManagerinstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+        mapManagerInstance.myBabyText.text = "My Baby: " + myBabyHealth;
+        mapManagerInstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+
+        // init moves
+        movesLeft = 0;
+        mapManagerInstance.moveText.text = "Move: " + movesLeft;
 
         // set Instruction to place Mother Mole
-        mapManagerinstance.instructionText.text = "Place Mother";
+        mapManagerInstance.instructionText.text = "Place Mother";
     }
 
     public static void initPosition(int MotherX, int MotherZ, int BabyX, int BabyZ)
@@ -92,13 +104,13 @@ public class GameManager
                    {
                        player1 = true;
                        myTurn = true;
-                       mapManagerinstance.instructionText.text = "Move Mother";
+                       mapManagerInstance.instructionText.text = "Move Mother";
                    }
                    else
                    {
                        player1 = false;
                        myTurn = false;
-                       mapManagerinstance.instructionText.text = "Opponent's turn";
+                       mapManagerInstance.instructionText.text = "Opponent's turn";
                    }
                }
                else
@@ -127,15 +139,15 @@ public class GameManager
                     {
                         Debug.Log("Opponent baby mole hit");
                         oppBabyHealth -= 1;
-                        mapManagerinstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+                        mapManagerInstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
                     }
                     else
                     {
                         Debug.Log("Nothing particular happen");
                     }
-                    mapManagerinstance.movePlayer(x, z);
+                    mapManagerInstance.movePlayer(x, z);
                     movesLeft -= 1;
-                    mapManagerinstance.moveText.text = "Move: " + movesLeft;
+                    mapManagerInstance.moveText.text = "Move: " + movesLeft;
                 }
                 else
                 {

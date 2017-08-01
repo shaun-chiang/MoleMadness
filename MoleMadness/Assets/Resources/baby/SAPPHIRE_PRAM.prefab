@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4961978612830074}
   - component: {fileID: 212285390511041698}
   m_Layer: 0
-  m_Name: baby_sapphire_on
+  m_Name: SAPPHIRE_PRAM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

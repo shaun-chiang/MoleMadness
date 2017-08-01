@@ -6,13 +6,13 @@ using GameSparks.Api.Requests;
 public class wardrobeManager : MonoBehaviour {
 
     // preferably can use a getAccessories() method or something to get these lists? 
-    // so like.. hats_list will be accessoriesList[0] and clothes_list will be accessoriesList[1] etc... 
+    // so like.. hats_list will be accessoriesList[0] and weapons_list will be accessoriesList[1] etc... 
     public List<GameObject> hats_list = new List<GameObject>();
-    public List<GameObject> clothes_list = new List<GameObject>();
+    public List<GameObject> weapons_list = new List<GameObject>();
     public List<GameObject> baby_list = new List<GameObject>();
 
     public GameObject hats;
-    public GameObject clothes;
+    public GameObject weapons;
     public GameObject baby;
 
     public List<GameObject> tabsList = new List<GameObject>();
@@ -20,7 +20,7 @@ public class wardrobeManager : MonoBehaviour {
     //POSITIONS 
     // for buttons: 37.5, + 75 (x); 82.5, -75 (y)
 
-    // somehow need to get current configuration of clothes? 
+    // somehow need to get current configuration of accessories? 
 
     // Use this for initialization
 
@@ -29,33 +29,17 @@ public class wardrobeManager : MonoBehaviour {
 
         initializeEquipped();
 
-        // Sample: How to get shop items. Categories are "Hat", "Baby", "Weapon" //
-        List<string> tags = new List<string>();
-        tags.Add("Hat");
-        new ListVirtualGoodsRequest()
-            .SetTags(tags) // set this to Tag above^
-            .Send((response) =>
-            {
-                Debug.Log("Requesting Virtual Goods...");
-                if (!response.HasErrors)
-                {
-                    Debug.Log("Got virtual goods details");
-                    Debug.Log(response.JSONString);
-                }
-                else
-                {
-                    Debug.Log("Error Receiving virtual goods details");
-                }
-            });
+        hats_list = getItemsList("Hat");
+        weapons_list = getItemsList("Weapon");
+        baby_list = getItemsList("Baby");
 
-        // End sample //
 
         initializeLists("hats", hats_list);
-        initializeLists("clothes", clothes_list);
+        initializeLists("weapons", weapons_list);
         initializeLists("baby", baby_list);
 
         tabsList.Add(hats);
-        tabsList.Add(clothes);
+        tabsList.Add(weapons);
         tabsList.Add(baby);
 
         foreach (GameObject i in tabsList)
@@ -68,6 +52,38 @@ public class wardrobeManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+    }
+
+    List<GameObject> getItemsList(string tag)
+    {
+        JSONObject jsonmessage = new JSONObject(); 
+        // Sample: How to get shop items. Categories are "Hat", "Baby", "Weapon" //
+        List<string> tags = new List<string>();
+        tags.Add(tag);
+        new ListVirtualGoodsRequest()
+            .SetIncludeDisabled(false)
+            .SetTags(tags) // set this to Tag above^
+            .Send((response) =>
+            {
+                Debug.Log("Requesting Virtual Goods...");
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Got virtual goods details");
+                    Debug.Log(response.JSONString);
+                    jsonmessage = new JSONObject(response.JSONString);
+                    Debug.Log(jsonmessage["virtualGoods"]);
+                    Debug.Log("End virtual goods details");
+                }
+                else
+                {
+                    Debug.Log("Error Receiving virtual goods details");
+                }
+            });
+        Debug.Log("MEOWMEOW");
+        Debug.Log("ITS HERE: " + jsonmessage["virtualGoods"][1]["shortCode"]);
+        Debug.Log("ITS HERE 2: " + jsonmessage["virtualGoods"].Count);
+
+        return null;
     }
 
     void initializeLists(string name, List<GameObject> list)
@@ -97,7 +113,7 @@ public class wardrobeManager : MonoBehaviour {
 
         string[] equippedList;
 
-        equipped = equipped.Substring(1, equipped.Length - 2);
+        equipped = equipped.Substring(10, equipped.Length - 12);
         equippedList = equipped.Split(' ');
         for (int i = 0; i < equippedList.Length; i++)
         {

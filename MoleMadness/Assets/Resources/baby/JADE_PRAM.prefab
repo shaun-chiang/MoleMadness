@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4637347229695048}
   - component: {fileID: 212161881832054426}
   m_Layer: 0
-  m_Name: baby_jade_on
+  m_Name: JADE_PRAM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

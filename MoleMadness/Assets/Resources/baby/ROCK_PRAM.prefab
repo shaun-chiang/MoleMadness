@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4585828358514162}
   - component: {fileID: 212341762686817184}
   m_Layer: 0
-  m_Name: baby
+  m_Name: ROCK_PRAM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

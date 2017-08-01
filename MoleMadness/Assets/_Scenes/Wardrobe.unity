@@ -1407,29 +1407,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 412dbd449664a1a4d89e4e1fb94ebc29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hats_list:
-  - {fileID: 1647976878089926, guid: 0279c45bdb607b44c8ac1dc18d7e2540, type: 2}
-  - {fileID: 1207237894593236, guid: c0a3e6a0dbe232440ae96b2593613cdb, type: 2}
-  - {fileID: 1647976878089926, guid: 0279c45bdb607b44c8ac1dc18d7e2540, type: 2}
-  - {fileID: 1207237894593236, guid: c0a3e6a0dbe232440ae96b2593613cdb, type: 2}
-  - {fileID: 1647976878089926, guid: 0279c45bdb607b44c8ac1dc18d7e2540, type: 2}
-  clothes_list:
-  - {fileID: 1723356363150600, guid: 8c852ef3e1cd8364c974ab12e531f94a, type: 2}
-  - {fileID: 1714303654068006, guid: 17893cba4e2d41147b9e3b67a28647c1, type: 2}
-  - {fileID: 1723356363150600, guid: 8c852ef3e1cd8364c974ab12e531f94a, type: 2}
-  - {fileID: 1714303654068006, guid: 17893cba4e2d41147b9e3b67a28647c1, type: 2}
-  - {fileID: 1723356363150600, guid: 8c852ef3e1cd8364c974ab12e531f94a, type: 2}
-  - {fileID: 1714303654068006, guid: 17893cba4e2d41147b9e3b67a28647c1, type: 2}
-  - {fileID: 1723356363150600, guid: 8c852ef3e1cd8364c974ab12e531f94a, type: 2}
-  - {fileID: 1714303654068006, guid: 17893cba4e2d41147b9e3b67a28647c1, type: 2}
-  - {fileID: 1723356363150600, guid: 8c852ef3e1cd8364c974ab12e531f94a, type: 2}
-  baby_list:
-  - {fileID: 1701550875957276, guid: e53e9a707d4299d4ebbb6f6b3d15ebec, type: 2}
-  - {fileID: 1072610284933070, guid: a59ef62adba42b942ac7f6db777f1e77, type: 2}
-  - {fileID: 1455034801756698, guid: 730280aff818f554fa3ddc7bb8a2952a, type: 2}
-  - {fileID: 1475933319062502, guid: 99bfe736e5b330c41b7a4266b7e6c36d, type: 2}
+  hats_list: []
+  weapons_list: []
+  baby_list: []
   hats: {fileID: 137917821}
-  clothes: {fileID: 1522814543}
+  weapons: {fileID: 1522814543}
   baby: {fileID: 926720899}
   tabsList: []
 --- !u!1 &1382538738
@@ -1563,7 +1545,7 @@ GameObject:
   - component: {fileID: 1522814546}
   - component: {fileID: 1522814545}
   m_Layer: 5
-  m_Name: clothes
+  m_Name: weapons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

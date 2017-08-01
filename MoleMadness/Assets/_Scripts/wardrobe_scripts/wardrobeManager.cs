@@ -15,6 +15,10 @@ public class wardrobeManager : MonoBehaviour {
     public GameObject weapons;
     public GameObject baby;
 
+    public int hatsinitialized = 0;
+    public int weaponsinitialized = 0;
+    public int babyinitialized = 0; 
+
     public List<GameObject> tabsList = new List<GameObject>();
 
     //POSITIONS 
@@ -28,16 +32,11 @@ public class wardrobeManager : MonoBehaviour {
     void Start () {
 
         initializeEquipped();
-
-        hats_list = getItemsList("Hat");
-        weapons_list = getItemsList("Weapon");
-        baby_list = getItemsList("Baby");
-
-
-        initializeLists("hats", hats_list);
-        initializeLists("weapons", weapons_list);
-        initializeLists("baby", baby_list);
-
+       
+        getItemsList("Hat", hats_list, "hats");
+        getItemsList("Weapon", weapons_list, "weapons");
+        getItemsList("Baby", baby_list, "baby");
+        
         tabsList.Add(hats);
         tabsList.Add(weapons);
         tabsList.Add(baby);
@@ -51,11 +50,38 @@ public class wardrobeManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (hatsinitialized==0)
+        {
+            if (hats_list.Count > 0)
+            {
+                initializeLists("hats", hats_list);
+                hatsinitialized = 1;
 
+            }
+        }
+        if (weaponsinitialized == 0)
+        {
+            if (weapons_list.Count > 0)
+            {
+                initializeLists("weapons", weapons_list);
+                weaponsinitialized = 1;
+
+            }
+        }
+        if (babyinitialized == 0)
+        {
+            if (baby_list.Count > 0)
+            {
+                initializeLists("baby", baby_list);
+                babyinitialized = 1;
+
+            }
+        }
     }
 
-    List<GameObject> getItemsList(string tag)
+    void getItemsList(string tag, List<GameObject> list, string folder)
     {
+
         JSONObject jsonmessage = new JSONObject(); 
         // Sample: How to get shop items. Categories are "Hat", "Baby", "Weapon" //
         List<string> tags = new List<string>();
@@ -68,22 +94,27 @@ public class wardrobeManager : MonoBehaviour {
                 Debug.Log("Requesting Virtual Goods...");
                 if (!response.HasErrors)
                 {
+                    List<GameObject> item_list = new List<GameObject>();
                     Debug.Log("Got virtual goods details");
                     Debug.Log(response.JSONString);
                     jsonmessage = new JSONObject(response.JSONString);
                     Debug.Log(jsonmessage["virtualGoods"]);
+                    for(int i = 0; i<jsonmessage["virtualGoods"].Count;i++)
+                    {
+                        string item = jsonmessage["virtualGoods"][i]["shortCode"].ToString();
+                        item = item.Substring(1, item.Length - 2);
+                        Debug.Log("HERE: " + folder + "/" + item);
+                        list.Add(Resources.Load(folder + "/" + item, typeof(GameObject)) as GameObject);
+                    }
+
                     Debug.Log("End virtual goods details");
+
                 }
                 else
                 {
                     Debug.Log("Error Receiving virtual goods details");
                 }
             });
-        Debug.Log("MEOWMEOW");
-        Debug.Log("ITS HERE: " + jsonmessage["virtualGoods"][1]["shortCode"]);
-        Debug.Log("ITS HERE 2: " + jsonmessage["virtualGoods"].Count);
-
-        return null;
     }
 
     void initializeLists(string name, List<GameObject> list)

@@ -13,9 +13,9 @@ public class prematchManager : MonoBehaviour {
 
         string[] equippedList;
 
-        equipped = equipped.Substring(1, equipped.Length-2);
+        equipped = equipped.Substring(10, equipped.Length - 12);
         equippedList = equipped.Split(' ');
-        for(int i= 0; i < equippedList.Length; i++) 
+        for (int i= 0; i < equippedList.Length; i++) 
         {
             equippedList[i] += "_ON";
         }

@@ -32,14 +32,15 @@ public class MapManager : MonoBehaviour {
 	public Color c1 = Color.yellow;
 	public Color c2 = Color.red;
 	public LineRenderer lineRenderer;
-	public Tile currentTile;
-	public Tile playerTile;
+	public Tile currentTile; // Path position - The current movement
+	public Tile playerTile; // Player's position
 	public int playerSteps = 2;
 	public int steps = 3;
+	private int stepsreduction;
 	public List<Vector3> positions;
 	public bool canMove = false;
 
-	public float pathHeight = 0.02f;
+	public float pathHeight;
 
     System.Random pseudoRandom;
 
@@ -95,11 +96,10 @@ public class MapManager : MonoBehaviour {
         generating = false;
 		UpdateText("Blank");
 
+		// Initialising the Line Renderer for path direction
 		lineRenderer = gameObject.AddComponent<LineRenderer>();
 //		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
 		lineRenderer.widthMultiplier = 0.2f;
-
-
 		// A simple 2 color gradient with a fixed alpha of 1.0f.
 		float alpha = 1.0f;
 		Gradient gradient = new Gradient();
@@ -108,6 +108,8 @@ public class MapManager : MonoBehaviour {
 			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
 		);
 		lineRenderer.colorGradient = gradient;
+		lineRenderer.positionCount = 0;
+		pathHeight = 0.05f;
     }
 
     public static MapManager getInstance()
@@ -206,6 +208,7 @@ public class MapManager : MonoBehaviour {
 						UpdateText ("Tile");
 						int motherX = (int) mother.transform.position.x;
 						int motherZ = (int) mother.transform.position.z;
+
 						if (motherX == x && motherZ == z)
 						{
 							// Set true when player is clicked to allow tracking when mouse held down
@@ -214,6 +217,7 @@ public class MapManager : MonoBehaviour {
 							playerTile = map [x, z];
 							currentTile = map [x, z];
 							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
+			
 						}
 					} 
                 }
@@ -225,14 +229,38 @@ public class MapManager : MonoBehaviour {
 					int x = (int)hit.point.x;
 					int z = (int)hit.point.z;
 					Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
-					if (map [x, z] != currentTile) {
+					bool goBack = false;
+					if (positions.Count > 1) {
+						if (map [x, z] == map [(int)positions [positions.Count-2].x, (int)positions [positions.Count-2].z]) {
+							goBack = true;
+							if (currentTile.tileType == Tile.TileType.HILL) {
+								steps += stepsreduction;
+							}
+							else if (currentTile.tileType == Tile.TileType.FLAT) {
+								steps += 1;
+							}
+							if (map [x, z] == playerTile) {
+								steps = 2;
+							}
+							currentTile = map [x, z];
+							positions.RemoveAt(positions.Count-1);
+							UpdateText (steps + "");
+							clearAllSelections();
+							getPaths (x, z, steps, new List<Tile> ());
+							lineRenderer.positionCount = positions.Count;
+							lineRenderer.SetPositions (positions.ToArray ());
+						}
+					}
+					if (!goBack && map [x, z] != currentTile) {
 						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
 							currentTile = map [x, z];
 							positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
-							if (currentTile.tileType != Tile.TileType.HOLE) {
+							if (currentTile.tileType == Tile.TileType.FLAT) {
 								steps -= 1;
-							}
+								stepsreduction = 1;
+							} 
 							if (currentTile.tileType == Tile.TileType.HILL) {
+								stepsreduction = steps;
 								steps = 0;
 							}
 							UpdateText (steps + "");
@@ -246,7 +274,7 @@ public class MapManager : MonoBehaviour {
 			}
 		}
 		if (Input.GetMouseButtonUp (0)) {
-			positions = new List<Vector3> ();
+			positions = new List<Vector3> ();  
 			if (canMove) {
 				if (Physics.Raycast (ray, out hit, 100f)) {	
 					if (hit.collider.tag == "Tile") {
@@ -475,18 +503,20 @@ public class MapManager : MonoBehaviour {
     {
         baby = Instantiate(babyPrefab, new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET), CHARACTER_ROTATION);
     }
-
+		
     void movePlayer(int x, int z)
     {
         mother.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
         //player = Instantiate(playerPrefab, new Vector3(x + TILE_OFFSET, PLAYER_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
     }
 
+	// Update the UI text Display
 	void UpdateText (string s)
 	{
 		TextDisplay.text = "Steps: " + s;
 	}
 
+	// Create paths that are 1 step away
 	List<Tile> GenerateLinks(int x, int z)
 	{
 		List<Tile> output = new List<Tile>();
@@ -509,14 +539,19 @@ public class MapManager : MonoBehaviour {
 		return output;
 	}
 
+
+	//Get the path of the player and cast selection on these paths
 	List<Tile> getPaths(int x, int z, int steps, List<Tile> explored,bool showProjections = true)
 	{
 		List<Tile> output = new List<Tile> ();
-		if (steps !=0){
 		output.Add (map [x, z]);
 		if (showProjections) {
-				castSelection(x, z);
+			castSelection(x, z);
 		}
+		if (map[x,z].tileType == Tile.TileType.HILL) {
+			steps = 0;
+		}
+		if (steps !=0){
 			foreach (Tile link in map[x,z].links) {
 				if (!explored.Contains (link)) {
 					output.Add (link);

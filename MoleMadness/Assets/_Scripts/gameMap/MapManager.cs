@@ -34,18 +34,23 @@ public class MapManager : MonoBehaviour
     public GameObject[] selections;
     public GameObject[] powers;
 
+	//Line Renderer
 	public Color c1 = Color.yellow;
 	public Color c2 = Color.red;
 	public LineRenderer lineRenderer;
+	public float pathHeight;
+	public List<Vector3> positions;
+
+	//Player Steps and Position information
 	public Tile currentTile; // Path position - The current movement
 	public Tile playerTile; // Player's position
 	public int playerSteps = 2;
-	public int steps = 3;
+	public int steps;
 	private int stepsreduction;
-	public List<Vector3> positions;
 	public bool canMove = false;
-	public float pathHeight;
 
+	//PowerUps
+	public bool power_diagonal; 
 
     System.Random pseudoRandom;
 
@@ -119,6 +124,9 @@ public class MapManager : MonoBehaviour
 
         // init text after scene load finish
         GameManager.initText();
+
+		//Powerup initialization
+		power_diagonal = false;
     }
 
     public static MapManager getInstance()
@@ -173,7 +181,12 @@ public class MapManager : MonoBehaviour
                 Debug.Log("Pressed G when generating.");
             }
         }
-
+		if (Input.GetKeyDown (KeyCode.D)) {
+			power_diagonal = true;
+		}
+		if (Input.GetKeyDown (KeyCode.F)) {
+			power_diagonal = false;
+		}
         if (Input.GetMouseButtonDown(0))
         {
             if (Physics.Raycast(ray, out hit, 100f))
@@ -270,13 +283,17 @@ public class MapManager : MonoBehaviour
 							positions.RemoveAt(positions.Count-1);
 							UpdateText (steps + "");
 							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> ());
+							getPaths (x, z, steps, new List<Tile> (), power_diagonal);
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
 						}
 					}
 					if (!goBack && map [x, z] != currentTile) {
-						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
+						List<Tile> linkage = currentTile.links;
+						if (power_diagonal) {
+							linkage = currentTile.linksDiag;
+						}
+						if (steps != 0 && linkage.Contains (map [x, z])) {
 							currentTile = map [x, z];
 							positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
 							if (currentTile.tileType == Tile.TileType.FLAT) {
@@ -289,7 +306,7 @@ public class MapManager : MonoBehaviour
 							}
 							UpdateText (steps + "");
 							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> ());
+							getPaths (x, z, steps, new List<Tile> (), power_diagonal);
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
 						}
@@ -319,7 +336,7 @@ public class MapManager : MonoBehaviour
 					}
 				}
 				clearAllSelections();
-				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
+				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> (), power_diagonal);
 			}
 			playerSteps = 2;
 			steps = playerSteps;
@@ -453,6 +470,7 @@ public class MapManager : MonoBehaviour
                 }
                 map[x, z].tileObject.transform.SetParent(transform);
                 map[x, z].links = GenerateLinks(x, z);
+				map[x, z].linksDiag = GenerateLinksDiag(x, z);
             }
         }
     }
@@ -569,10 +587,49 @@ public class MapManager : MonoBehaviour
 		}
 		return output;
 	}
+	//For path with Diagonal
+	List<Tile> GenerateLinksDiag(int x, int z)
+	{
+		List<Tile> output = new List<Tile>();
+		if (x + 1 <= 9) 
+		{
+			output.Add (map[x + 1, z]);
+		}
+		if (x - 1 >= 0) 
+		{
+			output.Add (map[x - 1, z]);
+		}
+		if (z + 1 <= 9) 
+		{
+			output.Add (map[x, z + 1]);
+		}
+		if (z - 1 >= 0) 
+		{
+			output.Add (map[x, z - 1]);
+		}
+		if (x + 1 <= 9 && z + 1 <=9) 
+		{
+			output.Add (map[x + 1, z + 1]);
+		}
+		if (x + 1 <= 9 && z - 1 >= 0) 
+		{
+			output.Add (map[x + 1, z - 1]);
+		}
+		if (x - 1 >= 0 && z - 1 >= 0) 
+		{
+			output.Add (map[x - 1, z - 1]);
+		}
+		if (x - 1 >= 0 && z + 1 <= 9) 
+		{
+			output.Add (map[x - 1, z + 1]);
+		}
+
+		return output;
+	}
 
 
 	//Get the path of the player and cast selection on these paths
-	List<Tile> getPaths(int x, int z, int steps, List<Tile> explored,bool showProjections = true)
+	List<Tile> getPaths(int x, int z, int steps, List<Tile> explored, bool diag = false ,bool showProjections = true)
 	{
 		List<Tile> output = new List<Tile> ();
 		output.Add (map [x, z]);
@@ -583,17 +640,21 @@ public class MapManager : MonoBehaviour
 			steps = 0;
 		}
 		if (steps !=0){
-			foreach (Tile link in map[x,z].links) {
+			List<Tile> linkage = map [x, z].links;
+			if (diag) {
+				linkage = map [x, z].linksDiag;
+			}
+			foreach (Tile link in linkage) {
 				if (!explored.Contains (link)) {
 					output.Add (link);
 					if (showProjections) {
 						castSelection (link.x, link.z);
 					}
 					if (link.tileType == Tile.TileType.HOLE) {
-						output.AddRange (getPaths (link.x, link.z, steps, output));
+						output.AddRange (getPaths (link.x, link.z, steps, output, diag));
 					}
 					for (int step = steps - 1; step > 0; step--) {
-						output.AddRange (getPaths (link.x, link.z, step, output));
+						output.AddRange (getPaths (link.x, link.z, step, output, diag));
 					}
 				}
 			}

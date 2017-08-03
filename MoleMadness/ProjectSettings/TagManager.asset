@@ -8,6 +8,7 @@ TagManager:
   - baby
   - hat
   - weapon
+  - Map
   layers:
   - Default
   - TransparentFX

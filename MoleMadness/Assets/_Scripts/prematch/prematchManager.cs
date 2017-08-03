@@ -14,10 +14,12 @@ public class prematchManager : MonoBehaviour {
         string[] equippedList;
 
         equipped = equipped.Substring(10, equipped.Length - 12);
+		Debug.Log (equipped);
         equippedList = equipped.Split(' ');
         for (int i= 0; i < equippedList.Length; i++) 
         {
             equippedList[i] += "_ON";
+			Debug.Log (equippedList [i]);
         }
 
         GameObject hat = Instantiate(Resources.Load("hats/" + equippedList[0], typeof(GameObject))) as GameObject;

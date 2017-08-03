@@ -85,16 +85,16 @@ public class GameManager
         mapManagerInstance.instructionText.text = "Place Mother";
     }
 
-    public static void initPosition(int MotherX, int MotherZ, int BabyX, int BabyZ)
+    public static void initPosition(Vector3 motherPos, Vector3 babyPos)
     {
         string cid = getChallengeId();
-        Debug.Log(string.Format("Init mother at {0},{1} and baby at {2},{3} using challengeId {4}", MotherX, MotherZ, BabyX, BabyZ, cid));
+        Debug.Log(string.Format("Init mother at {0},{1} and baby at {2},{3} using challengeId {4}", motherPos.x, motherPos.z, babyPos.x, babyPos.z, cid));
         new LogChallengeEventRequest().SetEventKey("action_SETPOS")
            .SetEventAttribute("challengeInstanceId", cid)
-           .SetEventAttribute("babyX", BabyX)
-           .SetEventAttribute("babyY", BabyZ)
-           .SetEventAttribute("motherX", MotherX)
-           .SetEventAttribute("motherY", MotherZ)
+           .SetEventAttribute("babyX", (long) babyPos.x)
+           .SetEventAttribute("babyY", (long) babyPos.z)
+           .SetEventAttribute("motherX", (long) motherPos.x)
+           .SetEventAttribute("motherY", (long) motherPos.z)
            .Send((response) =>
            {
                if (!response.HasErrors)
@@ -121,9 +121,9 @@ public class GameManager
            });
     }
 
-    public static void sendMove(int x, int z)
+    public static void sendMoveCheck(int x, int z)
     {
-        // send movement to server to check for feedback
+        // send target destination to server to check for interaction with baby or other objects
         new LogChallengeEventRequest().SetEventKey("action_MOVECHECK")
             .SetEventAttribute("challengeInstanceId", getChallengeId())
             .SetEventAttribute("posX", x)
@@ -155,6 +155,31 @@ public class GameManager
                 }
             });
 
+    }
+
+    public static void sendMoveUpdate(Vector3 motherPos, Vector3 babyPos, string mapState)
+    {
+        Debug.Log("map: " + mapState);
+        
+        // send movement updates to server to update map, baby and mother positions
+        new LogChallengeEventRequest().SetEventKey("action_SETPOSFIELD")
+            .SetEventAttribute("challengeInstanceId", getChallengeId())
+            .SetEventAttribute("babyX", (long)babyPos.x)
+            .SetEventAttribute("babyY", (long)babyPos.z)
+            .SetEventAttribute("motherX", (long)motherPos.x)
+            .SetEventAttribute("motherY", (long)motherPos.z)
+            .SetEventAttribute("field", mapState)
+                    .Send((response) =>
+                    {
+                        if (!response.HasErrors)
+                        {
+                            Debug.Log("Positions Set");
+                        }
+                        else
+                        {
+                            Debug.Log("Error with Positions");
+                        }
+                    });
     }
 
 }

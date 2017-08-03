@@ -178,7 +178,7 @@ public class MapManager : MonoBehaviour
             {
                 int x = (int)hit.point.x;
                 int z = (int)hit.point.z;
-                // logic for handling SPAWNINGMOTHER state
+                // logic for handling spawning mother state
                 if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
                 {
                     // check if tile selected is a hole, valid spawning location.
@@ -197,6 +197,7 @@ public class MapManager : MonoBehaviour
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
                 }
+                // logic to handle touch when spawning baby
                 else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY || gameManagerInstance.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     // check if tile selected is a hole, valid spawning location.
@@ -215,7 +216,7 @@ public class MapManager : MonoBehaviour
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
                             gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
                             clearAllSelections();
-                            GameManager.initPosition(motherX, motherZ, x, z);
+                            GameManager.initPosition(mother.transform.position, baby.transform.position);
                         }
                     }
                     else
@@ -517,7 +518,7 @@ public class MapManager : MonoBehaviour
     void checkMove(int x, int z)
     {
         // check with server if move causes any feedback
-        GameManager.sendMove(x, z);
+        GameManager.sendMoveCheck(x, z);
     }
 
     public void movePlayer(int x, int z)
@@ -525,7 +526,74 @@ public class MapManager : MonoBehaviour
         // never call directly, only called by GameManager after checking
         Debug.Log(string.Format("Moving to {0},{1}",x,z));
         mother.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
+        int[,] intMap = convertTileToIntMap();
+        GameManager.sendMoveUpdate(mother.transform.position, baby.transform.position, convertIntMapToString(convertTileToIntMap()));
     }
+
+    public string convertIntMapToString(int[,] intMap)
+    {
+        string stringMap = "";
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                stringMap += intMap[x, z];
+                if (z < height - 1)
+                {
+                    stringMap += ",";
+                }
+            }
+            if (x < width - 1)
+            {
+                stringMap += ";";
+            }
+        }
+        return stringMap;
+    }
+
+    public Tile.TileType[,] constructTileMapFromString(string stringMap)
+    {
+        Tile.TileType[,] tileMap = new Tile.TileType[width, height];
+        string[] rows = stringMap.Split(';');
+        for (int rowNum = 0;rowNum < rows.Length; rowNum++)
+        {
+            string[] elements = rows[rowNum].Split(',');
+            for (int colNum = 0;colNum < elements.Length; colNum++)
+            {
+                int tileTypeConst = int.Parse(elements[colNum]);
+                Tile.TileType tileType = (Tile.TileType)tileTypeConst;
+                tileMap[colNum, rowNum] = tileType;
+            }
+        }
+        return tileMap;
+    }
+
+    public int[,] convertTileToIntMap()
+    {
+        int[,] intMap = new int[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                intMap[x, z] = (int) map[x, z].tileType;                 
+            }
+        }
+        return intMap;
+    }
+
+    public Tile.TileType[,] convertIntToTileMap(int[,] intMap)
+    {
+        Tile.TileType[,] tileMap = new Tile.TileType[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                tileMap[x, z] = (Tile.TileType)intMap[x, z];
+            }
+        }
+        return tileMap;
+    }
+
 
     void UpdateText(string s)
     {

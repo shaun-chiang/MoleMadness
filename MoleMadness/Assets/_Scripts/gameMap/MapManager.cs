@@ -34,17 +34,18 @@ public class MapManager : MonoBehaviour
     public GameObject[] selections;
     public GameObject[] powers;
 
-    public Color c1 = Color.yellow;
-    public Color c2 = Color.red;
-    public LineRenderer lineRenderer;
-    public Tile currentTile;
-    public Tile playerTile;
-    public int playerSteps = 2;
-    public int steps = 3;
-    public List<Vector3> positions;
-    public bool canMove = false;
+	public Color c1 = Color.yellow;
+	public Color c2 = Color.red;
+	public LineRenderer lineRenderer;
+	public Tile currentTile; // Path position - The current movement
+	public Tile playerTile; // Player's position
+	public int playerSteps = 2;
+	public int steps = 3;
+	private int stepsreduction;
+	public List<Vector3> positions;
+	public bool canMove = false;
+	public float pathHeight;
 
-    public float pathHeight = 0.02f;
 
     System.Random pseudoRandom;
 
@@ -101,19 +102,20 @@ public class MapManager : MonoBehaviour
         generating = false;
         UpdateText("Blank");
 
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        //		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
-        lineRenderer.widthMultiplier = 0.2f;
-
-
-        // A simple 2 color gradient with a fixed alpha of 1.0f.
-        float alpha = 1.0f;
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
-        );
-        lineRenderer.colorGradient = gradient;
+		// Initialising the Line Renderer for path direction
+		lineRenderer = gameObject.AddComponent<LineRenderer>();
+//		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
+		lineRenderer.widthMultiplier = 0.2f;
+		// A simple 2 color gradient with a fixed alpha of 1.0f.
+		float alpha = 1.0f;
+		Gradient gradient = new Gradient();
+		gradient.SetKeys(
+			new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
+			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
+		);
+		lineRenderer.colorGradient = gradient;
+		lineRenderer.positionCount = 0;
+		pathHeight = 0.05f;
 
         // init text after scene load finish
         GameManager.initText();
@@ -227,95 +229,106 @@ public class MapManager : MonoBehaviour
                 else
                 {
                     if (hit.collider.tag == "Tile")
-                    {
-                        UpdateText("Tile");
-                        int motherX = (int)mother.transform.position.x;
-                        int motherZ = (int)mother.transform.position.z;
-                        if (motherX == x && motherZ == z)
-                        {
-                            // Set true when player is clicked to allow tracking when mouse held down
-                            canMove = true;
-                            positions = new List<Vector3>();
-                            playerTile = map[x, z];
-                            currentTile = map[x, z];
-                            positions.Add(new Vector3(playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
-                        }
-                    }
-                }
-            }
-        }
-        if (Input.GetMouseButton(0))
-        {
-            if (Physics.Raycast(ray, out hit, 100f))
-            {
-                if (hit.collider.tag == "Tile" && canMove)
-                {
-                    int x = (int)hit.point.x;
-                    int z = (int)hit.point.z;
-                    Debug.Log(string.Format("x: {0}, z: {1}", x, z));
-                    if (map[x, z] != currentTile)
-                    {
-                        if (steps != 0 && currentTile.links.Contains(map[x, z]))
-                        {
-                            currentTile = map[x, z];
-                            positions.Add(new Vector3(x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
-                            if (currentTile.tileType != Tile.TileType.HOLE)
-                            {
-                                steps -= 1;
-                            }
-                            if (currentTile.tileType == Tile.TileType.HILL)
-                            {
-                                steps = 0;
-                            }
-                            UpdateText(steps + "");
-                            clearAllSelections();
-                            getPaths(x, z, steps, new List<Tile>());
-                            lineRenderer.positionCount = positions.Count;
-                            lineRenderer.SetPositions(positions.ToArray());
-                        }
-                    }
-                }
-            }
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            positions = new List<Vector3>();
-            if (canMove)
-            {
-                if (Physics.Raycast(ray, out hit, 100f))
-                {
-                    if (hit.collider.tag == "Tile")
-                    {
-                        float x = hit.point.x;
-                        float z = hit.point.z;
-                        Debug.Log(string.Format("UPPP x: {0}, z: {1}", x, z));
-                        Debug.Log(string.Format("current x: {0}, z: {1}", currentTile.x, currentTile.z));
-                        if (x >= currentTile.x && x <= currentTile.x + 1 && z >= currentTile.z && z <= currentTile.z + 1)
-                        {
-                            Debug.Log("in");
-                            //							movePlayer ((int)x, (int)z);
-                            checkMove(currentTile.x, currentTile.z);
-                            //							playerTile = map [(int)x, (int)z];
-                            playerTile = currentTile;
-                            currentTile = playerTile;
-                        }
-                        else
-                        {
-                            currentTile = playerTile;
-                        }
-                    }
-                }
-                clearAllSelections();
-                getPaths(playerTile.x, playerTile.z, playerSteps, new List<Tile>());
-            }
-            playerSteps = 2;
-            steps = playerSteps;
-            UpdateText(steps + "");
-            canMove = false;
-            lineRenderer.positionCount = 0;
-            lineRenderer.SetPositions(new Vector3[0]);
-        }
+                    {	
+						UpdateText ("Tile");
+						int motherX = (int) mother.transform.position.x;
+						int motherZ = (int) mother.transform.position.z;
 
+						if (motherX == x && motherZ == z)
+						{
+							// Set true when player is clicked to allow tracking when mouse held down
+							canMove = true;
+							positions = new List<Vector3> ();
+							playerTile = map [x, z];
+							currentTile = map [x, z];
+							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
+			
+						}
+					} 
+                }
+            }
+        }
+		if (Input.GetMouseButton (0)) {	
+			if (Physics.Raycast (ray, out hit, 100f)) {	
+				if (hit.collider.tag == "Tile" && canMove) {
+					int x = (int)hit.point.x;
+					int z = (int)hit.point.z;
+					Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
+					bool goBack = false;
+					if (positions.Count > 1) {
+						if (map [x, z] == map [(int)positions [positions.Count-2].x, (int)positions [positions.Count-2].z]) {
+							goBack = true;
+							if (currentTile.tileType == Tile.TileType.HILL) {
+								steps += stepsreduction;
+							}
+							else if (currentTile.tileType == Tile.TileType.FLAT) {
+								steps += 1;
+							}
+							if (map [x, z] == playerTile) {
+								steps = 2;
+							}
+							currentTile = map [x, z];
+							positions.RemoveAt(positions.Count-1);
+							UpdateText (steps + "");
+							clearAllSelections();
+							getPaths (x, z, steps, new List<Tile> ());
+							lineRenderer.positionCount = positions.Count;
+							lineRenderer.SetPositions (positions.ToArray ());
+						}
+					}
+					if (!goBack && map [x, z] != currentTile) {
+						if (steps != 0 && currentTile.links.Contains (map [x, z])) {
+							currentTile = map [x, z];
+							positions.Add (new Vector3 (x + TILE_OFFSET, pathHeight, z + TILE_OFFSET));
+							if (currentTile.tileType == Tile.TileType.FLAT) {
+								steps -= 1;
+								stepsreduction = 1;
+							} 
+							if (currentTile.tileType == Tile.TileType.HILL) {
+								stepsreduction = steps;
+								steps = 0;
+							}
+							UpdateText (steps + "");
+							clearAllSelections();
+							getPaths (x, z, steps, new List<Tile> ());
+							lineRenderer.positionCount = positions.Count;
+							lineRenderer.SetPositions (positions.ToArray ());
+						}
+					}
+				}
+			}
+		}
+		if (Input.GetMouseButtonUp (0)) {
+			positions = new List<Vector3> ();  
+			if (canMove) {
+				if (Physics.Raycast (ray, out hit, 100f)) {	
+					if (hit.collider.tag == "Tile") {
+						float x = hit.point.x;
+						float z = hit.point.z;
+						Debug.Log (string.Format ("UPPP x: {0}, z: {1}", x, z));
+						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
+						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
+							Debug.Log ("in");
+							//							movePlayer ((int)x, (int)z);
+							movePlayer(currentTile.x,currentTile.z);
+//							playerTile = map [(int)x, (int)z];
+							playerTile = currentTile;
+							currentTile = playerTile;
+						} else {
+							currentTile = playerTile;
+						}
+					}
+				}
+				clearAllSelections();
+				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> ());
+			}
+			playerSteps = 2;
+			steps = playerSteps;
+			UpdateText (steps + "");
+			canMove = false;
+			lineRenderer.positionCount = 0;
+			lineRenderer.SetPositions (new Vector3[0]);
+		}
 
 
         if (Input.GetMouseButtonDown(1))
@@ -514,6 +527,7 @@ public class MapManager : MonoBehaviour
     {
         baby = Instantiate(babyPrefab, new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET), CHARACTER_ROTATION);
     }
+
 
     void checkMove(int x, int z)
     {

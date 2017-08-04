@@ -12,6 +12,7 @@ public class Tile {
 	public int z;
 
 	public List<Tile> links;
+	public List<Tile> linksDiag;
 	public bool status = false;
 
 	public Tile()

@@ -23,6 +23,7 @@ public class wardrobeManager : MonoBehaviour {
 
     public List<string> inventoryList;
 
+
     //POSITIONS 
     // for buttons: 37.5, + 75 (x); 82.5, -75 (y)
 
@@ -32,7 +33,7 @@ public class wardrobeManager : MonoBehaviour {
 
 
     void Start () {
-
+        
         string inventory = PlayerPrefs.GetString("virtualgoods");
         initializeInventory(inventory);
 

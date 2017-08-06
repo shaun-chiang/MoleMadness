@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 222563995726655660}
   - component: {fileID: 114645278290247348}
   - component: {fileID: 114785349589503884}
-  - component: {fileID: 114801090927399044}
+  - component: {fileID: 114851380960543902}
   m_Layer: 5
   m_Name: ROCK_PRAM_SHOP
   m_TagString: Untagged
@@ -96,7 +96,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114851380960543902}
         m_MethodName: buy
         m_Mode: 2
         m_Arguments:
@@ -109,7 +109,7 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &114801090927399044
+--- !u!114 &114851380960543902
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -117,9 +117,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1664748454732402}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f42a718d399c0d40b49ec7f35dddba5, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f4ad31408e87a740978c77acf9b270e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  popup: {fileID: 0}
 --- !u!222 &222563995726655660
 CanvasRenderer:
   m_ObjectHideFlags: 1

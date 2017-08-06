@@ -21,6 +21,8 @@ public class wardrobeManager : MonoBehaviour {
 
     public List<GameObject> tabsList = new List<GameObject>();
 
+    public List<string> inventoryList;
+
     //POSITIONS 
     // for buttons: 37.5, + 75 (x); 82.5, -75 (y)
 
@@ -30,6 +32,9 @@ public class wardrobeManager : MonoBehaviour {
 
 
     void Start () {
+
+        string inventory = PlayerPrefs.GetString("virtualgoods");
+        initializeInventory(inventory);
 
         initializeEquipped();
        
@@ -46,15 +51,16 @@ public class wardrobeManager : MonoBehaviour {
             i.SetActive(false);
         }
         tabsList[0].SetActive(true);
+
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (hatsinitialized==0)
+
+    // Update is called once per frame
+    void Update () {
+        if (hatsinitialized == 0)
         {
             if (hats_list.Count > 0)
             {
-                initializeLists("hats", hats_list);
+                initializeLists(hats, hats_list);
                 hatsinitialized = 1;
 
             }
@@ -63,7 +69,7 @@ public class wardrobeManager : MonoBehaviour {
         {
             if (weapons_list.Count > 0)
             {
-                initializeLists("weapons", weapons_list);
+                initializeLists(weapons, weapons_list);
                 weaponsinitialized = 1;
 
             }
@@ -72,11 +78,23 @@ public class wardrobeManager : MonoBehaviour {
         {
             if (baby_list.Count > 0)
             {
-                initializeLists("baby", baby_list);
+                initializeLists(baby, baby_list);
                 babyinitialized = 1;
 
             }
         }
+    }
+
+    void initializeInventory(string inventory)
+    {
+        inventory = inventory.Substring(1, inventory.Length - 2);
+        string[] list = inventory.Split(',');
+        for (int i = 0; i<list.Length; i++)
+        {
+            inventoryList.Add(list[i].Substring(1, list[i].Length - 4));
+            Debug.Log(inventoryList[i]);
+        }
+
     }
 
     void getItemsList(string tag, List<GameObject> list, string folder)
@@ -96,18 +114,21 @@ public class wardrobeManager : MonoBehaviour {
                 {
                     List<GameObject> item_list = new List<GameObject>();
                     Debug.Log("Got virtual goods details");
-                    Debug.Log(response.JSONString);
                     jsonmessage = new JSONObject(response.JSONString);
-                    Debug.Log(jsonmessage["virtualGoods"]);
                     for(int i = 0; i<jsonmessage["virtualGoods"].Count;i++)
                     {
                         string item = jsonmessage["virtualGoods"][i]["shortCode"].ToString();
                         item = item.Substring(1, item.Length - 2);
-                        Debug.Log("HERE: " + folder + "/" + item);
-                        list.Add(Resources.Load(folder + "/" + item, typeof(GameObject)) as GameObject);
+                        // check if item is in inventory list or not; if yes: load as per normal; else: load as shop
+                        if(inventoryList.Contains(item))
+                        {
+                            list.Add(Resources.Load(folder + "/" + item, typeof(GameObject)) as GameObject);
+                        } else
+                        {
+                            list.Add(Resources.Load(folder + "/" + item + "_SHOP", typeof(GameObject)) as GameObject);
+                        }
                     }
-
-                    Debug.Log("End virtual goods details");
+                    
 
                 }
                 else
@@ -117,8 +138,9 @@ public class wardrobeManager : MonoBehaviour {
             });
     }
 
-    void initializeLists(string name, List<GameObject> list)
+    void initializeLists(GameObject name, List<GameObject> list)
     {
+
         int index = 0;
         for (int j = 0; j < System.Math.Ceiling(list.Count / 4.0); j++)
         {
@@ -126,8 +148,10 @@ public class wardrobeManager : MonoBehaviour {
             {
                 if (index != list.Count)
                 {
+                    Debug.Log(list[index].name);
                     GameObject test = Instantiate(list[index]);
-                    test.transform.SetParent(GameObject.Find("Canvas/" + name).transform);
+                    
+                    test.transform.SetParent(name.transform);
                     test.transform.position = new Vector3(37.5f + (k * 75), 82.5f + (j * -75), 0);
                     test.transform.localRotation = Quaternion.identity;
                     index += 1;
@@ -153,16 +177,19 @@ public class wardrobeManager : MonoBehaviour {
 
         GameObject hat = Instantiate(Resources.Load("hats/" + equippedList[0], typeof(GameObject))) as GameObject;
         hat.transform.position = new Vector3(-220, -30, 0);
+        hat.transform.SetParent(GameObject.Find("mole").transform);
         hat.transform.localRotation = Quaternion.identity;
         hat.tag = "hat";
 
         GameObject weapon = Instantiate(Resources.Load("weapons/" + equippedList[1], typeof(GameObject))) as GameObject;
         weapon.transform.position = new Vector3(-220, -30, 0);
+        weapon.transform.SetParent(GameObject.Find("mole").transform);
         weapon.transform.localRotation = Quaternion.identity;
         weapon.tag = "weapon";
 
         GameObject baby = Instantiate(Resources.Load("baby/" + equippedList[2], typeof(GameObject))) as GameObject;
         baby.transform.position = new Vector3(-80, -45, 0);
+        baby.transform.SetParent(GameObject.Find("mole").transform);
         baby.transform.localRotation = Quaternion.identity;
         baby.tag = "baby";
     }

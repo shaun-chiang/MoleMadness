@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GameSparks.Api.Requests;
+using UnityEngine.SceneManagement;
 
 public class changeClothes : MonoBehaviour {
 
@@ -48,4 +50,39 @@ public class changeClothes : MonoBehaviour {
         test.transform.localRotation = Quaternion.identity;
         test.tag = "baby";
     }
+
+    public void equipItems()
+    {
+        string equipped = "";
+
+        // get current config 
+        foreach(Transform child in GameObject.Find("mole").transform) 
+        {
+            equipped += " " + child.name.Substring(0, child.name.Length - 10);
+        }
+
+        //this doesnt run??
+        new LogEventRequest().SetEventKey("EQUIP_ITEMS")
+        .SetEventAttribute("newEquip", equipped.Substring(1)) // change string to whatever configuration you need
+        .Send((response) =>
+        {
+            if (!response.HasErrors)
+            {
+                Debug.Log("Equipped");
+                SceneManager.LoadScene("PreMatch");
+            }
+            else
+            {
+                Debug.Log("Error Equipping");
+            }
+        });
+
+    }
+
+    public void cancelEquip()
+    {
+        SceneManager.LoadScene("PreMatch");
+    }
+
+
 }

@@ -35,6 +35,7 @@ public class wardrobeManager : MonoBehaviour {
     void Start () {
         
         string inventory = PlayerPrefs.GetString("virtualgoods");
+        Debug.Log("URGH " + inventory);
         initializeInventory(inventory);
 
         initializeEquipped();
@@ -88,11 +89,10 @@ public class wardrobeManager : MonoBehaviour {
 
     void initializeInventory(string inventory)
     {
-        inventory = inventory.Substring(1, inventory.Length - 2);
-        string[] list = inventory.Split(',');
+        string[] list = inventory.Split(' ');
         for (int i = 0; i<list.Length; i++)
         {
-            inventoryList.Add(list[i].Substring(1, list[i].Length - 4));
+            inventoryList.Add(list[i]);
             Debug.Log(inventoryList[i]);
         }
 

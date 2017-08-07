@@ -100,9 +100,6 @@ public class changeClothes : MonoBehaviour {
             equipped += " " + equipList[2];
         }
 
-        Debug.Log(equipped.Substring(1));
-
-        //this doesnt run??
         new LogEventRequest().SetEventKey("EQUIP_ITEMS")
         .SetEventAttribute("newEquip", equipped.Substring(1)) // change string to whatever configuration you need
         .Send((response) =>

@@ -47,7 +47,8 @@ public class MapManager : MonoBehaviour
 	public int playerSteps = 2;
 	public int steps;
 	private int stepsreduction;
-	public bool canMove = false;
+	public bool canMove;
+	public bool setPath;
 
 	//PowerUps
 	public bool power_diagonal; 
@@ -109,16 +110,9 @@ public class MapManager : MonoBehaviour
 
 		// Initialising the Line Renderer for path direction
 		lineRenderer = gameObject.AddComponent<LineRenderer>();
-//		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
+//		lineRenderer.material = new Material(Shader.Find("Standard"));
 		lineRenderer.widthMultiplier = 0.2f;
 		// A simple 2 color gradient with a fixed alpha of 1.0f.
-		float alpha = 1.0f;
-		Gradient gradient = new Gradient();
-		gradient.SetKeys(
-			new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
-			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
-		);
-		lineRenderer.colorGradient = gradient;
 		lineRenderer.positionCount = 0;
 		pathHeight = 0.05f;
 
@@ -283,7 +277,7 @@ public class MapManager : MonoBehaviour
 							positions.RemoveAt(positions.Count-1);
 							UpdateText (steps + "");
 							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> (), power_diagonal);
+							getPaths (x, z, steps, power_diagonal);
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
 						}
@@ -306,7 +300,7 @@ public class MapManager : MonoBehaviour
 							}
 							UpdateText (steps + "");
 							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> (), power_diagonal);
+							getPaths (x, z, steps, power_diagonal);
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
 						}
@@ -314,9 +308,8 @@ public class MapManager : MonoBehaviour
 				}
 			}
 		}
-		if (Input.GetMouseButtonUp (0)) {
-			positions = new List<Vector3> ();  
-			if (canMove) {
+		if (Input.GetMouseButtonUp (0)) {  
+			if (canMove && !setPath) {
 				if (Physics.Raycast (ray, out hit, 100f)) {	
 					if (hit.collider.tag == "Tile") {
 						float x = hit.point.x;
@@ -325,22 +318,36 @@ public class MapManager : MonoBehaviour
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
 						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
 							Debug.Log ("in");
-							//							movePlayer ((int)x, (int)z);
 							movePlayer(currentTile.x,currentTile.z);
-//							playerTile = map [(int)x, (int)z];
 							playerTile = currentTile;
 							currentTile = playerTile;
+
+							if (currentTile.tileType == Tile.TileType.HILL) {
+								map [(int)currentTile.x, (int)currentTile.z].tileType = Tile.TileType.HOLE;
+							} else {						
+								for (int i = 1; i < positions.Count; i++) {
+									int pX = (int)positions[i].x;
+									int pZ = (int)positions[i].z;
+									map [pX, pZ].tileType = Tile.TileType.HOLE;
+								}
+							}
+							generating = true;
+							recreateMap();
+							createTilesFromMap ();
+							generating = false;
+								
 						} else {
 							currentTile = playerTile;
 						}
 					}
 				}
 				clearAllSelections();
-				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> (), power_diagonal);
+				getPaths (playerTile.x, playerTile.z, playerSteps, power_diagonal);
 			}
+			positions = new List<Vector3> ();
 			playerSteps = 2;
 			steps = playerSteps;
-			UpdateText (steps + "");
+//			UpdateText (steps + "");
 			canMove = false;
 			lineRenderer.positionCount = 0;
 			lineRenderer.SetPositions (new Vector3[0]);
@@ -486,6 +493,16 @@ public class MapManager : MonoBehaviour
             }
         }
     }
+	void recreateMap()
+	{
+		for (int x = 0; x < width; x++)
+		{
+			for (int z = 0; z < height; z++)
+			{
+				Destroy(map[x, z].tileObject);
+			}
+		}
+	}
 
     void clearAllSelections()
     {
@@ -628,39 +645,47 @@ public class MapManager : MonoBehaviour
 	}
 
 
-	//Get the path of the player and cast selection on these paths
-	List<Tile> getPaths(int x, int z, int steps, List<Tile> explored, bool diag = false ,bool showProjections = true)
+
+	List<Tile> getPaths(int x, int z, int steps, bool diag = false)
 	{
 		List<Tile> output = new List<Tile> ();
-		output.Add (map [x, z]);
-		if (showProjections) {
-			castSelection(x, z);
-		}
-		if (map[x,z].tileType == Tile.TileType.HILL) {
-			steps = 0;
-		}
-		if (steps !=0){
-			List<Tile> linkage = map [x, z].links;
-			if (diag) {
-				linkage = map [x, z].linksDiag;
-			}
-			foreach (Tile link in linkage) {
-				if (!explored.Contains (link)) {
-					output.Add (link);
-					if (showProjections) {
-						castSelection (link.x, link.z);
-					}
-					if (link.tileType == Tile.TileType.HOLE) {
-						output.AddRange (getPaths (link.x, link.z, steps, output, diag));
-					}
-					for (int step = steps - 1; step > 0; step--) {
-						output.AddRange (getPaths (link.x, link.z, step, output, diag));
+		if (steps != 0) {
+			oneMove (x, z, new List<Tile> (), diag);
+			output.AddRange (oneMove (x, z, new List<Tile> (), diag));
+			List<Tile> explored = new List<Tile> (output);
+			explored.RemoveAt(0);
+			if (steps == 2) {
+				foreach (Tile tile in explored) {
+					if (tile.tileType != Tile.TileType.HILL) {
+						output.AddRange (oneMove (tile.x, tile.z, output, diag));
 					}
 				}
 			}
 		}
-	
+		
 		return output;
+	}
 
+	List<Tile> oneMove(int x, int z, List<Tile> explored, bool diag = false)
+	{
+		List<Tile> output = new List<Tile> ();
+//		output.AddRange (explored);
+		output.Add (map [x, z]);
+		castSelection (x, z);
+		List<Tile> linkage = map [x, z].links;
+		if (diag) {
+			linkage = map [x, z].linksDiag;
+		}
+		foreach (Tile link in linkage) {
+			if (!explored.Contains (link) && !output.Contains (link)) {
+				output.Add (link);
+				castSelection (link.x, link.z);
+				if (link.tileType == Tile.TileType.HOLE) {
+					explored.AddRange (output);
+					output.AddRange (oneMove (link.x, link.z, explored, diag));
+				}
+			}
+		}
+		return output;
 	}
 }

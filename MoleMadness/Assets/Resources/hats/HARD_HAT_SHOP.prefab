@@ -69,6 +69,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   popup: {fileID: 0}
+  font: {fileID: 12800000, guid: c44e265304245fb45a68711483bb6e4d, type: 3}
 --- !u!114 &114760604505064436
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -112,7 +113,8 @@ MonoBehaviour:
         m_MethodName: buy
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 1005266139431052}
+          m_ObjectArgument: {fileID: 1688580546172892, guid: 4dbb9383fc99c634595063975d34a9eb,
+            type: 2}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0

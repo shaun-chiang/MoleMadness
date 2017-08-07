@@ -9,6 +9,7 @@ public class prematchManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         string equipped = PlayerPrefs.GetString("equipped");
+        Debug.Log("HERE " + equipped);
         //Debug.Log(equippedList2);
 
         string[] equippedList;

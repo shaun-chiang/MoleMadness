@@ -119,6 +119,7 @@ public class wardrobeManager : MonoBehaviour {
                     for(int i = 0; i<jsonmessage["virtualGoods"].Count;i++)
                     {
                         string item = jsonmessage["virtualGoods"][i]["shortCode"].ToString();
+                        string price = jsonmessage["virtualGoods"][i]["currency1Cost"].ToString();
                         item = item.Substring(1, item.Length - 2);
                         // check if item is in inventory list or not; if yes: load as per normal; else: load as shop
                         if(inventoryList.Contains(item))

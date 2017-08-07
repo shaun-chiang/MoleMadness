@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 222608616165332668}
   - component: {fileID: 114335456530016994}
   m_Layer: 5
-  m_Name: rock_pram_img
+  m_Name: ROCK_PRAM_IMG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

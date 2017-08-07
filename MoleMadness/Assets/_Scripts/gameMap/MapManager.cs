@@ -73,7 +73,7 @@ public class MapManager : MonoBehaviour
     {
         if (mapManagerInstance != null)
         {
-            DestroyObject(gameObject);
+            DestroyObject(gameObject); 
         }
         else
         {
@@ -163,6 +163,8 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
         // For testing only
         if (Input.GetKeyDown(KeyCode.G))
         {
@@ -189,12 +191,13 @@ public class MapManager : MonoBehaviour
 		}
         if (Input.GetMouseButtonDown(0))
         {
-            if (Physics.Raycast(ray, out hit, 100f))
-            {
+            Debug.Log(string.Format("GameState: {0},GameTurn: {1}", GameManager.currentGameState, GameManager.currentGameTurn));
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+            { 
                 int x = (int)hit.point.x;
                 int z = (int)hit.point.z;
                 // logic for handling spawning mother state
-                if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
+                if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
                 {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
@@ -202,7 +205,7 @@ public class MapManager : MonoBehaviour
                         initMother(x, z);
                         UpdateText(string.Format("Spawn Mother at {0},{1}", x, z));
                         instructionText.text = "Place Baby";
-                        gameManagerInstance.currentGameState = GameManager.GameState.SPAWNINGBABY;
+                        GameManager.currentGameState = GameManager.GameState.SPAWNINGBABY;
 
                         playerTile = map[x, z];
                         clearSelection(x, z);
@@ -213,7 +216,7 @@ public class MapManager : MonoBehaviour
                     }
                 }
                 // logic to handle touch when spawning baby
-                else if (gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY || gameManagerInstance.currentGameState == GameManager.GameState.RESPAWNBABY)
+                else if (GameManager.currentGameState == GameManager.GameState.SPAWNINGBABY || GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
@@ -221,7 +224,7 @@ public class MapManager : MonoBehaviour
                         int motherX = (int)mother.transform.position.x;
                         int motherZ = (int)mother.transform.position.z;
                         Debug.Log(motherX + "," + motherZ);
-                        if (motherX == x && motherZ == z && gameManagerInstance.currentGameState == GameManager.GameState.SPAWNINGBABY)
+                        if (motherX == x && motherZ == z && GameManager.currentGameState == GameManager.GameState.SPAWNINGBABY)
                         {
                             UpdateText("You must spawn baby away from mother for the start of the game");
                         }
@@ -229,9 +232,11 @@ public class MapManager : MonoBehaviour
                         {
                             initBaby(x, z);
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
-                            gameManagerInstance.currentGameState = GameManager.GameState.PLAYERTURN;
                             clearAllSelections();
-                            GameManager.initPosition(mother.transform.position, baby.transform.position);
+                            if (GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
+                            {
+                                GameManager.initPosition(mother.transform.position, baby.transform.position);
+                            }
                         }
                     }
                     else
@@ -239,7 +244,7 @@ public class MapManager : MonoBehaviour
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
                 }
-                else
+                else if (GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
                 {
                     if (hit.collider.tag == "Tile")
                     {	
@@ -262,8 +267,9 @@ public class MapManager : MonoBehaviour
             }
         }
 		if (Input.GetMouseButton (0)) {	
-			if (Physics.Raycast (ray, out hit, 100f)) {	
-				if (hit.collider.tag == "Tile" && canMove) {
+			if (Physics.Raycast (ray, out hit, 100f)) {
+                //print(string.Format("Turn:{0} ,State:{1}",GameManager.currentGameTurn,GameManager.currentGameState));
+				if (hit.collider.tag == "Tile" && canMove && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN && GameManager.currentGameState == GameManager.GameState.ACTIVE) {
 					int x = (int)hit.point.x;
 					int z = (int)hit.point.z;
 					Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
@@ -319,7 +325,7 @@ public class MapManager : MonoBehaviour
 			positions = new List<Vector3> ();  
 			if (canMove) {
 				if (Physics.Raycast (ray, out hit, 100f)) {	
-					if (hit.collider.tag == "Tile") {
+					if (hit.collider.tag == "Tile" && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN && GameManager.currentGameState == GameManager.GameState.ACTIVE) {
 						float x = hit.point.x;
 						float z = hit.point.z;
 						Debug.Log (string.Format ("UPPP x: {0}, z: {1}", x, z));
@@ -348,50 +354,50 @@ public class MapManager : MonoBehaviour
 		}
 
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (!generating)
-            {
-                PowerManager.PowerType powerRandom = (PowerManager.PowerType)pseudoRandom.Next(4);
+        //if (Input.GetMouseButtonDown(1))
+        //{
+        //    if (!generating)
+        //    {
+        //        PowerManager.PowerType powerRandom = (PowerManager.PowerType)pseudoRandom.Next(4);
 
-                Debug.Log("Spawn power with right click");
-                generating = true;
-                PowerManager.spawnPower(3, 6, powerRandom);
-                generating = false;
-            }
-            else
-            {
-                Debug.Log("Pressed right click when generating.");
-            }
+        //        Debug.Log("Spawn power with right click");
+        //        generating = true;
+        //        PowerManager.spawnPower(3, 6, powerRandom);
+        //        generating = false;
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("Pressed right click when generating.");
+        //    }
 
-            //if (!generating)
-            //{
-            //    Debug.Log("Inverting with right click");
-            //    generating = true;
-            //    invertMap();
-            //    generating = false;
-            //} else
-            //{
-            //    Debug.Log("Pressed right click when generating.");
-            //}
-        }
+        //    //if (!generating)
+        //    //{
+        //    //    Debug.Log("Inverting with right click");
+        //    //    generating = true;
+        //    //    invertMap();
+        //    //    generating = false;
+        //    //} else
+        //    //{
+        //    //    Debug.Log("Pressed right click when generating.");
+        //    //}
+        //}
 
-        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Input.GetMouseButtonDown(2))
-        {
-            if (Physics.Raycast(ray, out hit, 100f))
-            {
-                if (hit.collider.tag == "Tile")
-                {
-                    int x = (int)hit.point.x;
-                    int z = (int)hit.point.z;
-                    Debug.Log("Found Tile.");
-                    castSelection(x, z);
-                    //Debug.Log(hit.point.ToString());
-                    //Debug.Log(string.Format("x: {0}, z: {1}",x,z));
-                }
-            }
-        }
+        //ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //if (Input.GetMouseButtonDown(2))
+        //{
+        //    if (Physics.Raycast(ray, out hit, 100f))
+        //    {
+        //        if (hit.collider.tag == "Tile")
+        //        {
+        //            int x = (int)hit.point.x;
+        //            int z = (int)hit.point.z;
+        //            Debug.Log("Found Tile.");
+        //            castSelection(x, z);
+        //            //Debug.Log(hit.point.ToString());
+        //            //Debug.Log(string.Format("x: {0}, z: {1}",x,z));
+        //        }
+        //    }
+        //}
 
     }
 
@@ -447,6 +453,11 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public static void initMotherAndBaby()
+    {
+
     }
 
     void createTilesFromMap()
@@ -630,6 +641,49 @@ public class MapManager : MonoBehaviour
 		return output;
 	}
 
+    public Tile.TileType[,] constructTileMapFromString(string stringMap)
+    {
+        //Tile.TileType[,] tileMap = new Tile.TileType[width, height];
+        //string[] rows = stringMap.Split(';');
+        //for (int rowNum = 0; rowNum < rows.Length; rowNum++)
+        //{
+        //    string[] elements = rows[rowNum].Split(',');
+        //    for (int colNum = 0; colNum < elements.Length; colNum++)
+        //    {
+        //        int tileTypeConst = int.Parse(elements[colNum]);
+        //        Tile.TileType tileType = (Tile.TileType)tileTypeConst;
+        //        tileMap[colNum, rowNum] = tileType;
+        //    }
+        //}
+
+        Tile.TileType[,] tileMap = new Tile.TileType[width, height];
+        string[] cols = stringMap.Split(';');
+        for (int colNum = 0;colNum < cols.Length; colNum++)
+        {
+            string[] elements = cols[colNum].Split(',');
+            for (int rowNum = 0; rowNum < elements.Length; rowNum++)
+            {
+                int tileTypeConst = int.Parse(elements[rowNum]);
+                Tile.TileType tileType = (Tile.TileType)tileTypeConst;
+                tileMap[colNum, rowNum] = tileType;
+            }
+        }
+        return tileMap;
+    }
+
+    public int[,] convertTileToIntMap()
+    {
+        int[,] intMap = new int[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                intMap[x, z] = (int) map[x, z].tileType;                 
+            }
+        }
+        return intMap;
+    }
+
     public string convertIntMapToString(int[,] intMap)
     {
         string stringMap = "";
@@ -651,48 +705,18 @@ public class MapManager : MonoBehaviour
         return stringMap;
     }
 
-    public Tile.TileType[,] constructTileMapFromString(string stringMap)
-    {
-        Tile.TileType[,] tileMap = new Tile.TileType[width, height];
-        string[] rows = stringMap.Split(';');
-        for (int rowNum = 0;rowNum < rows.Length; rowNum++)
-        {
-            string[] elements = rows[rowNum].Split(',');
-            for (int colNum = 0;colNum < elements.Length; colNum++)
-            {
-                int tileTypeConst = int.Parse(elements[colNum]);
-                Tile.TileType tileType = (Tile.TileType)tileTypeConst;
-                tileMap[colNum, rowNum] = tileType;
-            }
-        }
-        return tileMap;
-    }
-
-    public int[,] convertTileToIntMap()
-    {
-        int[,] intMap = new int[width, height];
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < height; z++)
-            {
-                intMap[x, z] = (int) map[x, z].tileType;                 
-            }
-        }
-        return intMap;
-    }
-
-    public Tile.TileType[,] convertIntToTileMap(int[,] intMap)
-    {
-        Tile.TileType[,] tileMap = new Tile.TileType[width, height];
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < height; z++)
-            {
-                tileMap[x, z] = (Tile.TileType)intMap[x, z];
-            }
-        }
-        return tileMap;
-    }
+    //public Tile.TileType[,] convertIntToTileMap(int[,] intMap)
+    //{
+    //    Tile.TileType[,] tileMap = new Tile.TileType[width, height];
+    //    for (int x = 0; x < width; x++)
+    //    {
+    //        for (int z = 0; z < height; z++)
+    //        {
+    //            tileMap[x, z] = (Tile.TileType)intMap[x, z];
+    //        }
+    //    }
+    //    return tileMap;
+    //}
 
     //Get the path of the player and cast selection on these paths
     List<Tile> getPaths(int x, int z, int steps, List<Tile> explored, bool diag = false, bool showProjections = true)

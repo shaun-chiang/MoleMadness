@@ -8,16 +8,18 @@ using UnityEngine.SceneManagement;
 public class GameManager
 {
 
-    public enum GameState { SPAWNINGMOTHER, SPAWNINGBABY, PLAYERTURN, OPPONENTTURN, RESPAWNBABY };
+    public enum GameState { SPAWNINGMOTHER, SPAWNINGBABY, RESPAWNBABY, WAITING , ACTIVE};
+    public enum GameTurn { PLAYERTURN, OPPONENTTURN};
     public enum Characters { MOTHER, BABY }
     public enum MoveResult { NOTHING, HITBABY }
 
-    public GameState currentGameState;
+    public static GameState currentGameState;
+    public static GameTurn currentGameTurn;
     public static GameManager gameManagerinstance;
     public static MapManager mapManagerInstance;
     public static bool player1;
+    public static bool p2ready;
     public static int movesLeft;
-    public static bool myTurn;
     public static int myBabyHealth;
     public static int oppBabyHealth;
 
@@ -58,10 +60,12 @@ public class GameManager
         if (myId == player1Id)
         {
             PlayerPrefs.SetInt("player1", 1);
+            currentGameTurn = GameTurn.PLAYERTURN;
         }
         else
         {
             PlayerPrefs.SetInt("player1", 0);
+            currentGameTurn = GameTurn.OPPONENTTURN;
         }
 
         // Load Game Map first to init mapManagerInstance
@@ -85,6 +89,7 @@ public class GameManager
         mapManagerInstance.instructionText.text = "Place Mother";
     }
 
+    // called only when initialize=ing mother and baby position
     public static void initPosition(Vector3 motherPos, Vector3 babyPos)
     {
         string cid = getChallengeId();
@@ -98,19 +103,33 @@ public class GameManager
            .Send((response) =>
            {
                if (!response.HasErrors)
-               {
-                   Debug.Log("Positions Set");
+               { 
                    if (PlayerPrefs.GetInt("player1") == 1)
                    {
+                       Debug.Log("Positions Set for player 1");
                        player1 = true;
-                       myTurn = true;
-                       mapManagerInstance.instructionText.text = "Move Mother";
+                       endTurn();
+                       mapManagerInstance.instructionText.text = "Waiting for opponent";
+                       currentGameState = GameState.WAITING;
+
+                       //mapManagerInstance.instructionText.text = "Move Mother";
                    }
                    else
                    {
+                       Debug.Log("Positions Set for player 2");
                        player1 = false;
-                       myTurn = false;
-                       mapManagerInstance.instructionText.text = "Opponent's turn";
+                       // player has already init mother and baby mole
+                       if (currentGameTurn == GameTurn.PLAYERTURN)
+                       {
+                           mapManagerInstance.instructionText.text = "Opponent's Turn";
+                           endTurn();
+                       } else
+                       {
+                           // wait for first player to finish
+                           // send positions in listener logic
+                           mapManagerInstance.instructionText.text = "Waiting for opponent";
+                           p2ready = true;
+                       }
                    }
                }
                else
@@ -148,6 +167,10 @@ public class GameManager
                     mapManagerInstance.movePlayer(x, z);
                     movesLeft -= 1;
                     mapManagerInstance.moveText.text = "Move: " + movesLeft;
+                    if (movesLeft == 0)
+                    {
+                        endTurn();
+                    }
                 }
                 else
                 {
@@ -182,4 +205,80 @@ public class GameManager
                     });
     }
 
+    public static void startTurn()
+    {
+        new LogChallengeEventRequest().SetEventKey("action_STARTTURN")
+            .SetEventAttribute("challengeInstanceId",getChallengeId())
+            .Send((response) =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Successful Start Turn");
+                    // init moves
+                    movesLeft = 3;
+                    mapManagerInstance.moveText.text = "Move: " + movesLeft;
+
+                    // set Instruction to place Mother Mole
+                    mapManagerInstance.instructionText.text = "Move Mother";
+                }
+                else
+                {
+                    Debug.Log("Unsuccessful Start Turn");
+                }
+            });
+    }
+
+    public static void endTurn()
+    {
+        new LogChallengeEventRequest().SetEventKey("action_ENDTURN")
+            .SetEventAttribute("challengeInstanceId",getChallengeId())
+            .Send((response) =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Successful End Turn");
+                }
+                else
+                {
+                    Debug.Log("Unsuccessful End Turn");
+                }
+            });
+
+    }
+
+    public static void startRespawnTimer()
+    {
+        new LogChallengeEventRequest().SetEventKey("START_TIMER")
+            .SetEventAttribute("challengeInstanceId",getChallengeId())
+            .SetEventAttribute("SECONDS",15)
+            .Send((response) =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Successful Start timer");
+                }
+                else
+                {
+                    Debug.Log("Unsuccessful Start timer");
+                }
+            });
+    }
+
+    public static void stopRespawnTimer()
+    {
+        new LogChallengeEventRequest().SetEventKey("STOP_TIMER")
+            .SetEventAttribute("challengeInstanceId",getChallengeId())
+            .Send((response) =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Successful stop respawn timer");
+                }
+                else
+                {
+                    Debug.Log("Unsuccessful stop respawn timer");
+                }
+            });
+
+    }
 }

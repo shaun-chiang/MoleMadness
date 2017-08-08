@@ -35,7 +35,7 @@ public class wardrobeManager : MonoBehaviour {
     void Start () {
         
         string inventory = PlayerPrefs.GetString("virtualgoods");
-        Debug.Log("URGH " + inventory);
+
         initializeInventory(inventory);
 
         initializeEquipped();
@@ -93,7 +93,6 @@ public class wardrobeManager : MonoBehaviour {
         for (int i = 0; i<list.Length; i++)
         {
             inventoryList.Add(list[i]);
-            Debug.Log(inventoryList[i]);
         }
 
     }
@@ -150,7 +149,6 @@ public class wardrobeManager : MonoBehaviour {
             {
                 if (index != list.Count)
                 {
-                    Debug.Log(list[index].name);
                     GameObject test = Instantiate(list[index]);
                     
                     test.transform.SetParent(name.transform);

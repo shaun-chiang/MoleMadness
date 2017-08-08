@@ -15,10 +15,7 @@ public class GameSparksAccountDetailsListener : MonoBehaviour {
             if (!response.HasErrors)
             {
                 Debug.Log("Got Player Details");
-                Debug.Log(response);
                 JSONObject jsonmessage = new JSONObject(response.JSONString);
-                Debug.Log(jsonmessage);
-                Debug.Log(jsonmessage["scriptData"]["equippedItems"]);
                 PlayerPrefs.SetString("playerId", jsonmessage["userId"].ToString());
                 PlayerPrefs.SetString("equipped", jsonmessage["scriptData"]["equippedItems"].ToString());
 

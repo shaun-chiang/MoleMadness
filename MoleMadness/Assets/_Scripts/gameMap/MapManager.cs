@@ -43,6 +43,9 @@ public class MapManager : MonoBehaviour
 	public float pathHeight;
 	public List<Vector3> positions;
 
+	//Animation
+	public GameObject animation;
+
 
 	//Player Steps and Position information
 	public Tile currentTile; // Path position - The current movement
@@ -73,7 +76,7 @@ public class MapManager : MonoBehaviour
     public const float TILE_SIZE = 1;
     public const float TILE_OFFSET = 0.5f;
 
-    private const float CHARACTER_HEIGHT = 0.01f;
+    private const float CHARACTER_HEIGHT = 0.2f;
     private const float PROJECTION_HEIGHT = 0.00f;
     private Quaternion CHARACTER_ROTATION = Quaternion.Euler(90, 0, 0);
 
@@ -197,23 +200,22 @@ public class MapManager : MonoBehaviour
 			power_diagonal = false;
 		}
 		if (Input.GetKeyDown (KeyCode.W)) {
-			power_earthshake = true;
-			int x = (int)playerTile.x;
-			int z = (int)playerTile.z;
-			for (int w = 0; w < width; w++)
-			{
-				for (int h = 0; h < height; h++)
-				{
-					if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
-						castRedSelection (w, h);
+			if (power_earthshake) {
+				power_earthshake = false;
+				clearAllRedSelections();
+			} else {
+				power_earthshake = true;
+				int x = (int)playerTile.x;
+				int z = (int)playerTile.z;
+				for (int w = 0; w < width; w++) {
+					for (int h = 0; h < height; h++) {
+						if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
+							castRedSelection (w, h);
+						}
 					}
 				}
 			}
 	
-		}
-		if (Input.GetKeyDown (KeyCode.S)) {
-			power_earthshake = false;
-			clearAllRedSelections();
 		}
 		if (Input.GetKeyDown (KeyCode.E)) {
 			power_excavator = true;
@@ -455,24 +457,31 @@ public class MapManager : MonoBehaviour
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
 						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
 							Debug.Log ("in");
-							movePlayer(currentTile.x,currentTile.z);
 							playerTile = currentTile;
 							currentTile = playerTile;
 
 							if (currentTile.tileType == Tile.TileType.HILL) {
 								map [(int)currentTile.x, (int)currentTile.z].tileType = Tile.TileType.HOLE;
+//								if (positions.Count > 2) {
+//									for (int i = 1; i < positions.Count - 1; i++) {
+//										movePlayer((int)positions[i].x,(int)positions[i].z);
+//									}
+//								}
+								animation.GetComponent<Smashing_Animation> ().action ();
 							} else {						
 								for (int i = 1; i < positions.Count; i++) {
 									int pX = (int)positions[i].x;
 									int pZ = (int)positions[i].z;
 									map [pX, pZ].tileType = Tile.TileType.HOLE;
 								}
+								animation.GetComponent<Digging_Animation> ().action ();
 							}
 							reloadMap ();
 								
 						} else {
 							currentTile = playerTile;
 						}
+						movePlayer(currentTile.x,currentTile.z);
 					}
 				}
 				clearAllSelections();

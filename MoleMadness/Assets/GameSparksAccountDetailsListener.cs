@@ -9,7 +9,6 @@ public class GameSparksAccountDetailsListener : MonoBehaviour {
 
     void Start()
     {
-        PlayerPrefs.SetString("stars", "0");
 
         new AccountDetailsRequest().Send((response) =>
         {

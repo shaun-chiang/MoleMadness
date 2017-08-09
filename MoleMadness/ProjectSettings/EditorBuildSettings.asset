@@ -21,8 +21,11 @@ EditorBuildSettings:
     path: Assets/_Scenes/Game Map.unity
     guid: b7909e84e6b3c294586c208e07f4c02a
   - enabled: 1
-    path: Assets/_Scenes/PostMatch.unity
+    path: Assets/_Scenes/PostMatchWin.unity
     guid: 3be981681d48ec146800d0495d0e6fd5
   - enabled: 1
     path: Assets/_Scenes/Wardrobe.unity
     guid: f77ce736fb645b6448ac9f71ee2d4309
+  - enabled: 1
+    path: Assets/_Scenes/Matchmaking.unity
+    guid: b320e935b3e214e44b39be75e55d6ad0

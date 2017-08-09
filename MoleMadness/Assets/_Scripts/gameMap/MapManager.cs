@@ -209,6 +209,10 @@ public class MapManager : MonoBehaviour
 			clearAllRedSelections();
 		}
 		if (Input.GetKeyDown (KeyCode.E)) {
+			power_escavator = true;
+			escavatorTile = map [playerTile.x, playerTile.z];
+		}
+		if (Input.GetKeyDown (KeyCode.R)) {
 			power_moleInstinct = true;
 			float angle = Vector3.Angle(new Vector3 (playerTile.x, pathHeight, playerTile.z), new Vector3 (babyMolePosition.x, pathHeight, babyMolePosition.z));
 			UpdateText (angle + "");
@@ -259,7 +263,6 @@ public class MapManager : MonoBehaviour
                         }
 						babyMolePosition = map [x, z];
 						//power
-						escavatorTile = map [x, z];
                     }
                     else
                     {
@@ -319,8 +322,6 @@ public class MapManager : MonoBehaviour
 						int motherX = (int) mother.transform.position.x;
 						int motherZ = (int) mother.transform.position.z;
 
-						int escavatorX = (int) escavatorTile.x;
-						int escavatorZ = (int) escavatorTile.z;
 
 						if (motherX == x && motherZ == z)
 						{
@@ -333,10 +334,11 @@ public class MapManager : MonoBehaviour
 							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 			
 						}
-						if (escavatorX == x && escavatorZ == z) 
-						{
-							power_escavator = true;
-							escavatorPath = oneMove (x, z, new List<Tile>(), power_diagonal, power_escavator);
+						if (power_escavator) {
+							if (escavatorTile.x == x && escavatorTile.z == z) {
+								power_escavator = true;
+								escavatorPath = oneMove (x, z, new List<Tile> (), power_diagonal, power_escavator);
+							}
 						}
 					} 
                 }

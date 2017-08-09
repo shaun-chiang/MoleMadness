@@ -33,17 +33,24 @@ public class MapManager : MonoBehaviour
     public GameObject babyPrefab;
     public GameObject[] selections;
     public GameObject[] powers;
+	public GameObject direction;
+	private GameObject arrow;
+	public GameObject machine;
+	private GameObject excavator;
 
 	//Line Renderer
 	public LineRenderer lineRenderer;
 	public float pathHeight;
 	public List<Vector3> positions;
 
+	//Animation
+	public GameObject animation;
+
 
 	//Player Steps and Position information
 	public Tile currentTile; // Path position - The current movement
 	public Tile playerTile; // Player's position
-	public Tile escavatorTile; // Escavator's position
+	public Tile excavatorTile; // Excavator's position
 	public int playerSteps = 2;
 	public int steps;
 	private int stepsreduction;
@@ -53,8 +60,9 @@ public class MapManager : MonoBehaviour
 	//PowerUps
 	public bool power_diagonal; 
 	public bool power_earthshake;
-	public bool power_escavator;
-	public List<Tile> escavatorPath;
+	public bool power_excavator;
+	public List<Tile> excavatorPath;
+	private bool excavator_active = false;
 	public bool power_moleInstinct;
 	public Tile babyMolePosition;
 
@@ -68,7 +76,7 @@ public class MapManager : MonoBehaviour
     public const float TILE_SIZE = 1;
     public const float TILE_OFFSET = 0.5f;
 
-    private const float CHARACTER_HEIGHT = 0.01f;
+    private const float CHARACTER_HEIGHT = 0.2f;
     private const float PROJECTION_HEIGHT = 0.00f;
     private Quaternion CHARACTER_ROTATION = Quaternion.Euler(90, 0, 0);
 
@@ -127,7 +135,7 @@ public class MapManager : MonoBehaviour
 		//Powerup initialization
 		power_diagonal = false;
 		power_earthshake = false;
-		power_escavator = false;
+		power_excavator = false;
 		power_moleInstinct = false;
     }
 
@@ -192,32 +200,62 @@ public class MapManager : MonoBehaviour
 			power_diagonal = false;
 		}
 		if (Input.GetKeyDown (KeyCode.W)) {
-			power_earthshake = true;
-			int x = (int)playerTile.x;
-			int z = (int)playerTile.z;
-			for (int w = 0; w < width; w++)
-			{
-				for (int h = 0; h < height; h++)
-				{
-					if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
-						castRedSelection (w, h);
+			if (power_earthshake) {
+				power_earthshake = false;
+				clearAllRedSelections();
+			} else {
+				power_earthshake = true;
+				int x = (int)playerTile.x;
+				int z = (int)playerTile.z;
+				for (int w = 0; w < width; w++) {
+					for (int h = 0; h < height; h++) {
+						if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
+							castRedSelection (w, h);
+						}
 					}
 				}
 			}
 	
 		}
-		if (Input.GetKeyDown (KeyCode.S)) {
-			power_earthshake = false;
-			clearAllRedSelections();
-		}
 		if (Input.GetKeyDown (KeyCode.E)) {
-			power_escavator = true;
-			escavatorTile = map [playerTile.x, playerTile.z];
+			power_excavator = true;
+			excavatorTile = map [playerTile.x, playerTile.z];
+			excavator = Instantiate (machine, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), transform.rotation);
 		}
 		if (Input.GetKeyDown (KeyCode.R)) {
 			power_moleInstinct = true;
-			float angle = Vector3.Angle(new Vector3 (playerTile.x, pathHeight, playerTile.z), new Vector3 (babyMolePosition.x, pathHeight, babyMolePosition.z));
-			UpdateText (angle + "");
+			DestroyObject (arrow);
+			if (babyMolePosition.z > playerTile.z) {
+				if (babyMolePosition.x == playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.5f), transform.rotation);
+				} else if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.4f), Quaternion.Euler (0, 45, 0));
+				} else {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.4f), Quaternion.Euler (0, 315, 0));
+				}
+
+			}
+			else if (babyMolePosition.z < playerTile.z) {
+				if (babyMolePosition.x == playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.5f), Quaternion.Euler (0, 180, 0));
+				} else if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.4f), Quaternion.Euler (0, 135, 0));
+				} else {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.4f), Quaternion.Euler (0, 225, 0));
+				}
+			}
+			else {
+				if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate(direction, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.5f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), Quaternion.Euler(0, 90, 0));
+				}
+				else if (babyMolePosition.x < playerTile.x) {
+					arrow = Instantiate(direction, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.5f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), Quaternion.Euler(0, 270, 0));
+				}
+			}
+		}
+		if (Input.GetKeyDown (KeyCode.P)) {
+			GameManager.currentGameTurn = GameManager.GameTurn.PLAYERTURN;
+			GameManager.currentGameState = GameManager.GameState.ACTIVE;
 		}
         if (Input.GetMouseButtonDown(0))
         {
@@ -269,7 +307,6 @@ public class MapManager : MonoBehaviour
                             }
                         }
 						babyMolePosition = map [x, z];
-						//power
                     }
                     else
                     {
@@ -313,14 +350,14 @@ public class MapManager : MonoBehaviour
 						power_earthshake = false;
 
 					}
-					else if (power_escavator)
+					else if (excavator_active)
 					{
-						if (escavatorPath.Contains(map[x,z]))
+						if (excavatorPath.Contains(map[x,z]))
 						{
 							map [x, z].tileType = Tile.TileType.HOLE;
 							reloadMap ();
 							clearAllRedSelections ();
-							power_escavator = false;
+							excavator_active = false;
 						}
 					}
                     else if (hit.collider.tag == "Tile")
@@ -332,6 +369,10 @@ public class MapManager : MonoBehaviour
 
 						if (motherX == x && motherZ == z)
 						{
+							if (power_moleInstinct) {
+								DestroyObject (arrow);
+								power_moleInstinct = false;
+							}
 							// Set true when player is clicked to allow tracking when mouse held down
 							canMove = true;
 							positions = new List<Vector3> ();
@@ -341,10 +382,10 @@ public class MapManager : MonoBehaviour
 							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 			
 						}
-						if (power_escavator) {
-							if (escavatorTile.x == x && escavatorTile.z == z) {
-								power_escavator = true;
-								escavatorPath = oneMove (x, z, new List<Tile> (), power_diagonal, power_escavator);
+						else if (power_excavator) {
+							if (excavatorTile.x == x && excavatorTile.z == z) {
+								excavator_active = true;
+								excavatorPath = oneMove (x, z, new List<Tile> (), power_diagonal, power_excavator);
 							}
 						}
 					} 
@@ -416,24 +457,31 @@ public class MapManager : MonoBehaviour
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
 						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
 							Debug.Log ("in");
-							movePlayer(currentTile.x,currentTile.z);
 							playerTile = currentTile;
 							currentTile = playerTile;
 
 							if (currentTile.tileType == Tile.TileType.HILL) {
 								map [(int)currentTile.x, (int)currentTile.z].tileType = Tile.TileType.HOLE;
+//								if (positions.Count > 2) {
+//									for (int i = 1; i < positions.Count - 1; i++) {
+//										movePlayer((int)positions[i].x,(int)positions[i].z);
+//									}
+//								}
+								animation.GetComponent<Smashing_Animation> ().action ();
 							} else {						
 								for (int i = 1; i < positions.Count; i++) {
 									int pX = (int)positions[i].x;
 									int pZ = (int)positions[i].z;
 									map [pX, pZ].tileType = Tile.TileType.HOLE;
 								}
+								animation.GetComponent<Digging_Animation> ().action ();
 							}
 							reloadMap ();
 								
 						} else {
 							currentTile = playerTile;
 						}
+						movePlayer(currentTile.x,currentTile.z);
 					}
 				}
 				clearAllSelections();

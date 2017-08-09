@@ -157,7 +157,7 @@ public class GameManager
                     JSONObject jsonmessage = new JSONObject(response.JSONString);
                     Debug.Log(string.Format("MoveCheck at {0},{1}: {2}",x,z, jsonmessage["scriptData"]["Result"].ToString().Replace("\"", "") ));
                     Debug.Log("MoveCheck: " + jsonmessage["scriptData"]["Result"].ToString().Replace("\"", ""));
-                    if (jsonmessage["scriptData"]["Result"].ToString() == "Hit Baby")
+                    if (jsonmessage["scriptData"]["Result"].ToString().Replace("\"", "") == "Hit Baby")
                     {
                         Debug.Log("Opponent baby mole hit");
                         oppBabyHealth -= 1;

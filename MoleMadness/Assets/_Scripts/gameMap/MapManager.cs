@@ -502,7 +502,6 @@ public class MapManager : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                map[x, z].tileType = Tile.TileType.FLAT;
                 Destroy(map[x, z].tileObject);
             }
         }
@@ -680,6 +679,19 @@ public class MapManager : MonoBehaviour
             }
         }
         return tileMap;
+    }
+
+    public void loadTileMap(Tile.TileType[,] tileMap)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                map[x, z].tileType = tileMap[x, z];
+            }
+        }
+        destroyMap();
+        createTilesFromMap();
     }
 
     public int[,] convertTileToIntMap()

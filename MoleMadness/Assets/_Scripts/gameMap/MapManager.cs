@@ -334,7 +334,7 @@ public class MapManager : MonoBehaviour
                             GameManager.timeLeft = GameManager.timeLeftCache;
                             GameManager.timeLeftCache = -1;
 
-                            GameManager.endTurn();
+                            GameManager.stopTimer();
                         } else
                         {
                             initBaby(x, z);

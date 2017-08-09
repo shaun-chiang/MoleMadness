@@ -40,7 +40,6 @@ public class GameSparksListener : MonoBehaviour {
             if (playerEnded != myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
             {
                 // opponent ended
-                Debug.Log("Your Opponent ended his turn, it is now your turn.");
 
                 if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
@@ -48,6 +47,13 @@ public class GameSparksListener : MonoBehaviour {
                     Debug.Log("Your turn to respawn baby mole");
                     GameManager.startRespawnTimer();
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+                } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
+                {
+                    Debug.Log("Your opponent had respawned the baby mole, it is your turn now.");
+                    GameManager.timeLeft = GameManager.timeLeftCache;
+                    GameManager.timeLeftCache = -1;
+                    GameManager.timerState = GameManager.TimerState.YOURTIMER;
+                    GameManager.startTimer(GameManager.timeLeft);
                 }
                 else
                 {
@@ -69,8 +75,12 @@ public class GameSparksListener : MonoBehaviour {
                 {
                     Debug.Log("randomly respawning baby.");
                     MapManager.getInstance().randomBabyRespawn();
+                    GameManager.stopTimer();
+                } else
+                {
+                    GameManager.endTurn();
                 }
-                GameManager.endTurn();
+                
                 GameManager.setTurn(GameManager.GameTurn.OPPONENTTURN);
             } else if (playerEnded == myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
             {

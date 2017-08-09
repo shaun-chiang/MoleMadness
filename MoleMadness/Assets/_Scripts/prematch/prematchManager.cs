@@ -18,9 +18,9 @@ public class prematchManager : MonoBehaviour {
         trans.sizeDelta = new Vector2(200, 100);
         name.text = PlayerPrefs.GetString("PlayerName");
         name.transform.SetParent(GameObject.Find("Canvas").transform);
-        name.color = Color.black;
+        name.color = Color.white;
         name.font = font;
-        name.transform.position = new Vector3(-115, 97, 0);
+        name.transform.position = new Vector3(-115, 90, 0);
         name.transform.localRotation = Quaternion.identity;
 
         if(PlayerPrefs.GetString("Achievement")!="")
@@ -84,12 +84,12 @@ public class prematchManager : MonoBehaviour {
         GameObject msgGO = new GameObject("msg");
         Text msg = msgGO.AddComponent<Text>();
         RectTransform trans = msg.GetComponent(typeof(RectTransform)) as RectTransform;
-        trans.sizeDelta = new Vector2(200, 50);
+        trans.sizeDelta = new Vector2(150, 60);
         msg.text = jsonmessage["summary"].ToString().Substring(1, jsonmessage["summary"].ToString().Length-2) ;
         msg.transform.SetParent(popup.transform);
         msg.color = Color.black;
         msg.font = font;
-        msg.transform.position = new Vector3(100, 20, 0);
+        msg.transform.position = new Vector3(150, 0, 0);
         msg.transform.localRotation = Quaternion.identity;
 
         string achShort = jsonmessage["achievementShortCode"].ToString();

@@ -35,6 +35,8 @@ public class MapManager : MonoBehaviour
     public GameObject[] powers;
 	public GameObject direction;
 	private GameObject arrow;
+	public GameObject machine;
+	private GameObject excavator;
 
 	//Line Renderer
 	public LineRenderer lineRenderer;
@@ -45,7 +47,7 @@ public class MapManager : MonoBehaviour
 	//Player Steps and Position information
 	public Tile currentTile; // Path position - The current movement
 	public Tile playerTile; // Player's position
-	public Tile escavatorTile; // Escavator's position
+	public Tile excavatorTile; // Excavator's position
 	public int playerSteps = 2;
 	public int steps;
 	private int stepsreduction;
@@ -55,8 +57,9 @@ public class MapManager : MonoBehaviour
 	//PowerUps
 	public bool power_diagonal; 
 	public bool power_earthshake;
-	public bool power_escavator;
-	public List<Tile> escavatorPath;
+	public bool power_excavator;
+	public List<Tile> excavatorPath;
+	private bool excavator_active = false;
 	public bool power_moleInstinct;
 	public Tile babyMolePosition;
 
@@ -129,7 +132,7 @@ public class MapManager : MonoBehaviour
 		//Powerup initialization
 		power_diagonal = false;
 		power_earthshake = false;
-		power_escavator = false;
+		power_excavator = false;
 		power_moleInstinct = false;
     }
 
@@ -213,8 +216,9 @@ public class MapManager : MonoBehaviour
 			clearAllRedSelections();
 		}
 		if (Input.GetKeyDown (KeyCode.E)) {
-			power_escavator = true;
-			escavatorTile = map [playerTile.x, playerTile.z];
+			power_excavator = true;
+			excavatorTile = map [playerTile.x, playerTile.z];
+			excavator = Instantiate (machine, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), transform.rotation);
 		}
 		if (Input.GetKeyDown (KeyCode.R)) {
 			power_moleInstinct = true;
@@ -344,14 +348,14 @@ public class MapManager : MonoBehaviour
 						power_earthshake = false;
 
 					}
-					else if (power_escavator)
+					else if (excavator_active)
 					{
-						if (escavatorPath.Contains(map[x,z]))
+						if (excavatorPath.Contains(map[x,z]))
 						{
 							map [x, z].tileType = Tile.TileType.HOLE;
 							reloadMap ();
 							clearAllRedSelections ();
-							power_escavator = false;
+							excavator_active = false;
 						}
 					}
                     else if (hit.collider.tag == "Tile")
@@ -376,10 +380,10 @@ public class MapManager : MonoBehaviour
 							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 			
 						}
-						if (power_escavator) {
-							if (escavatorTile.x == x && escavatorTile.z == z) {
-								power_escavator = true;
-								escavatorPath = oneMove (x, z, new List<Tile> (), power_diagonal, power_escavator);
+						else if (power_excavator) {
+							if (excavatorTile.x == x && excavatorTile.z == z) {
+								excavator_active = true;
+								excavatorPath = oneMove (x, z, new List<Tile> (), power_diagonal, power_excavator);
 							}
 						}
 					} 

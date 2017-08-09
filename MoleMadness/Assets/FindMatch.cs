@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using GameSparks.Api.Requests;
+using GameSparks.Api.Messages;
+using UnityEngine.SceneManagement;
 
 public class FindMatch : MonoBehaviour {
 
-    public void FindMatchBttn()
+    public Text NotificationText;
+    public void Awake()
     {
-        Debug.Log("Button Pressed");
+        MatchNotFoundMessage.Listener += GetMessages;
+    }
+
+    public void Start()
+    {
+        Debug.Log("Looking for Match");
         new LogEventRequest().SetEventKey("FINDMATCH")
            .SetEventAttribute("match", "matchRanked")
            .Send((response) =>
@@ -23,5 +31,17 @@ public class FindMatch : MonoBehaviour {
                }
            });
 
+    }
+
+    public void GetMessages(MatchNotFoundMessage message)
+    {
+        NotificationText.text = "Can't find a match :(";
+        StartCoroutine(ExecuteAfterTime(3));
+    }
+
+    IEnumerator ExecuteAfterTime(float time)
+    {
+        yield return new WaitForSeconds(3);
+        SceneManager.LoadScene("Prematch");
     }
 }

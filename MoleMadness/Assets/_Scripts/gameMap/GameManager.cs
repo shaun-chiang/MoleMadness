@@ -21,7 +21,7 @@ public class GameManager
     public static int myBabyHealth;
     public static int oppBabyHealth;
     public static float timeLeft;
-    public static float timeLeftCache;
+    public static float timeLeftCache = -1;
     public static TimerState timerState = TimerState.OFF;
 
     public const float TURNDURATION = 30;
@@ -227,13 +227,24 @@ public class GameManager
                 {
                     Debug.Log("Successful Start Turn");
 
-                    // init moves
-                    movesLeft = 3;
-                    mapManagerInstance.moveText.text = "Move: " + movesLeft;
+                    if (timeLeftCache != -1)
+                    {
+                        //moves left remains the same
+                        timerState = TimerState.YOURTIMER;
+                        timeLeft = timeLeftCache;
+                        timeLeftCache = -1;
 
-                    timerState = TimerState.YOURTIMER;
-                    timeLeft = TURNDURATION;
-                    mapManagerInstance.timerText.text = timeLeft.ToString();
+                        mapManagerInstance.timerText.text = timeLeft.ToString();
+                    } else
+                    {
+                        // init moves
+                        movesLeft = 3;
+                        mapManagerInstance.moveText.text = "Move: " + movesLeft;
+
+                        timerState = TimerState.YOURTIMER;
+                        timeLeft = TURNDURATION;
+                        mapManagerInstance.timerText.text = timeLeft.ToString();
+                    }
                 }
                 else
                 {
@@ -252,8 +263,22 @@ public class GameManager
                 if (!response.HasErrors)
                 {
                     Debug.Log("Successful End Turn");
-                    timerState = TimerState.OPPTIMER;
-                    timeLeft = TURNDURATION;
+
+                    if (timerState == TimerState.OPPRESPAWNTIMER)
+                    {
+                        timeLeft = RESPAWNDURATION;
+                    }
+                    //else if (currentGameState == GameState.RESPAWNBABY)
+                    //{
+                    //    Debug.Log("Baby Spawned, switching back to opp timer");
+                    //    timerState = TimerState.OPPTIMER;
+                    //    timeLeft = timeLeftCache;
+                    //}
+                    else
+                    {
+                        timerState = TimerState.OPPTIMER;
+                        timeLeft = TURNDURATION;
+                    }
                     mapManagerInstance.timerText.text = timeLeft.ToString();
                     mapManagerInstance.clearAllSelections();
                     //if (!initPositionComplete)
@@ -265,6 +290,20 @@ public class GameManager
                 }
                 else
                 {
+                    if (currentGameState == GameState.RESPAWNBABY)
+                    {
+                        Debug.Log("Timer expired, switching back to opp timer");
+                        timerState = TimerState.OPPTIMER;
+                        timeLeft = timeLeftCache;
+                    } else if (timerState == TimerState.YOURTIMER)
+                    {
+                        timerState = TimerState.OPPTIMER;
+                        timeLeft = TURNDURATION;
+                    }
+                    mapManagerInstance.timerText.text = timeLeft.ToString();
+                    mapManagerInstance.clearAllSelections();
+
+                    // This often happens timer expired, since it is no longer your turn, you cannot end.
                     Debug.Log("Unsuccessful End Turn");
                     Debug.Log(response.JSONString);
                 }
@@ -327,6 +366,7 @@ public class GameManager
 
     }
 
+    // Set Turn, logic handles gamestate handling as well
     public static void setTurn(GameTurn gameTurn)
     {
         if (gameTurn == GameTurn.PLAYERTURN)
@@ -354,12 +394,20 @@ public class GameManager
             mapManagerInstance.turnText.text = "Opp Turn";
             Debug.Log("Set to Opp Turn");
             currentGameTurn = GameTurn.OPPONENTTURN;
-            if (!initPositionComplete && player1)
+            if (currentGameState == GameState.RESPAWNBABY)
             {
-                currentGameState = GameState.WAITING;
+                currentGameState = GameState.ACTIVE;
+                timerState = TimerState.OPPTIMER;
+                timeLeft = timeLeftCache;
+                timeLeftCache = -1;
             }
-            
-            mapManagerInstance.instructionText.text = "Waiting for Opponent";
+            if (timerState == TimerState.OPPRESPAWNTIMER)
+            {
+                mapManagerInstance.instructionText.text = "Waiting for opponent to respawn baby";
+            } else
+            {
+                mapManagerInstance.instructionText.text = "Waiting for opponent";
+            }
         }
         
     }

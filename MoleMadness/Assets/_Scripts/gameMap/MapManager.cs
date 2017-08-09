@@ -174,6 +174,7 @@ public class MapManager : MonoBehaviour
             {
                 timerText.text = GameManager.timeLeft.ToString();
             }
+
             if (GameManager.timerState == GameManager.TimerState.YOURRESPAWNTIMER)
             {
                 timerText.color = Color.white;
@@ -284,8 +285,17 @@ public class MapManager : MonoBehaviour
                             UpdateText("You must spawn baby away from mother for the start of the game");
                         } else if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                         {
+                            Debug.Log(string.Format("Respawning Baby at {0},{1}", x, z));
                             baby.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
+                            GameManager.sendMoveUpdate(mother.transform.position, baby.transform.position, "respawn");
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
+
+                            Debug.Log("Baby Spawned, switching back to opp timer");
+                            GameManager.currentGameState = GameManager.GameState.ACTIVE;
+                            GameManager.timerState = GameManager.TimerState.OPPTIMER;
+                            GameManager.timeLeft = GameManager.timeLeftCache;
+                            GameManager.timeLeftCache = -1;
+
                             GameManager.endTurn();
                         } else
                         {
@@ -579,7 +589,6 @@ public class MapManager : MonoBehaviour
         int holeNum = pseudoRandom.Next(0, numOfHoles);
 
         baby.transform.position = new Vector3(Xs[holeNum] + TILE_OFFSET, CHARACTER_HEIGHT, Zs[holeNum] + TILE_OFFSET);
-        GameManager.endTurn();
     }
 
     // invert the map before they are generated, change hill to hole and vice versa

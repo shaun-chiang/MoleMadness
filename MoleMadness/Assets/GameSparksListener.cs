@@ -65,8 +65,9 @@ public class GameSparksListener : MonoBehaviour {
                 // Times up for your turn
                 Debug.Log("Times up, your turn ended.");
 
-                if (GameManager.timerState == GameManager.TimerState.YOURRESPAWNTIMER)
+                if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
+                    Debug.Log("randomly respawning baby.");
                     MapManager.getInstance().randomBabyRespawn();
                 }
                 GameManager.endTurn();
@@ -93,6 +94,9 @@ public class GameSparksListener : MonoBehaviour {
                 if (newField == "init")
                 {
                     Debug.Log("Opponent initialized his mother mole and baby mole");
+                } else if (newField == "respawn")
+                {
+                    Debug.Log("Opponent respawn his baby mole");
                 } else
                 {
                     Debug.Log("Opponent made a move");

@@ -35,15 +35,15 @@ public class MapManager : MonoBehaviour
     public GameObject[] powers;
 
 	//Line Renderer
-	public Color c1 = Color.yellow;
-	public Color c2 = Color.red;
 	public LineRenderer lineRenderer;
 	public float pathHeight;
 	public List<Vector3> positions;
 
+
 	//Player Steps and Position information
 	public Tile currentTile; // Path position - The current movement
 	public Tile playerTile; // Player's position
+	public Tile escavatorTile; // Escavator's position
 	public int playerSteps = 2;
 	public int steps;
 	private int stepsreduction;
@@ -52,6 +52,11 @@ public class MapManager : MonoBehaviour
 
 	//PowerUps
 	public bool power_diagonal; 
+	public bool power_earthshake;
+	public bool power_escavator;
+	public List<Tile> escavatorPath;
+	public bool power_moleInstinct;
+	public Tile babyMolePosition;
 
     System.Random pseudoRandom;
 
@@ -69,6 +74,7 @@ public class MapManager : MonoBehaviour
 
     public Tile[,] map;
     private GameObject[,] selectProjectors;
+	private GameObject[,] selectRedProjectors;
 
     private void Awake()
     {
@@ -89,6 +95,7 @@ public class MapManager : MonoBehaviour
     {
         generating = true;
         selectProjectors = new GameObject[10, 10];
+		selectRedProjectors = new GameObject[10, 10];
 
         map = new Tile[width, height];
         seed = GameManager.getChallengeId();
@@ -110,9 +117,7 @@ public class MapManager : MonoBehaviour
 
 		// Initialising the Line Renderer for path direction
 		lineRenderer = gameObject.AddComponent<LineRenderer>();
-//		lineRenderer.material = new Material(Shader.Find("Standard"));
 		lineRenderer.widthMultiplier = 0.2f;
-		// A simple 2 color gradient with a fixed alpha of 1.0f.
 		lineRenderer.positionCount = 0;
 		pathHeight = 0.05f;
 
@@ -121,6 +126,9 @@ public class MapManager : MonoBehaviour
 
 		//Powerup initialization
 		power_diagonal = false;
+		power_earthshake = false;
+		power_escavator = false;
+		power_moleInstinct = false;
     }
 
     public static MapManager getInstance()
@@ -175,11 +183,35 @@ public class MapManager : MonoBehaviour
                 Debug.Log("Pressed G when generating.");
             }
         }
-		if (Input.GetKeyDown (KeyCode.D)) {
+		if (Input.GetKeyDown (KeyCode.Q)) {
 			power_diagonal = true;
 		}
-		if (Input.GetKeyDown (KeyCode.F)) {
+		if (Input.GetKeyDown (KeyCode.A)) {
 			power_diagonal = false;
+		}
+		if (Input.GetKeyDown (KeyCode.W)) {
+			power_earthshake = true;
+			int x = (int)playerTile.x;
+			int z = (int)playerTile.z;
+			for (int w = 0; w < width; w++)
+			{
+				for (int h = 0; h < height; h++)
+				{
+					if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
+						castRedSelection (w, h);
+					}
+				}
+			}
+	
+		}
+		if (Input.GetKeyDown (KeyCode.S)) {
+			power_earthshake = false;
+			clearAllRedSelections();
+		}
+		if (Input.GetKeyDown (KeyCode.E)) {
+			power_moleInstinct = true;
+			float angle = Vector3.Angle(new Vector3 (playerTile.x, pathHeight, playerTile.z), new Vector3 (babyMolePosition.x, pathHeight, babyMolePosition.z));
+			UpdateText (angle + "");
 		}
         if (Input.GetMouseButtonDown(0))
         {
@@ -197,7 +229,6 @@ public class MapManager : MonoBehaviour
                         UpdateText(string.Format("Spawn Mother at {0},{1}", x, z));
                         instructionText.text = "Place Baby";
                         gameManagerInstance.currentGameState = GameManager.GameState.SPAWNINGBABY;
-
                         playerTile = map[x, z];
                         clearSelection(x, z);
                     }
@@ -226,12 +257,60 @@ public class MapManager : MonoBehaviour
                             clearAllSelections();
                             GameManager.initPosition(motherX, motherZ, x, z);
                         }
+						babyMolePosition = map [x, z];
+						//power
+						escavatorTile = map [x, z];
                     }
                     else
                     {
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
                 }
+				else if (power_earthshake)
+				{
+					int pX = (int)playerTile.x;
+					int pZ = (int)playerTile.z;
+					for (int w = 0; w < width; w++)
+					{
+						for (int h = 0; h < height; h++)
+						{
+							if (x == pX && z > pZ) {
+								if (w == pX && h > pZ) {
+									map [w, h].tileType = Tile.TileType.HOLE;
+								}
+							}
+							if (x == pX && z < pZ) {
+								if (w == pX && h < pZ) {
+									map [w, h].tileType = Tile.TileType.HOLE;
+								}
+							}
+							if (x > pX && z == pZ) {
+								if (w > pX && h == pZ) {
+									map [w, h].tileType = Tile.TileType.HOLE;
+								}
+							}
+							if (x < pX && z == pZ) {
+								if (w < pX && h == pZ) {
+									map [w, h].tileType = Tile.TileType.HOLE;
+								}
+							}
+						}
+					}
+					reloadMap ();
+					clearAllRedSelections ();
+					power_earthshake = false;
+
+				}
+				else if (power_escavator)
+				{
+					if (escavatorPath.Contains(map[x,z]))
+					{
+						map [x, z].tileType = Tile.TileType.HOLE;
+						reloadMap ();
+						clearAllRedSelections ();
+						power_escavator = false;
+					}
+				}
                 else
                 {
                     if (hit.collider.tag == "Tile")
@@ -240,6 +319,9 @@ public class MapManager : MonoBehaviour
 						int motherX = (int) mother.transform.position.x;
 						int motherZ = (int) mother.transform.position.z;
 
+						int escavatorX = (int) escavatorTile.x;
+						int escavatorZ = (int) escavatorTile.z;
+
 						if (motherX == x && motherZ == z)
 						{
 							// Set true when player is clicked to allow tracking when mouse held down
@@ -247,8 +329,14 @@ public class MapManager : MonoBehaviour
 							positions = new List<Vector3> ();
 							playerTile = map [x, z];
 							currentTile = map [x, z];
+							getPaths (playerTile.x, playerTile.z, playerSteps, power_diagonal);
 							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 			
+						}
+						if (escavatorX == x && escavatorZ == z) 
+						{
+							power_escavator = true;
+							escavatorPath = oneMove (x, z, new List<Tile>(), power_diagonal, power_escavator);
 						}
 					} 
                 }
@@ -331,10 +419,7 @@ public class MapManager : MonoBehaviour
 									map [pX, pZ].tileType = Tile.TileType.HOLE;
 								}
 							}
-							generating = true;
-							recreateMap();
-							createTilesFromMap ();
-							generating = false;
+							reloadMap ();
 								
 						} else {
 							currentTile = playerTile;
@@ -342,7 +427,6 @@ public class MapManager : MonoBehaviour
 					}
 				}
 				clearAllSelections();
-				getPaths (playerTile.x, playerTile.z, playerSteps, power_diagonal);
 			}
 			positions = new List<Vector3> ();
 			playerSteps = 2;
@@ -455,6 +539,14 @@ public class MapManager : MonoBehaviour
         }
     }
 
+	void reloadMap()
+	{
+		generating = true;
+		recreateMap();
+		createTilesFromMap ();
+		generating = false;
+	}
+
     void createTilesFromMap()
     {
         for (int x = 0; x < width; x++)
@@ -537,6 +629,29 @@ public class MapManager : MonoBehaviour
         }
     }
 
+	void castRedSelection(int x, int z)
+	{
+		if (selectRedProjectors[x, z] == null)
+		{
+			selectRedProjectors[x, z] = Instantiate(selections[2], new Vector3(x + TILE_OFFSET, PROJECTION_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
+			selectRedProjectors[x, z].transform.SetParent(transform);
+		}
+	}
+
+	void clearAllRedSelections()
+	{
+		for (int x = 0; x < width; x++)
+		{
+			for (int z = 0; z < height; z++)
+			{
+				if (selectRedProjectors[x, z] != null)
+				{
+					DestroyObject(selectRedProjectors[x, z]);
+					selectRedProjectors[x, z] = null;
+				}
+			}
+		}
+	}
 
     void showAvailableSpawnLocations()
     {
@@ -666,12 +781,18 @@ public class MapManager : MonoBehaviour
 		return output;
 	}
 
-	List<Tile> oneMove(int x, int z, List<Tile> explored, bool diag = false)
+	List<Tile> oneMove(int x, int z, List<Tile> explored, bool diag = false, bool red = false)
 	{
 		List<Tile> output = new List<Tile> ();
 //		output.AddRange (explored);
 		output.Add (map [x, z]);
-		castSelection (x, z);
+		if (red) {
+			if (map [x, z].tileType != Tile.TileType.HOLE) {
+				castRedSelection (x, z);
+			}
+		} else {
+			castSelection (x, z);
+		}
 		List<Tile> linkage = map [x, z].links;
 		if (diag) {
 			linkage = map [x, z].linksDiag;
@@ -679,10 +800,16 @@ public class MapManager : MonoBehaviour
 		foreach (Tile link in linkage) {
 			if (!explored.Contains (link) && !output.Contains (link)) {
 				output.Add (link);
-				castSelection (link.x, link.z);
+				if (red) {
+					if (link.tileType != Tile.TileType.HOLE) {
+						castRedSelection (link.x, link.z);
+					}
+				} else {
+					castSelection (link.x, link.z);
+				}
 				if (link.tileType == Tile.TileType.HOLE) {
 					explored.AddRange (output);
-					output.AddRange (oneMove (link.x, link.z, explored, diag));
+					output.AddRange (oneMove (link.x, link.z, explored, diag, red));
 				}
 			}
 		}

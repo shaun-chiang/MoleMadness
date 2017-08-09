@@ -19,6 +19,7 @@ public class Tile {
     {
 
     }
+
 	public Tile(int x, int z)
 	{
 		this.x = x;

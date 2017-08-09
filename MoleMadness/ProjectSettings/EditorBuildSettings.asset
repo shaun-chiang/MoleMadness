@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Scenes/PreStartScreen.unity
+    guid: fb00fc3e80aa009459601e97b299d6c5
+  - enabled: 1
     path: Assets/_Scenes/StartScreen.unity
     guid: 3e946e141bdde5443b76c62b1df23215
   - enabled: 1
@@ -28,4 +31,4 @@ EditorBuildSettings:
     guid: 3be981681d48ec146800d0495d0e6fd5
   - enabled: 1
     path: Assets/_Scenes/Wardrobe.unity
-    guid: 00000000000000000000000000000000
+    guid: f77ce736fb645b6448ac9f71ee2d4309

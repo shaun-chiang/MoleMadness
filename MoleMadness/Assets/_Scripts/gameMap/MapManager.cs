@@ -33,6 +33,8 @@ public class MapManager : MonoBehaviour
     public GameObject babyPrefab;
     public GameObject[] selections;
     public GameObject[] powers;
+	public GameObject direction;
+	private GameObject arrow;
 
 	//Line Renderer
 	public LineRenderer lineRenderer;
@@ -216,8 +218,38 @@ public class MapManager : MonoBehaviour
 		}
 		if (Input.GetKeyDown (KeyCode.R)) {
 			power_moleInstinct = true;
-			float angle = Vector3.Angle(new Vector3 (playerTile.x, pathHeight, playerTile.z), new Vector3 (babyMolePosition.x, pathHeight, babyMolePosition.z));
-			UpdateText (angle + "");
+			DestroyObject (arrow);
+			if (babyMolePosition.z > playerTile.z) {
+				if (babyMolePosition.x == playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.5f), transform.rotation);
+				} else if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.4f), Quaternion.Euler (0, 45, 0));
+				} else {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.4f), Quaternion.Euler (0, 315, 0));
+				}
+
+			}
+			else if (babyMolePosition.z < playerTile.z) {
+				if (babyMolePosition.x == playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.5f), Quaternion.Euler (0, 180, 0));
+				} else if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.4f), Quaternion.Euler (0, 135, 0));
+				} else {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.4f), Quaternion.Euler (0, 225, 0));
+				}
+			}
+			else {
+				if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate(direction, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.5f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), Quaternion.Euler(0, 90, 0));
+				}
+				else if (babyMolePosition.x < playerTile.x) {
+					arrow = Instantiate(direction, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.5f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), Quaternion.Euler(0, 270, 0));
+				}
+			}
+		}
+		if (Input.GetKeyDown (KeyCode.P)) {
+			GameManager.currentGameTurn = GameManager.GameTurn.PLAYERTURN;
+			GameManager.currentGameState = GameManager.GameState.ACTIVE;
 		}
         if (Input.GetMouseButtonDown(0))
         {
@@ -269,7 +301,6 @@ public class MapManager : MonoBehaviour
                             }
                         }
 						babyMolePosition = map [x, z];
-						//power
                     }
                     else
                     {
@@ -332,6 +363,10 @@ public class MapManager : MonoBehaviour
 
 						if (motherX == x && motherZ == z)
 						{
+							if (power_moleInstinct) {
+								DestroyObject (arrow);
+								power_moleInstinct = false;
+							}
 							// Set true when player is clicked to allow tracking when mouse held down
 							canMove = true;
 							positions = new List<Vector3> ();

@@ -18,9 +18,9 @@ public class prematchManager : MonoBehaviour {
         trans.sizeDelta = new Vector2(200, 100);
         name.text = PlayerPrefs.GetString("PlayerName");
         name.transform.SetParent(GameObject.Find("Canvas").transform);
-        name.color = Color.black;
+        name.color = Color.white;
         name.font = font;
-        name.transform.position = new Vector3(-115, 97, 0);
+        name.transform.position = new Vector3(-115, 90, 0);
         name.transform.localRotation = Quaternion.identity;
 
         if(PlayerPrefs.GetString("Achievement")!="")

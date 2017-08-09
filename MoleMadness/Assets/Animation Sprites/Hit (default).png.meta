@@ -1,14 +1,11 @@
 fileFormatVersion: 2
-<<<<<<< HEAD
-guid: 81c1fac8cc80c4d5fb1797cc75a40bf7
-timeCreated: 1501642287
-=======
-guid: e4f86b64a09daba40bbc1e1ab07f506c
-timeCreated: 1501558015
->>>>>>> f7dc5acad8fcda326a4142ddbeb23fcf8ccb8d83
+guid: 3456ccae400566741a0b65158750c108
+timeCreated: 1502255304
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: Hit (default)_0
+    21300002: Hit (default)_1
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -17,11 +14,6 @@ TextureImporter:
     linearTexture: 0
     fadeOut: 0
     borderMipMap: 0
-<<<<<<< HEAD
-    mipMapsPreserveCoverage: 0
-    alphaTestReferenceValue: 0.5
-=======
->>>>>>> f7dc5acad8fcda326a4142ddbeb23fcf8ccb8d83
     mipMapFadeDistanceStart: 1
     mipMapFadeDistanceEnd: 3
   bumpmap:
@@ -37,24 +29,14 @@ TextureImporter:
   textureFormat: 1
   maxTextureSize: 2048
   textureSettings:
-<<<<<<< HEAD
-    serializedVersion: 2
-    filterMode: -1
-    aniso: -1
-    mipBias: -1
-    wrapU: 1
-    wrapV: 1
-    wrapW: 1
-=======
     filterMode: -1
     aniso: -1
     mipBias: -1
     wrapMode: 1
->>>>>>> f7dc5acad8fcda326a4142ddbeb23fcf8ccb8d83
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -78,14 +60,60 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+  - buildTarget: Standalone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Android
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Hit (default)_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 300
+        height: 300
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Hit (default)_1
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 0
+        width: 300
+        height: 300
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
     outline: []
-<<<<<<< HEAD
-    physicsShape: []
-=======
->>>>>>> f7dc5acad8fcda326a4142ddbeb23fcf8ccb8d83
   spritePackingTag: 
   userData: 
   assetBundleName: 

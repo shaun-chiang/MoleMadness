@@ -9,10 +9,11 @@ public class buyClothes : MonoBehaviour {
     
     public Font font;
     public int gems;
+    public string itemname;
 
 	// Use this for initialization
 	void Start () {
-        
+
     }
 	
 	// Update is called once per frame
@@ -22,9 +23,9 @@ public class buyClothes : MonoBehaviour {
 
     public void buy(int cost)
     {
+
         gems = int.Parse(PlayerPrefs.GetString("gems"));
-        Debug.Log(gems);
-        Debug.Log("buy");
+
         GameObject popup = Instantiate(Resources.Load("popup", typeof(GameObject)) as GameObject);
         popup.transform.SetParent(GameObject.Find("Canvas").transform);
         popup.transform.position = new Vector3(150, 10, 0);
@@ -71,7 +72,32 @@ public class buyClothes : MonoBehaviour {
 
     public void yes()
     {
-        Debug.Log("BUYBUY"); 
+        GameObject popupGO = GameObject.Find("Canvas/popup(Clone)");
+        foreach (Transform child in popupGO.transform)
+        {
+            if(child.name.Contains("IMG"))
+            {
+                itemname = child.name.Substring(0, child.name.Length - 11);
+            }
+        }
+        new BuyVirtualGoodsRequest()
+            .SetCurrencyType(1) //Using Gems,
+            .SetQuantity(1) //Buy 1 of...
+            .SetShortCode(itemname) //Change to shortcode of item (see table)
+            .Send((response) =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Bought Item");
+                    PlayerPrefs.SetString("virtualgoods", PlayerPrefs.GetString("virtualgoods") + " " + itemname);
+                    SceneManager.LoadScene("Wardrobe");
+                }
+                else
+                {
+                    Debug.Log("Error Buying Item");
+                }
+            });
+
     }
 
     public void no()

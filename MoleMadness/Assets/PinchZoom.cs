@@ -44,13 +44,14 @@ public class PinchZoom : MonoBehaviour
                 camera.fieldOfView += deltaMagnitudeDiff * perspectiveZoomSpeed;
                 // Clamp the field of view to make sure it's between 0 and 180.
                 camera.fieldOfView = Mathf.Clamp(camera.fieldOfView, 25f, 60f);
-            }          
+            }
+            if (touchZero.phase == TouchPhase.Moved)
+            {
+                Vector2 touchDeltaPosition = touchZero.deltaPosition;
+                transform.Translate(-touchDeltaPosition.x * panSpeed * Time.deltaTime, -touchDeltaPosition.y * panSpeed * Time.deltaTime, 0);
+            }
         }
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
-        {
-            Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
-            transform.Translate(-touchDeltaPosition.x * panSpeed * Time.deltaTime, -touchDeltaPosition.y * panSpeed * Time.deltaTime, 0);
-        }
+        
 
     }
 }

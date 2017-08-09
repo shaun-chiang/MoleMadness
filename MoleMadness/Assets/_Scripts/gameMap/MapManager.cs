@@ -35,22 +35,28 @@ public class MapManager : MonoBehaviour
     public GameObject[] powers;
 
 	//Line Renderer
-	public Color c1 = Color.yellow;
-	public Color c2 = Color.red;
 	public LineRenderer lineRenderer;
 	public float pathHeight;
 	public List<Vector3> positions;
 
+
 	//Player Steps and Position information
 	public Tile currentTile; // Path position - The current movement
 	public Tile playerTile; // Player's position
+	public Tile escavatorTile; // Escavator's position
 	public int playerSteps = 2;
 	public int steps;
 	private int stepsreduction;
-	public bool canMove = false;
+	public bool canMove;
+	public bool setPath;
 
 	//PowerUps
 	public bool power_diagonal; 
+	public bool power_earthshake;
+	public bool power_escavator;
+	public List<Tile> escavatorPath;
+	public bool power_moleInstinct;
+	public Tile babyMolePosition;
 
     System.Random pseudoRandom;
 
@@ -68,6 +74,7 @@ public class MapManager : MonoBehaviour
 
     public Tile[,] map;
     private GameObject[,] selectProjectors;
+	private GameObject[,] selectRedProjectors;
 
     private void Awake()
     {
@@ -88,6 +95,7 @@ public class MapManager : MonoBehaviour
     {
         generating = true;
         selectProjectors = new GameObject[10, 10];
+		selectRedProjectors = new GameObject[10, 10];
 
         map = new Tile[width, height];
         seed = GameManager.getChallengeId();
@@ -109,16 +117,7 @@ public class MapManager : MonoBehaviour
 
 		// Initialising the Line Renderer for path direction
 		lineRenderer = gameObject.AddComponent<LineRenderer>();
-//		lineRenderer.material = new Material(Shader.Find("Particles/Additive"));
 		lineRenderer.widthMultiplier = 0.2f;
-		// A simple 2 color gradient with a fixed alpha of 1.0f.
-		float alpha = 1.0f;
-		Gradient gradient = new Gradient();
-		gradient.SetKeys(
-			new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
-			new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
-		);
-		lineRenderer.colorGradient = gradient;
 		lineRenderer.positionCount = 0;
 		pathHeight = 0.05f;
 
@@ -127,6 +126,9 @@ public class MapManager : MonoBehaviour
 
 		//Powerup initialization
 		power_diagonal = false;
+		power_earthshake = false;
+		power_escavator = false;
+		power_moleInstinct = false;
     }
 
     public static MapManager getInstance()
@@ -183,11 +185,39 @@ public class MapManager : MonoBehaviour
                 Debug.Log("Pressed G when generating.");
             }
         }
-		if (Input.GetKeyDown (KeyCode.D)) {
+		if (Input.GetKeyDown (KeyCode.Q)) {
 			power_diagonal = true;
 		}
-		if (Input.GetKeyDown (KeyCode.F)) {
+		if (Input.GetKeyDown (KeyCode.A)) {
 			power_diagonal = false;
+		}
+		if (Input.GetKeyDown (KeyCode.W)) {
+			power_earthshake = true;
+			int x = (int)playerTile.x;
+			int z = (int)playerTile.z;
+			for (int w = 0; w < width; w++)
+			{
+				for (int h = 0; h < height; h++)
+				{
+					if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
+						castRedSelection (w, h);
+					}
+				}
+			}
+	
+		}
+		if (Input.GetKeyDown (KeyCode.S)) {
+			power_earthshake = false;
+			clearAllRedSelections();
+		}
+		if (Input.GetKeyDown (KeyCode.E)) {
+			power_escavator = true;
+			escavatorTile = map [playerTile.x, playerTile.z];
+		}
+		if (Input.GetKeyDown (KeyCode.R)) {
+			power_moleInstinct = true;
+			float angle = Vector3.Angle(new Vector3 (playerTile.x, pathHeight, playerTile.z), new Vector3 (babyMolePosition.x, pathHeight, babyMolePosition.z));
+			UpdateText (angle + "");
 		}
         if (Input.GetMouseButtonDown(0))
         {
@@ -238,6 +268,8 @@ public class MapManager : MonoBehaviour
                                 GameManager.initPosition(mother.transform.position, baby.transform.position);
                             }
                         }
+						babyMolePosition = map [x, z];
+						//power
                     }
                     else
                     {
@@ -246,11 +278,57 @@ public class MapManager : MonoBehaviour
                 }
                 else if (GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
                 {
-                    if (hit.collider.tag == "Tile")
+					if (power_earthshake)
+					{
+						int pX = (int)playerTile.x;
+						int pZ = (int)playerTile.z;
+						for (int w = 0; w < width; w++)
+						{
+							for (int h = 0; h < height; h++)
+							{
+								if (x == pX && z > pZ) {
+									if (w == pX && h > pZ) {
+										map [w, h].tileType = Tile.TileType.HOLE;
+									}
+								}
+								if (x == pX && z < pZ) {
+									if (w == pX && h < pZ) {
+										map [w, h].tileType = Tile.TileType.HOLE;
+									}
+								}
+								if (x > pX && z == pZ) {
+									if (w > pX && h == pZ) {
+										map [w, h].tileType = Tile.TileType.HOLE;
+									}
+								}
+								if (x < pX && z == pZ) {
+									if (w < pX && h == pZ) {
+										map [w, h].tileType = Tile.TileType.HOLE;
+									}
+								}
+							}
+						}
+						reloadMap ();
+						clearAllRedSelections ();
+						power_earthshake = false;
+
+					}
+					else if (power_escavator)
+					{
+						if (escavatorPath.Contains(map[x,z]))
+						{
+							map [x, z].tileType = Tile.TileType.HOLE;
+							reloadMap ();
+							clearAllRedSelections ();
+							power_escavator = false;
+						}
+					}
+                    else if (hit.collider.tag == "Tile")
                     {	
 						UpdateText ("Tile");
 						int motherX = (int) mother.transform.position.x;
 						int motherZ = (int) mother.transform.position.z;
+
 
 						if (motherX == x && motherZ == z)
 						{
@@ -259,8 +337,15 @@ public class MapManager : MonoBehaviour
 							positions = new List<Vector3> ();
 							playerTile = map [x, z];
 							currentTile = map [x, z];
+							getPaths (playerTile.x, playerTile.z, playerSteps, power_diagonal);
 							positions.Add (new Vector3 (playerTile.x + TILE_OFFSET, pathHeight, playerTile.z + TILE_OFFSET));
 			
+						}
+						if (power_escavator) {
+							if (escavatorTile.x == x && escavatorTile.z == z) {
+								power_escavator = true;
+								escavatorPath = oneMove (x, z, new List<Tile> (), power_diagonal, power_escavator);
+							}
 						}
 					} 
                 }
@@ -290,7 +375,7 @@ public class MapManager : MonoBehaviour
 							positions.RemoveAt(positions.Count-1);
 							UpdateText (steps + "");
 							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> (), power_diagonal);
+							getPaths (x, z, steps, power_diagonal);
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
 						}
@@ -313,7 +398,7 @@ public class MapManager : MonoBehaviour
 							}
 							UpdateText (steps + "");
 							clearAllSelections();
-							getPaths (x, z, steps, new List<Tile> (), power_diagonal);
+							getPaths (x, z, steps, power_diagonal);
 							lineRenderer.positionCount = positions.Count;
 							lineRenderer.SetPositions (positions.ToArray ());
 						}
@@ -321,9 +406,8 @@ public class MapManager : MonoBehaviour
 				}
 			}
 		}
-		if (Input.GetMouseButtonUp (0)) {
-			positions = new List<Vector3> ();  
-			if (canMove) {
+		if (Input.GetMouseButtonUp (0)) {  
+			if (canMove && !setPath) {
 				if (Physics.Raycast (ray, out hit, 100f)) {	
 					if (hit.collider.tag == "Tile" && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN && GameManager.currentGameState == GameManager.GameState.ACTIVE) {
 						float x = hit.point.x;
@@ -332,22 +416,32 @@ public class MapManager : MonoBehaviour
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
 						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
 							Debug.Log ("in");
-							//							movePlayer ((int)x, (int)z);
 							movePlayer(currentTile.x,currentTile.z);
-//							playerTile = map [(int)x, (int)z];
 							playerTile = currentTile;
 							currentTile = playerTile;
+
+							if (currentTile.tileType == Tile.TileType.HILL) {
+								map [(int)currentTile.x, (int)currentTile.z].tileType = Tile.TileType.HOLE;
+							} else {						
+								for (int i = 1; i < positions.Count; i++) {
+									int pX = (int)positions[i].x;
+									int pZ = (int)positions[i].z;
+									map [pX, pZ].tileType = Tile.TileType.HOLE;
+								}
+							}
+							reloadMap ();
+								
 						} else {
 							currentTile = playerTile;
 						}
 					}
 				}
 				clearAllSelections();
-				getPaths (playerTile.x, playerTile.z, playerSteps, new List<Tile> (), power_diagonal);
 			}
+			positions = new List<Vector3> ();
 			playerSteps = 2;
 			steps = playerSteps;
-			UpdateText (steps + "");
+//			UpdateText (steps + "");
 			canMove = false;
 			lineRenderer.positionCount = 0;
 			lineRenderer.SetPositions (new Vector3[0]);
@@ -454,11 +548,15 @@ public class MapManager : MonoBehaviour
             }
         }
     }
+		
+	void reloadMap()
+	{
+		generating = true;
+		destroyMap();
+		createTilesFromMap ();
+		generating = false;
+	}
 
-    public static void initMotherAndBaby()
-    {
-
-    }
 
     void createTilesFromMap()
     {
@@ -493,7 +591,6 @@ public class MapManager : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                map[x, z].tileType = Tile.TileType.FLAT;
                 Destroy(map[x, z].tileObject);
             }
         }
@@ -532,6 +629,29 @@ public class MapManager : MonoBehaviour
         }
     }
 
+	void castRedSelection(int x, int z)
+	{
+		if (selectRedProjectors[x, z] == null)
+		{
+			selectRedProjectors[x, z] = Instantiate(selections[2], new Vector3(x + TILE_OFFSET, PROJECTION_HEIGHT, z + TILE_OFFSET), Quaternion.identity);
+			selectRedProjectors[x, z].transform.SetParent(transform);
+		}
+	}
+
+	void clearAllRedSelections()
+	{
+		for (int x = 0; x < width; x++)
+		{
+			for (int z = 0; z < height; z++)
+			{
+				if (selectRedProjectors[x, z] != null)
+				{
+					DestroyObject(selectRedProjectors[x, z]);
+					selectRedProjectors[x, z] = null;
+				}
+			}
+		}
+	}
 
     void showAvailableSpawnLocations()
     {
@@ -671,6 +791,61 @@ public class MapManager : MonoBehaviour
         return tileMap;
     }
 
+	List<Tile> getPaths(int x, int z, int steps, bool diag = false)
+	{
+		List<Tile> output = new List<Tile> ();
+		if (steps != 0) {
+			oneMove (x, z, new List<Tile> (), diag);
+			output.AddRange (oneMove (x, z, new List<Tile> (), diag));
+			List<Tile> explored = new List<Tile> (output);
+			explored.RemoveAt(0);
+			if (steps == 2) {
+				foreach (Tile tile in explored) {
+					if (tile.tileType != Tile.TileType.HILL) {
+						output.AddRange (oneMove (tile.x, tile.z, output, diag));
+					}
+				}
+			}
+		}
+		
+		return output;
+	}
+
+	List<Tile> oneMove(int x, int z, List<Tile> explored, bool diag = false, bool red = false)
+	{
+		List<Tile> output = new List<Tile> ();
+//		output.AddRange (explored);
+		output.Add (map [x, z]);
+		if (red) {
+			if (map [x, z].tileType != Tile.TileType.HOLE) {
+				castRedSelection (x, z);
+			}
+		} else {
+			castSelection (x, z);
+		}
+		List<Tile> linkage = map [x, z].links;
+		if (diag) {
+			linkage = map [x, z].linksDiag;
+		}
+		foreach (Tile link in linkage) {
+			if (!explored.Contains (link) && !output.Contains (link)) {
+				output.Add (link);
+				if (red) {
+					if (link.tileType != Tile.TileType.HOLE) {
+						castRedSelection (link.x, link.z);
+					}
+				} else {
+					castSelection (link.x, link.z);
+				}
+				if (link.tileType == Tile.TileType.HOLE) {
+					explored.AddRange (output);
+					output.AddRange (oneMove (link.x, link.z, explored, diag, red));
+				}
+			}
+		}
+		return output;
+	}
+
     public int[,] convertTileToIntMap()
     {
         int[,] intMap = new int[width, height];
@@ -704,53 +879,4 @@ public class MapManager : MonoBehaviour
         }
         return stringMap;
     }
-
-    //public Tile.TileType[,] convertIntToTileMap(int[,] intMap)
-    //{
-    //    Tile.TileType[,] tileMap = new Tile.TileType[width, height];
-    //    for (int x = 0; x < width; x++)
-    //    {
-    //        for (int z = 0; z < height; z++)
-    //        {
-    //            tileMap[x, z] = (Tile.TileType)intMap[x, z];
-    //        }
-    //    }
-    //    return tileMap;
-    //}
-
-    //Get the path of the player and cast selection on these paths
-    List<Tile> getPaths(int x, int z, int steps, List<Tile> explored, bool diag = false, bool showProjections = true)
-    {
-        List<Tile> output = new List<Tile>();
-        output.Add(map[x, z]);
-        if (showProjections) {
-            castSelection(x, z);
-        }
-        if (map[x, z].tileType == Tile.TileType.HILL) {
-            steps = 0;
-        }
-        if (steps != 0) {
-            List<Tile> linkage = map[x, z].links;
-            if (diag) {
-                linkage = map[x, z].linksDiag;
-            }
-            foreach (Tile link in linkage) {
-                if (!explored.Contains(link)) {
-                    output.Add(link);
-                    if (showProjections) {
-                        castSelection(link.x, link.z);
-                    }
-                    if (link.tileType == Tile.TileType.HOLE) {
-                        output.AddRange(getPaths(link.x, link.z, steps, output, diag));
-                    }
-                    for (int step = steps - 1; step > 0; step--) {
-                        output.AddRange(getPaths(link.x, link.z, step, output, diag));
-                    }
-                }
-            }
-        }
-
-        return output;
-    }
-
 }

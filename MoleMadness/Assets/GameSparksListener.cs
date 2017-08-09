@@ -34,11 +34,14 @@ public class GameSparksListener : MonoBehaviour {
             JSONObject jsonmessage = new JSONObject(message.JSONString);
             string playerEnded = jsonmessage["data"]["TURNENDED"].ToString().Replace("\"", "");
             string myId = PlayerPrefs.GetString("playerId").Replace("\"", "");
-			string power33 = jsonmessage["data"]["result"]["(3,3)"].ToString().Replace("\"", "");
-			string power36 = jsonmessage["data"]["result"]["(3,6)"].ToString().Replace("\"", "");
-			string power66 = jsonmessage["data"]["result"]["(6,6)"].ToString().Replace("\"", "");
-			string power63 = jsonmessage["data"]["result"]["(6,3)"].ToString().Replace("\"", "");
-			Debug.Log("(3,3): " + power33);
+			int power33 = int.Parse(jsonmessage["data"]["result"]["(3,3)"].ToString().Replace("\"", ""));
+			int power36 = int.Parse(jsonmessage["data"]["result"]["(3,6)"].ToString().Replace("\"", ""));
+			int power66 = int.Parse(jsonmessage["data"]["result"]["(6,6)"].ToString().Replace("\"", ""));
+			int power63 = int.Parse(jsonmessage["data"]["result"]["(6,3)"].ToString().Replace("\"", ""));
+			PowerManager.spawnCoor.Add ("3,3", (GameManager.Powers)power33);
+			PowerManager.spawnCoor.Add ("3,6", (GameManager.Powers)power36);
+			PowerManager.spawnCoor.Add ("6,6", (GameManager.Powers)power66);
+			PowerManager.spawnCoor.Add ("6,3", (GameManager.Powers)power63);
 
             print("playerEnded: " + playerEnded);
             print("myId :" + myId);

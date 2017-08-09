@@ -67,6 +67,18 @@ public class MapManager : MonoBehaviour
 	private bool excavator_active = false;
 	public bool power_moleInstinct;
 	public Tile babyMolePosition;
+	public GameManager.Powers power33;
+	public GameManager.Powers power36;
+	public GameManager.Powers power66;
+	public GameManager.Powers power63;
+	public GameObject power33Obj;
+	public GameObject power36Obj;
+	public GameObject power66Obj;
+	public GameObject power63Obj;
+	public GameObject moleInjstinctObj;
+	public GameObject earthshackObj;
+	public GameObject diagonalObj;
+	public GameObject excavatorObj;
 
     System.Random pseudoRandom;
 
@@ -135,6 +147,10 @@ public class MapManager : MonoBehaviour
 		power_earthshake = false;
 		power_excavator = false;
 		power_moleInstinct = false;
+		power33 = GameManager.Powers.NOTHING;
+		power63 = GameManager.Powers.NOTHING;
+		power66 = GameManager.Powers.NOTHING;
+		power36 = GameManager.Powers.NOTHING;
     }
 
     public static MapManager getInstance()
@@ -283,6 +299,23 @@ public class MapManager : MonoBehaviour
 			GameManager.currentGameTurn = GameManager.GameTurn.PLAYERTURN;
 			GameManager.currentGameState = GameManager.GameState.ACTIVE;
 		}
+		if (power33 != PowerManager.spawnCoor ["3,3"]) {
+			power33 = PowerManager.spawnCoor ["3,3"];
+			spawnPower(3, 3, power33, power33Obj);
+		}
+		if (power36 != PowerManager.spawnCoor ["3,6"]) {
+			power36 = PowerManager.spawnCoor ["3,6"];
+			spawnPower(3, 6, power36, power36Obj);
+		}
+		if (power66 != PowerManager.spawnCoor ["6,6"]) {
+			power66 = PowerManager.spawnCoor ["6,6"];
+			spawnPower(6, 6, power66, power66Obj);
+		}
+		if (power63 != PowerManager.spawnCoor ["6,3"]) {
+			power63 = PowerManager.spawnCoor ["6,3"];
+			spawnPower(6, 3, power63, power63Obj);
+		}
+
         if (Input.GetMouseButtonDown(0))
         {
             Debug.Log(string.Format("GameState: {0},GameTurn: {1}", GameManager.currentGameState, GameManager.currentGameTurn));
@@ -494,7 +527,7 @@ public class MapManager : MonoBehaviour
 						float z = hit.point.z;
 						Debug.Log (string.Format ("UPPP x: {0}, z: {1}", x, z));
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
-						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
+						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && (z<=currentTile.z+1) && currentTile!=playerTile) {
 							Debug.Log ("in");
                             // check move will include delayed clearSelection and getPath in the callback to synchronize with moveUpdate
                             checkMove(currentTile.x, currentTile.z);
@@ -1079,4 +1112,16 @@ public class MapManager : MonoBehaviour
         }
         return stringMap;
     }
+	private void spawnPower(int x, int z, GameManager.Powers power, GameObject obj){
+		DestroyObject (obj);
+		if (power == GameManager.Powers.EARTHSHAKE) {
+			obj = Instantiate (earthshackObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+		} else if (power == GameManager.Powers.MOLEINSTINCT) {
+			obj = Instantiate (moleInjstinctObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+		} else if (power == GameManager.Powers.EXCAVATOR) {
+			obj = Instantiate (excavatorObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+		} else if (power == GameManager.Powers.DIAGONAL) {
+			obj = Instantiate (diagonalObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+		}
+	}
 }

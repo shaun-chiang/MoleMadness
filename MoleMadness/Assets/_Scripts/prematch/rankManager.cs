@@ -18,6 +18,8 @@ public class rankManager : MonoBehaviour {
 	void Start () {
         stars = PlayerPrefs.GetString("stars");
         rank = PlayerPrefs.GetString("rank");
+
+        //Debug.Log("STARS " + stars + " AND RANK " + rank);
         
 	}
 	
@@ -25,7 +27,7 @@ public class rankManager : MonoBehaviour {
 	void Update () {
         if(starAlr ==0)
         {
-            if(PlayerPrefs.GetString("stars")!="0")
+            if(int.Parse(PlayerPrefs.GetString("rank"))<=25)
             {
                 rankText.text = rank;
                 initializeStars();

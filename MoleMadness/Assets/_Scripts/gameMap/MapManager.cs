@@ -299,22 +299,22 @@ public class MapManager : MonoBehaviour
 			GameManager.currentGameTurn = GameManager.GameTurn.PLAYERTURN;
 			GameManager.currentGameState = GameManager.GameState.ACTIVE;
 		}
-		if (power33 != PowerManager.spawnCoor ["3,3"]) {
-			power33 = PowerManager.spawnCoor ["3,3"];
-			spawnPower(3, 3, power33, power33Obj);
-		}
-		if (power36 != PowerManager.spawnCoor ["3,6"]) {
-			power36 = PowerManager.spawnCoor ["3,6"];
-			spawnPower(3, 6, power36, power36Obj);
-		}
-		if (power66 != PowerManager.spawnCoor ["6,6"]) {
-			power66 = PowerManager.spawnCoor ["6,6"];
-			spawnPower(6, 6, power66, power66Obj);
-		}
-		if (power63 != PowerManager.spawnCoor ["6,3"]) {
-			power63 = PowerManager.spawnCoor ["6,3"];
-			spawnPower(6, 3, power63, power63Obj);
-		}
+//		if (power33 != PowerManager.spawnCoor ["3,3"]) {
+//			power33 = PowerManager.spawnCoor ["3,3"];
+//			spawnPower(3, 3, power33, power33Obj);
+//		}
+//		if (power36 != PowerManager.spawnCoor ["3,6"]) {
+//			power36 = PowerManager.spawnCoor ["3,6"];
+//			spawnPower(3, 6, power36, power36Obj);
+//		}
+//		if (power66 != PowerManager.spawnCoor ["6,6"]) {
+//			power66 = PowerManager.spawnCoor ["6,6"];
+//			spawnPower(6, 6, power66, power66Obj);
+//		}
+//		if (power63 != PowerManager.spawnCoor ["6,3"]) {
+//			power63 = PowerManager.spawnCoor ["6,3"];
+//			spawnPower(6, 3, power63, power63Obj);
+//		}
 
         if (Input.GetMouseButtonDown(0))
         {

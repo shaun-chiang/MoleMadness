@@ -84,12 +84,12 @@ public class prematchManager : MonoBehaviour {
         GameObject msgGO = new GameObject("msg");
         Text msg = msgGO.AddComponent<Text>();
         RectTransform trans = msg.GetComponent(typeof(RectTransform)) as RectTransform;
-        trans.sizeDelta = new Vector2(200, 50);
+        trans.sizeDelta = new Vector2(150, 60);
         msg.text = jsonmessage["summary"].ToString().Substring(1, jsonmessage["summary"].ToString().Length-2) ;
         msg.transform.SetParent(popup.transform);
         msg.color = Color.black;
         msg.font = font;
-        msg.transform.position = new Vector3(100, 20, 0);
+        msg.transform.position = new Vector3(150, 0, 0);
         msg.transform.localRotation = Quaternion.identity;
 
         string achShort = jsonmessage["achievementShortCode"].ToString();

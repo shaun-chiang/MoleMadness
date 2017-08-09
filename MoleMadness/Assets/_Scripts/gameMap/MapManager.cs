@@ -168,11 +168,24 @@ public class MapManager : MonoBehaviour
             GameManager.timeLeft -= Time.deltaTime;
             if (GameManager.timeLeft <= 0)
             {
-                timerText.text = "Times Up!";
+                //timerText.text = "Times Up!";
             }
             else
             {
                 timerText.text = GameManager.timeLeft.ToString();
+            }
+            if (GameManager.timerState == GameManager.TimerState.YOURRESPAWNTIMER)
+            {
+                timerText.color = Color.white;
+            } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
+            {
+                timerText.color = Color.black;
+            } else if (GameManager.timerState == GameManager.TimerState.YOURTIMER)
+            {
+                timerText.color = Color.blue;
+            } else if (GameManager.timerState == GameManager.TimerState.OPPTIMER)
+            {
+                timerText.color = Color.red;
             }
             
         }
@@ -269,8 +282,12 @@ public class MapManager : MonoBehaviour
                         if (motherX == x && motherZ == z && GameManager.currentGameState == GameManager.GameState.SPAWNINGBABY)
                         {
                             UpdateText("You must spawn baby away from mother for the start of the game");
-                        }
-                        else
+                        } else if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
+                        {
+                            baby.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
+                            UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
+                            GameManager.endTurn();
+                        } else
                         {
                             initBaby(x, z);
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
@@ -541,6 +558,30 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    public void randomBabyRespawn()
+    {
+        List<int> Xs = new List<int>();
+        List<int> Zs = new List<int>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (map[x, z].tileType == Tile.TileType.HOLE)
+                {
+                    Xs.Add(x);
+                    Zs.Add(z);
+                }
+            }
+        }
+
+        int numOfHoles = Xs.Count;
+        int holeNum = pseudoRandom.Next(0, numOfHoles);
+
+        baby.transform.position = new Vector3(Xs[holeNum] + TILE_OFFSET, CHARACTER_HEIGHT, Zs[holeNum] + TILE_OFFSET);
+        GameManager.endTurn();
+    }
+
     // invert the map before they are generated, change hill to hole and vice versa
     // method is called for player 2
     void invertMap()
@@ -564,8 +605,32 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-		
-	void reloadMap()
+
+    // invert the tile map received from 
+    Tile.TileType[,] invertTileMap(Tile.TileType[,] tileMap)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (tileMap[x, z] == Tile.TileType.HILL)
+                {
+                    //Destroy(map[x, z].tileObject);
+                    tileMap[x, z] = Tile.TileType.HOLE;
+                    //map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                }
+                else if (tileMap[x, z] == Tile.TileType.HOLE)
+                {
+                    //Destroy(map[x, z].tileObject);
+                    tileMap[x, z] = Tile.TileType.HILL;
+                    //map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                }
+            }
+        }
+        return tileMap;
+    }
+
+    void reloadMap()
 	{
 		generating = true;
 		destroyMap();
@@ -668,7 +733,7 @@ public class MapManager : MonoBehaviour
 		}
 	}
 
-    void showAvailableSpawnLocations()
+    public void showAvailableSpawnLocations()
     {
         for (int x = 0; x < width; x++)
         {
@@ -810,18 +875,53 @@ public class MapManager : MonoBehaviour
 
     public void loadTileMap(Tile.TileType[,] tileMap)
     {
+        tileMap = invertTileMap(tileMap);
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
             {
-                map[x, z].tileType = tileMap[x, z];
+                if (map[x, z].tileType != tileMap[x, z])
+                {
+                    map[x, z].tileType = tileMap[x, z];
+                    Destroy(map[x, z].tileObject);
+                    switch (map[x, z].tileType)
+                    {
+                        case Tile.TileType.FLAT:
+                            map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                            break;
+                        case Tile.TileType.HILL:
+                            map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                            // Animation for Hill Creation
+                            break;
+                        case Tile.TileType.HOLE:
+                            map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                            // Animation for Hole Creation
+                            break;
+                        default:
+                            break;
+                    }
+                    map[x, z].tileObject.transform.SetParent(transform);
+                    map[x, z].links = GenerateLinks(x, z);
+                    map[x, z].linksDiag = GenerateLinksDiag(x, z);
+                }
             }
         }
-        destroyMap();
-        // map is inverted because it is retrieve from opponent POV
-        invertMap();
-        createTilesFromMap();
     }
+
+    //public void loadTileMap(Tile.TileType[,] tileMap)
+    //{
+    //    for (int x = 0; x < width; x++)
+    //    {
+    //        for (int z = 0; z < height; z++)
+    //        {
+    //            map[x, z].tileType = tileMap[x, z];
+    //        }
+    //    }
+    //    destroyMap();
+    //    // map is inverted because it is retrieve from opponent POV
+    //    invertMap();
+    //    createTilesFromMap();
+    //}
 
     public bool isMyBabyHit()
     {

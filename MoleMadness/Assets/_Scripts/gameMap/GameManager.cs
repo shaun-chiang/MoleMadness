@@ -24,8 +24,8 @@ public class GameManager
     public static float timeLeftCache;
     public static TimerState timerState = TimerState.OFF;
 
-    const float TURNDURATION = 30;
-    const float RESPAWNDURATION = 10;
+    public const float TURNDURATION = 30;
+    public const float RESPAWNDURATION = 10;
 
     public GameManager(GameState gameState)
     {
@@ -158,22 +158,28 @@ public class GameManager
                     JSONObject jsonmessage = new JSONObject(response.JSONString);
                     Debug.Log(string.Format("MoveCheck at {0},{1}: {2}",x,z, jsonmessage["scriptData"]["Result"].ToString().Replace("\"", "") ));
                     Debug.Log("MoveCheck: " + jsonmessage["scriptData"]["Result"].ToString().Replace("\"", ""));
+                    mapManagerInstance.movePlayer(x, z);
+                    movesLeft -= 1;
+                    mapManagerInstance.moveText.text = "Move: " + movesLeft;
                     if (jsonmessage["scriptData"]["Result"].ToString().Replace("\"", "") == "Hit Baby")
                     {
                         Debug.Log("Opponent baby mole hit");
                         oppBabyHealth -= 1;
                         mapManagerInstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+                        timeLeftCache = timeLeft;
+                        timerState = TimerState.OPPRESPAWNTIMER;
+                        timeLeft = RESPAWNDURATION;
+                        stopTimer();
+                        mapManagerInstance.instructionText.text = "Waiting for opponent to respawn baby";
+                        endTurn();
                     }
                     else
                     {
                         Debug.Log("Nothing particular happen");
-                    }
-                    mapManagerInstance.movePlayer(x, z);
-                    movesLeft -= 1;
-                    mapManagerInstance.moveText.text = "Move: " + movesLeft;
-                    if (movesLeft == 0)
-                    {
-                        endTurn();
+                        if (movesLeft == 0)
+                        {
+                            endTurn();
+                        }
                     }
                 }
                 else
@@ -224,6 +230,7 @@ public class GameManager
                     // init moves
                     movesLeft = 3;
                     mapManagerInstance.moveText.text = "Move: " + movesLeft;
+
                     timerState = TimerState.YOURTIMER;
                     timeLeft = TURNDURATION;
                     mapManagerInstance.timerText.text = timeLeft.ToString();
@@ -274,16 +281,16 @@ public class GameManager
             {
                 if (!response.HasErrors)
                 {
-                    Debug.Log("Successful Start timer");
+                    Debug.Log("Successful Start Respawn timer");
                 }
                 else
                 {
-                    Debug.Log("Unsuccessful Start timer");
+                    Debug.Log("Unsuccessful Start Respawn timer");
                 }
             });
     }
 
-    public static void stopRespawnTimer()
+    public static void stopTimer()
     {
         new LogChallengeEventRequest().SetEventKey("STOP_TIMER")
             .SetEventAttribute("challengeInstanceId",getChallengeId())
@@ -291,11 +298,11 @@ public class GameManager
             {
                 if (!response.HasErrors)
                 {
-                    Debug.Log("Successful stop respawn timer");
+                    Debug.Log("Successful stop timer");
                 }
                 else
                 {
-                    Debug.Log("Unsuccessful stop respawn timer");
+                    Debug.Log("Unsuccessful stop timer");
                 }
             });
 
@@ -332,6 +339,10 @@ public class GameManager
                 Debug.Log("Set text to Place Mother");
                 currentGameState = GameState.SPAWNINGMOTHER;
                 mapManagerInstance.instructionText.text = "Place Mother";
+            } else if (currentGameState == GameState.RESPAWNBABY)
+            {
+                mapManagerInstance.showAvailableSpawnLocations();
+                mapManagerInstance.instructionText.text = "Your baby mole was shakened awake, please choose a new spawning location.";
             } else
             {
                 Debug.Log("Set state to ACTIVE");

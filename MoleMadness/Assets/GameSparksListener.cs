@@ -41,21 +41,20 @@ public class GameSparksListener : MonoBehaviour {
             {
                 // opponent ended
                 Debug.Log("Your Opponent ended his turn, it is now your turn.");
-                GameManager.startTurn();
-                GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
 
-                //if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
-                //{
-                //    // you have yet to spawn mother and baby
-                //    Debug.Log("Your turn to spawn Mother and Baby");
-                //    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
-                //}
-                //else if (GameManager.currentGameState == GameManager.GameState.ACTIVE && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
-                //{
-                //    // During Active Turns
-                //    Debug.Log("Your turn started.");
-                //    GameManager.startTurn();
-                //}
+                if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
+                {
+                    // You need to respawn your baby, start respawn timer instead
+                    Debug.Log("Your turn to respawn baby mole");
+                    GameManager.startRespawnTimer();
+                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+                }
+                else
+                {
+                    Debug.Log("Your Opponent ended his turn, it is now your turn.");
+                    GameManager.startTurn();
+                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+                }
             }
             else if (playerEnded != myId && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
             {
@@ -65,6 +64,11 @@ public class GameSparksListener : MonoBehaviour {
             {
                 // Times up for your turn
                 Debug.Log("Times up, your turn ended.");
+
+                if (GameManager.timerState == GameManager.TimerState.YOURRESPAWNTIMER)
+                {
+                    MapManager.getInstance().randomBabyRespawn();
+                }
                 GameManager.endTurn();
                 GameManager.setTurn(GameManager.GameTurn.OPPONENTTURN);
             } else if (playerEnded == myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
@@ -97,8 +101,12 @@ public class GameSparksListener : MonoBehaviour {
                     mapManager.loadTileMap(tileMap);
                     if (mapManager.isMyBabyHit())
                     {
+                        GameManager.timeLeftCache = GameManager.timeLeft;
+                        GameManager.timerState = GameManager.TimerState.YOURRESPAWNTIMER;
+                        GameManager.timeLeft = GameManager.RESPAWNDURATION;
                         GameManager.myBabyHealth -= 1;
                         mapManager.myBabyText.text = "My Baby: " + GameManager.myBabyHealth.ToString();
+                        GameManager.currentGameState = GameManager.GameState.RESPAWNBABY;
                     }
                 }
             }

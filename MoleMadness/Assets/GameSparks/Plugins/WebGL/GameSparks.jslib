@@ -2,8 +2,8 @@
 var GameSparks = new function(){
 
 
-	this.GSSocketInitialize = function(id,name) {
-		GSSocketCollection.Get(id).Initialize(Pointer_stringify(name));
+	this.GSSocketInitialize = function(id, name, debug) {
+		GSSocketCollection.Get(id).Initialize(Pointer_stringify(name), debug);
 	};
 
 	this.GSFreePtr = function(ptr) {
@@ -212,7 +212,7 @@ this._hasher;f=g.finalize(f);g.reset();return g.finalize(this._oKey.clone().conc
 		  	return this.id;
 		  }
 
-		  this.debug = true;
+		  this.debug = false;
 			
 		  this.id = socketId;
 		  
@@ -222,9 +222,10 @@ this._hasher;f=g.finalize(f);g.reset();return g.finalize(this._oKey.clone().conc
 
 		  this.socketUrl = "";
 
-		  this.Initialize = function(name) {
+		  this.Initialize = function(name, debug) {
 		    this.log("GS Initialize websocket" + this.id + ": " + name);
 		    this.gameObjectName = name;
+			this.debug = debug;
 		  }
 
 		  this.Send = function (data) {

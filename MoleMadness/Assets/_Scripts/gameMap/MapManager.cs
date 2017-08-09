@@ -21,10 +21,12 @@ public class MapManager : MonoBehaviour
     public GameObject mother;
     public GameObject baby;
     public GUIText TextDisplay;
+    public GUIText turnText;
     public GUIText moveText;
     public GUIText instructionText;
     public GUIText myBabyText;
     public GUIText oppBabyText;
+    public GUIText timerText;
 
     public GameObject hillPrefab;
     public GameObject flatPrefab;
@@ -109,13 +111,9 @@ public class MapManager : MonoBehaviour
         seed = GameManager.getChallengeId();
         pseudoRandom = new System.Random(seed.GetHashCode());
         RandomFillMap();
-        if (PlayerPrefs.GetInt("player1") == 1)
+        if (!GameManager.player1)
         {
-            player1 = true;
-        }
-        else
-        {
-            player1 = false;
+            // invert the map to simulate the other side for player 2
             invertMap();
         }
         createTilesFromMap();
@@ -173,6 +171,34 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.timerState != GameManager.TimerState.OFF)
+        {
+            GameManager.timeLeft -= Time.deltaTime;
+            if (GameManager.timeLeft <= 0)
+            {
+                //timerText.text = "Times Up!";
+            }
+            else
+            {
+                timerText.text = GameManager.timeLeft.ToString();
+            }
+
+            if (GameManager.timerState == GameManager.TimerState.YOURRESPAWNTIMER)
+            {
+                timerText.color = Color.white;
+            } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
+            {
+                timerText.color = Color.black;
+            } else if (GameManager.timerState == GameManager.TimerState.YOURTIMER)
+            {
+                timerText.color = Color.blue;
+            } else if (GameManager.timerState == GameManager.TimerState.OPPTIMER)
+            {
+                timerText.color = Color.red;
+            }
+            
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         // For testing only
@@ -265,7 +291,7 @@ public class MapManager : MonoBehaviour
                 int x = (int)hit.point.x;
                 int z = (int)hit.point.z;
                 // logic for handling spawning mother state
-                if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
+                if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
                 {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
@@ -284,7 +310,7 @@ public class MapManager : MonoBehaviour
                     }
                 }
                 // logic to handle touch when spawning baby
-                else if (GameManager.currentGameState == GameManager.GameState.SPAWNINGBABY || GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
+                else if ((GameManager.currentGameState == GameManager.GameState.SPAWNINGBABY || GameManager.currentGameState == GameManager.GameState.RESPAWNBABY) && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
                 {
                     // check if tile selected is a hole, valid spawning location.
                     if (map[x, z].tileType == Tile.TileType.HOLE)
@@ -295,8 +321,21 @@ public class MapManager : MonoBehaviour
                         if (motherX == x && motherZ == z && GameManager.currentGameState == GameManager.GameState.SPAWNINGBABY)
                         {
                             UpdateText("You must spawn baby away from mother for the start of the game");
-                        }
-                        else
+                        } else if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
+                        {
+                            Debug.Log(string.Format("Respawning Baby at {0},{1}", x, z));
+                            baby.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
+                            GameManager.sendMoveUpdate(mother.transform.position, baby.transform.position, "respawn");
+                            UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
+
+                            Debug.Log("Baby Spawned, switching back to opp timer");
+                            GameManager.currentGameState = GameManager.GameState.ACTIVE;
+                            GameManager.timerState = GameManager.TimerState.OPPTIMER;
+                            GameManager.timeLeft = GameManager.timeLeftCache;
+                            GameManager.timeLeftCache = -1;
+
+                            GameManager.endTurn();
+                        } else
                         {
                             initBaby(x, z);
                             UpdateText(string.Format("Spawn Baby at {0},{1}", x, z));
@@ -313,7 +352,7 @@ public class MapManager : MonoBehaviour
                         UpdateText("Target tile is not valid spawning location, please select a hole");
                     }
                 }
-                else if (GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
+                else if (GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN && GameManager.currentGameState == GameManager.GameState.ACTIVE)
                 {
 					if (power_earthshake)
 					{
@@ -398,7 +437,7 @@ public class MapManager : MonoBehaviour
 				if (hit.collider.tag == "Tile" && canMove && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN && GameManager.currentGameState == GameManager.GameState.ACTIVE) {
 					int x = (int)hit.point.x;
 					int z = (int)hit.point.z;
-					Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
+					//Debug.Log (string.Format ("x: {0}, z: {1}", x, z));
 					bool goBack = false;
 					if (positions.Count > 1) {
 						if (map [x, z] == map [(int)positions [positions.Count-2].x, (int)positions [positions.Count-2].z]) {
@@ -457,6 +496,9 @@ public class MapManager : MonoBehaviour
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
 						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
 							Debug.Log ("in");
+                            // check move will include delayed clearSelection and getPath in the callback to synchronize with moveUpdate
+                            checkMove(currentTile.x, currentTile.z);
+							//movePlayer(currentTile.x,currentTile.z);
 							playerTile = currentTile;
 							currentTile = playerTile;
 
@@ -480,8 +522,9 @@ public class MapManager : MonoBehaviour
 								
 						} else {
 							currentTile = playerTile;
-						}
-						movePlayer(currentTile.x,currentTile.z);
+                            clearAllSelections();
+                            getPaths(playerTile.x, playerTile.z, playerSteps, power_diagonal);
+                        }
 					}
 				}
 				clearAllSelections();
@@ -573,6 +616,29 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    public void randomBabyRespawn()
+    {
+        List<int> Xs = new List<int>();
+        List<int> Zs = new List<int>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (map[x, z].tileType == Tile.TileType.HOLE)
+                {
+                    Xs.Add(x);
+                    Zs.Add(z);
+                }
+            }
+        }
+
+        int numOfHoles = Xs.Count;
+        int holeNum = pseudoRandom.Next(0, numOfHoles);
+
+        baby.transform.position = new Vector3(Xs[holeNum] + TILE_OFFSET, CHARACTER_HEIGHT, Zs[holeNum] + TILE_OFFSET);
+    }
+
     // invert the map before they are generated, change hill to hole and vice versa
     // method is called for player 2
     void invertMap()
@@ -596,15 +662,38 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-		
-	void reloadMap()
+
+    // invert the tile map received from 
+    Tile.TileType[,] invertTileMap(Tile.TileType[,] tileMap)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (tileMap[x, z] == Tile.TileType.HILL)
+                {
+                    //Destroy(map[x, z].tileObject);
+                    tileMap[x, z] = Tile.TileType.HOLE;
+                    //map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                }
+                else if (tileMap[x, z] == Tile.TileType.HOLE)
+                {
+                    //Destroy(map[x, z].tileObject);
+                    tileMap[x, z] = Tile.TileType.HILL;
+                    //map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                }
+            }
+        }
+        return tileMap;
+    }
+
+    void reloadMap()
 	{
 		generating = true;
 		destroyMap();
 		createTilesFromMap ();
 		generating = false;
 	}
-
 
     void createTilesFromMap()
     {
@@ -644,7 +733,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    void clearAllSelections()
+    public void clearAllSelections()
     {
         for (int x = 0; x < width; x++)
         {
@@ -701,7 +790,7 @@ public class MapManager : MonoBehaviour
 		}
 	}
 
-    void showAvailableSpawnLocations()
+    public void showAvailableSpawnLocations()
     {
         for (int x = 0; x < width; x++)
         {
@@ -737,6 +826,8 @@ public class MapManager : MonoBehaviour
         // never call directly, only called by GameManager after checking
         Debug.Log(string.Format("Moving to {0},{1}",x,z));
         mother.transform.position = new Vector3(x + TILE_OFFSET, CHARACTER_HEIGHT, z + TILE_OFFSET);
+        clearAllSelections();
+        getPaths(playerTile.x, playerTile.z, playerSteps, power_diagonal);
         int[,] intMap = convertTileToIntMap();
         GameManager.sendMoveUpdate(mother.transform.position, baby.transform.position, convertIntMapToString(convertTileToIntMap()));
     }
@@ -837,6 +928,67 @@ public class MapManager : MonoBehaviour
             }
         }
         return tileMap;
+    }
+
+    public void loadTileMap(Tile.TileType[,] tileMap)
+    {
+        tileMap = invertTileMap(tileMap);
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                if (map[x, z].tileType != tileMap[x, z])
+                {
+                    map[x, z].tileType = tileMap[x, z];
+                    Destroy(map[x, z].tileObject);
+                    switch (map[x, z].tileType)
+                    {
+                        case Tile.TileType.FLAT:
+                            map[x, z].tileObject = Instantiate(flatPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                            break;
+                        case Tile.TileType.HILL:
+                            map[x, z].tileObject = Instantiate(hillPrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                            // Animation for Hill Creation
+                            break;
+                        case Tile.TileType.HOLE:
+                            map[x, z].tileObject = Instantiate(holePrefab, new Vector3(transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+                            // Animation for Hole Creation
+                            break;
+                        default:
+                            break;
+                    }
+                    map[x, z].tileObject.transform.SetParent(transform);
+                    map[x, z].links = GenerateLinks(x, z);
+                    map[x, z].linksDiag = GenerateLinksDiag(x, z);
+                }
+            }
+        }
+    }
+
+    //public void loadTileMap(Tile.TileType[,] tileMap)
+    //{
+    //    for (int x = 0; x < width; x++)
+    //    {
+    //        for (int z = 0; z < height; z++)
+    //        {
+    //            map[x, z].tileType = tileMap[x, z];
+    //        }
+    //    }
+    //    destroyMap();
+    //    // map is inverted because it is retrieve from opponent POV
+    //    invertMap();
+    //    createTilesFromMap();
+    //}
+
+    public bool isMyBabyHit()
+    {
+        Vector3 babyPosition = baby.transform.position;
+        bool babyHit = map[(int)babyPosition.x, (int)babyPosition.z].tileType == Tile.TileType.HILL;
+        if (babyHit)
+        {
+            Debug.Log("My baby is hit");
+        }
+        return babyHit;
     }
 
 	List<Tile> getPaths(int x, int z, int steps, bool diag = false)

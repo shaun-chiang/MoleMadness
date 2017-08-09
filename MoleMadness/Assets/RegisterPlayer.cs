@@ -42,6 +42,7 @@ public class RegisterPlayer : MonoBehaviour
               {
                   Debug.Log("Error Registering Player");
                   notificationText.text = "Error Registering Player";
+                  Debug.Log(response.JSONString);
               }
           }
         );
@@ -66,6 +67,7 @@ public class RegisterPlayer : MonoBehaviour
                 else
                 {
                     Debug.Log("Error Authenticating Player...");
+                    Debug.Log(response.JSONString);
                     notificationText.text = "Authentication Error";
 
                 }

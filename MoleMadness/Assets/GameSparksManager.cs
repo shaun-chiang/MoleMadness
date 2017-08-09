@@ -6,6 +6,7 @@ public class GameSparksManager : MonoBehaviour
 {
 
     private static GameSparksManager instance = null;
+    public static bool ListenersInitialized = false;
 
     private void Awake()
     {

@@ -6,7 +6,6 @@ using GameSparks.Api.Requests;
 
 public class FindMatch : MonoBehaviour {
 
-    public Text FindMatchStatus;
     public void FindMatchBttn()
     {
         Debug.Log("Button Pressed");
@@ -17,12 +16,10 @@ public class FindMatch : MonoBehaviour {
                if (!response.HasErrors)
                {
                    Debug.Log("Match Challenged");
-                   FindMatchStatus.text = "Match Challenged";
                }
                else
                {
                    Debug.Log("Error Challenging");
-                   FindMatchStatus.text = "Error Challenging";
                }
            });
 

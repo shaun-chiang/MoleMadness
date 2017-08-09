@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 3694cc17d85ff4f6da792b929ae1aabb
 timeCreated: 1471274635
-licenseType: Store
+licenseType: Free
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
@@ -46,6 +46,9 @@ PluginImporter:
       settings:
         CPU: AnyCPU
     PS4:
+      enabled: 1
+      settings: {}
+    Switch:
       enabled: 1
       settings: {}
     WebGL:

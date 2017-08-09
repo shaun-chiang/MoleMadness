@@ -115,10 +115,6 @@ namespace GameSparks.Editor
 			{
 				return;
 			}
-
-			Selection.activeObject = GetOrCreateSettingsAsset();
-
-			ShowInspector ();
 		
 			try {
 				string[] oldFiles1 = {
@@ -215,8 +211,12 @@ namespace GameSparks.Editor
 					!EditorPrefs.GetString(PlayerSettings.productName + "_GameSparksVersion").Equals(GameSparks.Core.GS.Version)) {
 					EditorPrefs.SetBool(PlayerSettings.productName + "_GameSparksPopUpSeen", true);
 					EditorPrefs.SetString (PlayerSettings.productName + "_GameSparksVersion", GameSparks.Core.GS.Version);
-		
-					EditorWindow.GetWindowWithRect(typeof(GameSparksPopUp), new Rect((Screen.width - 350) / 2, (Screen.height - 265) / 2, 350, 265));
+
+                    Selection.activeObject = GetOrCreateSettingsAsset();
+
+                    ShowInspector();
+
+                    EditorWindow.GetWindowWithRect(typeof(GameSparksPopUp), new Rect((Screen.width - 350) / 2, (Screen.height - 265) / 2, 350, 265));
 				
 					string baseDir = "Plugins";
 					string targetDir = "Assets/GameSparks/Plugins";

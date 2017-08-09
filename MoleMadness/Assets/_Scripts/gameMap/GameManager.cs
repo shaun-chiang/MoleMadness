@@ -9,11 +9,9 @@ public class GameManager
     public enum GameTurn { PLAYERTURN, OPPONENTTURN};
     public enum Characters { MOTHER, BABY }
     public enum MoveResult { NOTHING, HITBABY }
-<<<<<<< HEAD
-	public enum Powers { NOTHING, EXCAVATOR, MOLEINSTINCT, EARTHSHAKE, DIAGONOL}
-=======
+
+	public enum Powers { NOTHING, EXCAVATOR, MOLEINSTINCT, EARTHSHAKE, DIAGONAL}
     public enum TimerState { OFF, YOURTIMER, OPPTIMER, YOURRESPAWNTIMER, OPPRESPAWNTIMER }
->>>>>>> a18f5d75d1004f47a268ae26c7032d15aac49216
 
     public static GameState currentGameState;
     public static GameTurn currentGameTurn;
@@ -366,6 +364,7 @@ public class GameManager
             {
                 Debug.Log("unsuccessful get challenge details");
             }
+			
         });
 
     }

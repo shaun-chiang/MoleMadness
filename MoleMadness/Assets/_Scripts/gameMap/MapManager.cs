@@ -818,7 +818,20 @@ public class MapManager : MonoBehaviour
             }
         }
         destroyMap();
+        // map is inverted because it is retrieve from opponent POV
+        invertMap();
         createTilesFromMap();
+    }
+
+    public bool isMyBabyHit()
+    {
+        Vector3 babyPosition = baby.transform.position;
+        bool babyHit = map[(int)babyPosition.x, (int)babyPosition.z].tileType == Tile.TileType.HILL;
+        if (babyHit)
+        {
+            Debug.Log("My baby is hit");
+        }
+        return babyHit;
     }
 
 	List<Tile> getPaths(int x, int z, int steps, bool diag = false)

@@ -21,6 +21,7 @@ public class GameManager
     public static int myBabyHealth;
     public static int oppBabyHealth;
     public static float timeLeft;
+    public static float timeLeftCache;
     public static TimerState timerState = TimerState.OFF;
 
     const float TURNDURATION = 30;

@@ -81,20 +81,25 @@ public class GameSparksListener : MonoBehaviour {
             JSONObject jsonmessage = new JSONObject(message.JSONString);
             print("Field Change Detected");
             print(jsonmessage);
-            string playerChanged = jsonmessage["playerChanged"].ToString().Replace("\"", "");
-            string newField = jsonmessage["newField"].ToString().Replace("\"", "");
+            string playerChanged = jsonmessage["data"]["playerChanged"].ToString().Replace("\"", "");
+            string newField = jsonmessage["data"]["newField"].ToString().Replace("\"", "");
             string myId = PlayerPrefs.GetString("playerId").Replace("\"", "");
             if (playerChanged != myId)
             {
-                Debug.Log("Opponent made a change.");
                 if (newField == "init")
                 {
                     Debug.Log("Opponent initialized his mother mole and baby mole");
                 } else
                 {
+                    Debug.Log("Opponent made a move");
                     MapManager mapManager = MapManager.getInstance();
                     Tile.TileType[,] tileMap = mapManager.constructTileMapFromString(newField);
                     mapManager.loadTileMap(tileMap);
+                    if (mapManager.isMyBabyHit())
+                    {
+                        GameManager.myBabyHealth -= 1;
+                        mapManager.myBabyText.text = "My Baby: " + GameManager.myBabyHealth.ToString();
+                    }
                 }
             }
         }

@@ -12,6 +12,7 @@ public class GameManager
     public enum GameTurn { PLAYERTURN, OPPONENTTURN};
     public enum Characters { MOTHER, BABY }
     public enum MoveResult { NOTHING, HITBABY }
+	public enum Powers { NOTHING, EXCAVATOR, MOLEINSTINCT, EARTHSHAKE, DIAGONOL}
 
     public static GameState currentGameState;
     public static GameTurn currentGameTurn;

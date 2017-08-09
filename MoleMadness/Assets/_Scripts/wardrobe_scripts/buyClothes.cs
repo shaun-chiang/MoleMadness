@@ -41,7 +41,7 @@ public class buyClothes : MonoBehaviour {
         name.transform.SetParent(popup.transform);
         name.color = Color.black;
         name.font = font; 
-        name.transform.position = new Vector3(150, 65, 0);
+        name.transform.position = new Vector3(150, 55, 0);
         name.transform.localRotation = Quaternion.identity;
 
         GameObject img = Instantiate(Resources.Load(this.name.Substring(0, this.name.Length - 12) + "_IMG", typeof(GameObject)) as GameObject);
@@ -63,6 +63,7 @@ public class buyClothes : MonoBehaviour {
         numGems.transform.SetParent(popup.transform);
         numGems.color = Color.black;
         numGems.font = font;
+        numGems.fontSize = 12;
         numGems.transform.position = new Vector3(150, -125, 0);
         numGems.transform.localRotation = Quaternion.identity;
 

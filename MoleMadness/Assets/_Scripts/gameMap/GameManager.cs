@@ -166,12 +166,14 @@ public class GameManager
                         Debug.Log("Opponent baby mole hit");
                         oppBabyHealth -= 1;
                         mapManagerInstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+
+                        // record timeleft for start timer later
                         timeLeftCache = timeLeft;
                         timerState = TimerState.OPPRESPAWNTIMER;
                         timeLeft = RESPAWNDURATION;
+
                         stopTimer();
                         mapManagerInstance.instructionText.text = "Waiting for opponent to respawn baby";
-                        //endTurn();
                     }
                     else
                     {
@@ -265,15 +267,6 @@ public class GameManager
                 if (!response.HasErrors)
                 {
                     Debug.Log("Successful Start timer");
-                    if (timeLeftCache != -1)
-                    {
-                        //moves left remains the same
-                        timerState = TimerState.YOURTIMER;
-                        timeLeft = timeLeftCache;
-                        timeLeftCache = -1;
-
-                        mapManagerInstance.timerText.text = timeLeft.ToString();
-                    }
                 }
                 else
                 {

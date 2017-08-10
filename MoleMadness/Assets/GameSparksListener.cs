@@ -61,6 +61,28 @@ public class GameSparksListener : MonoBehaviour {
                     Debug.Log("Your turn to respawn baby mole");
                     GameManager.startRespawnTimer();
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+<<<<<<< HEAD
+=======
+                } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
+                {
+                    Debug.Log("Your opponent had respawned the baby mole, it is your turn now.");
+                    GameManager.timeLeft = GameManager.timeLeftCache;
+                    GameManager.timeLeftCache = -1;
+                    GameManager.timerState = GameManager.TimerState.YOURTIMER;
+                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+                    if (GameManager.movesLeft <= 0)
+                    {
+                        GameManager.endTurn();
+                    } else
+                    {
+                        GameManager.startTimer(GameManager.timeLeft);
+                    }
+                } else if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
+                {
+                    Debug.Log("Your turn to spawn Mother Mole and Baby Mole.");
+                    // Do not start timer
+                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+>>>>>>> ab29fc25c13e4ecbc94f333f3b166cef7706e931
                 }
                 else
                 {
@@ -75,13 +97,40 @@ public class GameSparksListener : MonoBehaviour {
                 Debug.Log("Your opponent ended while it is on your turn. HOW IS THAT POSSIBLE?");
             } else if (playerEnded == myId && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
             {
-                // Times up for your turn
-                Debug.Log("Times up, your turn ended.");
+                // Your turn ended
+                Debug.Log("Your turn endedd.");
 
                 if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     Debug.Log("randomly respawning baby.");
                     MapManager.getInstance().randomBabyRespawn();
+
+                    // this stop timer fails normally if player respawn baby within time.
+                    // it acts as a fail safe
+                    // actually no need end cause startrespawntimer would have ended that
+                    //GameManager.stopTimer();
+
+                } else if (GameManager.currentGameState == GameManager.GameState.WAITING || GameManager.p2JustInit)
+                {
+                    // Do not call end turn
+                    // stop timer is called to trigger this when waiting for opponent to init position
+                    Debug.Log("stop timer is called to trigger this during start of game placing");
+                    if (GameManager.p2JustInit)
+                    {
+                        GameManager.p2JustInit = false;
+                        GameManager.timerState = GameManager.TimerState.OPPTIMER;
+                        GameManager.timeLeft = GameManager.TURNDURATION;
+                    }
+                } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
+                {
+                    // end turn triggered from stop timer to pass turn to opponent for respawn
+                    Debug.Log("end turn triggered from stop timer to pass turn to opponent for respawn");
+                }
+                else
+                {
+                    // check if it is called by stop timer
+                    GameManager.endTurn();
+
                 }
                 GameManager.endTurn();
                 GameManager.setTurn(GameManager.GameTurn.OPPONENTTURN);

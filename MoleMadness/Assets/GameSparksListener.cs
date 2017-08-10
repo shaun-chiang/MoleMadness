@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GameSparks.Api.Messages;
-using UnityEngine.SceneManagement;
 
 public class GameSparksListener : MonoBehaviour {
 
@@ -14,8 +13,6 @@ public class GameSparksListener : MonoBehaviour {
         {
             ChallengeStartedMessage.Listener += ChallengeStartedMessageHandler;
             ScriptMessage.Listener += GetMessages;
-            ChallengeWonMessage.Listener += GetWinMessages;
-            ChallengeLostMessage.Listener += GetLostMessages;
             GameSparksManager.ListenersInitialized = true;
             Debug.Log("Listeners Added!");
         } else
@@ -26,18 +23,7 @@ public class GameSparksListener : MonoBehaviour {
     void ChallengeStartedMessageHandler(ChallengeStartedMessage message)
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
-        if (SceneManager.GetActiveScene().name=="Matchmaking") {
-            GameManager.initGame(jsonmessage);
-        }
-    }
-
-    public void GetWinMessages(ChallengeWonMessage message)
-    {
-        SceneManager.LoadScene("PostMatchWin");
-    }
-    public void GetLostMessages(ChallengeLostMessage message)
-    {
-        SceneManager.LoadScene("PostMatchLose");
+        GameManager.initGame(jsonmessage);
     }
 
     public void GetMessages(ScriptMessage message)
@@ -67,20 +53,13 @@ public class GameSparksListener : MonoBehaviour {
             if (playerEnded != myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
             {
                 // opponent ended
+                Debug.Log("Your Opponent ended his turn, it is now your turn.");
 
                 if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     // You need to respawn your baby, start respawn timer instead
                     Debug.Log("Your turn to respawn baby mole");
                     GameManager.startRespawnTimer();
-                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
-                } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
-                {
-                    Debug.Log("Your opponent had respawned the baby mole, it is your turn now.");
-                    GameManager.timeLeft = GameManager.timeLeftCache;
-                    GameManager.timeLeftCache = -1;
-                    GameManager.timerState = GameManager.TimerState.YOURTIMER;
-                    GameManager.startTimer(GameManager.timeLeft);
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
                 }
                 else
@@ -103,17 +82,8 @@ public class GameSparksListener : MonoBehaviour {
                 {
                     Debug.Log("randomly respawning baby.");
                     MapManager.getInstance().randomBabyRespawn();
-
-                    // this stop timer fails normally if player respawn baby within time.
-                    // it acts as a fail safe
-                    // actually no need end cause startrespawntimer would have ended that
-                    //GameManager.stopTimer();
-
-                } else
-                {
-                    GameManager.endTurn();
                 }
-                
+                GameManager.endTurn();
                 GameManager.setTurn(GameManager.GameTurn.OPPONENTTURN);
             } else if (playerEnded == myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
             {
@@ -140,7 +110,6 @@ public class GameSparksListener : MonoBehaviour {
                 } else if (newField == "respawn")
                 {
                     Debug.Log("Opponent respawn his baby mole");
-                    // here 1
                 } else
                 {
                     Debug.Log("Opponent made a move");

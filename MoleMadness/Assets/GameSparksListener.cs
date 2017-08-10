@@ -67,6 +67,11 @@ public class GameSparksListener : MonoBehaviour {
                     GameManager.timerState = GameManager.TimerState.YOURTIMER;
                     GameManager.startTimer(GameManager.timeLeft);
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+                } else if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
+                {
+                    Debug.Log("Your turn to spawn Mother Mole and Baby Mole.");
+                    // Do not start timer
+                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
                 }
                 else
                 {
@@ -81,8 +86,8 @@ public class GameSparksListener : MonoBehaviour {
                 Debug.Log("Your opponent ended while it is on your turn. HOW IS THAT POSSIBLE?");
             } else if (playerEnded == myId && GameManager.currentGameTurn == GameManager.GameTurn.PLAYERTURN)
             {
-                // Times up for your turn
-                Debug.Log("Times up, your turn ended.");
+                // Your turn ended
+                Debug.Log("Your turn endedd.");
 
                 if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
@@ -94,7 +99,19 @@ public class GameSparksListener : MonoBehaviour {
                     // actually no need end cause startrespawntimer would have ended that
                     //GameManager.stopTimer();
 
-                } else
+                } else if (GameManager.currentGameState == GameManager.GameState.WAITING || GameManager.p2JustInit)
+                {
+                    // Do not call end turn
+                    // stop timer is called to trigger this when waiting for opponent to init position
+                    Debug.Log("stop timer is called to trigger this during start of game placing");
+                    if (GameManager.p2JustInit)
+                    {
+                        GameManager.p2JustInit = false;
+                        GameManager.timerState = GameManager.TimerState.OPPTIMER;
+                        GameManager.timeLeft = GameManager.TURNDURATION;
+                    }
+                }
+                else
                 {
                     GameManager.endTurn();
                 }

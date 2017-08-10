@@ -17,6 +17,7 @@ public class GameManager
     public static MapManager mapManagerInstance;
     public static bool player1;
     public static bool initPositionComplete;
+    public static bool p2JustInit = false;
     public static int movesLeft;
     public static int myBabyHealth;
     public static int oppBabyHealth;
@@ -125,13 +126,14 @@ public class GameManager
                    if (player1)
                    {
                        Debug.Log("Positions Set for player 1");
-                       endTurn();
+                       stopTimer();
                        currentGameState = GameState.WAITING;
                    }
                    else
                    {
                        Debug.Log("Positions Set for player 2");
-                       endTurn();
+                       p2JustInit = true;
+                       stopTimer();
                        currentGameState = GameState.ACTIVE;
                    }
                }
@@ -371,18 +373,18 @@ public class GameManager
                 {
                     Debug.Log("Successful stop timer");
 
-                    if (timerState == TimerState.OPPRESPAWNTIMER)
-                    {
-                        timeLeft = RESPAWNDURATION;
-                    } else if (timerState == TimerState.OPPRESPAWNTIMER)
-                    {
-                        timeLeft = timeLeftCache;
-                        timeLeftCache = -1;
-                        timerState = TimerState.YOURTIMER;
-                        startTimer(timeLeft);
+                    //if (timerState == TimerState.OPPRESPAWNTIMER)
+                    //{
+                    //    timeLeft = RESPAWNDURATION;
+                    //}
+                    //else if (timerState == TimerState.OPPRESPAWNTIMER)
+                    //{
+                    //    timeLeft = timeLeftCache;
+                    //    timeLeftCache = -1;
+                    //    timerState = TimerState.YOURTIMER;
 
-                        timeLeft = RESPAWNDURATION;
-                    }
+                    //    timeLeft = RESPAWNDURATION;
+                    //}
                 }
                 else
                 {

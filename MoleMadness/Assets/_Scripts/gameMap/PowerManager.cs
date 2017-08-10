@@ -8,23 +8,23 @@ public static class PowerManager {
     public enum PowerType { A,B,C,D,E,None }
     public static MapManager mapManager = MapManager.getInstance();
     public static bool[] spawned = new bool[4];
-    private static Dictionary<string, PowerType> spawnCoor =
-            new Dictionary<string, PowerType>(){
-            { "3,3", PowerType.None},
-            { "3,6", PowerType.None},
-            { "6,3", PowerType.None},
-            { "6,6", PowerType.None}
+	public static Dictionary<string, GameManager.Powers> spawnCoor =
+            new Dictionary<string, GameManager.Powers>(){
+		{ "3,3", GameManager.Powers.NOTHING},
+		{ "3,6", GameManager.Powers.NOTHING},
+		{ "6,3", GameManager.Powers.NOTHING},
+		{ "6,6", GameManager.Powers.NOTHING}
         };
     public const float POWERHEIGHT = 1;
 
-	public static void spawnPower(int x, int z, PowerType powerType)
+	public static void spawnPower(int x, int z,  GameManager.Powers powerType)
     {
         Transform transform = mapManager.GetComponent<Transform>();
         string key = string.Format("{0},{1}", x, z);
         //Debug.Log(spawnCoor[key]);
         try
         {
-            if (spawnCoor[key] == PowerType.None)
+			if (spawnCoor[key] == GameManager.Powers.NOTHING)
             {
                 Debug.Log(string.Format("Instantiating Power {0} at {1}, {2}", powerType, x, z));
                 UnityEngine.Object.Instantiate(mapManager.powers[(int)powerType], new Vector3(transform.position.x + MapManager.TILE_OFFSET + MapManager.TILE_SIZE * x, POWERHEIGHT, transform.position.y + MapManager.TILE_OFFSET + MapManager.TILE_SIZE * z), Quaternion.identity);

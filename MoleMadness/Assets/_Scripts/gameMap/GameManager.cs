@@ -9,6 +9,8 @@ public class GameManager
     public enum GameTurn { PLAYERTURN, OPPONENTTURN};
     public enum Characters { MOTHER, BABY }
     public enum MoveResult { NOTHING, HITBABY }
+
+	public enum Powers { NOTHING, EXCAVATOR, MOLEINSTINCT, EARTHSHAKE, DIAGONAL}
     public enum TimerState { OFF, YOURTIMER, OPPTIMER, YOURRESPAWNTIMER, OPPRESPAWNTIMER }
 
     public static GameState currentGameState;
@@ -17,6 +19,7 @@ public class GameManager
     public static MapManager mapManagerInstance;
     public static bool player1;
     public static bool initPositionComplete;
+    public static bool p2JustInit = false;
     public static int movesLeft;
     public static int myBabyHealth;
     public static int oppBabyHealth;
@@ -43,6 +46,13 @@ public class GameManager
     public static GameManager getInstance()
     {
         return gameManagerinstance;
+    }
+
+    public static void resetGame()
+    {
+        initPositionComplete = false;
+        p2JustInit = false;
+        timerState = TimerState.OFF;
     }
 
     public static string getChallengeId()
@@ -125,13 +135,14 @@ public class GameManager
                    if (player1)
                    {
                        Debug.Log("Positions Set for player 1");
-                       endTurn();
+                       stopTimer();
                        currentGameState = GameState.WAITING;
                    }
                    else
                    {
                        Debug.Log("Positions Set for player 2");
-                       endTurn();
+                       p2JustInit = true;
+                       stopTimer();
                        currentGameState = GameState.ACTIVE;
                    }
                }
@@ -362,6 +373,7 @@ public class GameManager
             {
                 Debug.Log("unsuccessful get challenge details");
             }
+			
         });
 
     }
@@ -411,4 +423,24 @@ public class GameManager
         }
         
     }
+
+	public static void pickupPower(string pos)
+	{
+		string cid = getChallengeId();
+		new LogChallengeEventRequest().SetEventKey("TAKE_POWERUP")
+			.SetEventAttribute("challengeInstanceId",cid)
+			.SetEventAttribute("LOCATION", pos)
+					.Send((response) =>
+						{
+							if (!response.HasErrors)
+							{
+								Debug.Log("Successful Take Powerup");
+									}
+									else
+									{
+										Debug.Log("Unsuccessful Take Powerup");
+									}
+									});
+								
+	}
 }

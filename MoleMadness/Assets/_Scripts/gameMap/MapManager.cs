@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using GameSparks.Api.Responses;
 using GameSparks.Api.Requests;
 
+[RequireComponent(typeof(Button))]
 public class MapManager : MonoBehaviour
 {
-
-    bool generating;
-
+	bool generating; 
     public static MapManager mapManagerInstance;
     public static GameManager gameManagerInstance;
     public static GameObject mapInstance;
@@ -45,8 +45,18 @@ public class MapManager : MonoBehaviour
 	public float pathHeight;
 	public List<Vector3> positions;
 
+
 	//Animation
 	public GameObject animation;
+
+	//Buttons
+	public Button button1;
+	public Button button2;
+	public Sprite earthshakeSprite;
+	public Sprite moleInstrinctSprite;
+	public Sprite diagonalSprite;
+	public Sprite excavatorSprite;
+	public Sprite buttonSprite;
 
 
 	//Player Steps and Position information
@@ -76,9 +86,18 @@ public class MapManager : MonoBehaviour
 	public GameObject power66Obj;
 	public GameObject power63Obj;
 	public GameObject moleInjstinctObj;
-	public GameObject earthshackObj;
+	public GameObject earthshakeObj;
 	public GameObject diagonalObj;
 	public GameObject excavatorObj;
+	public static Dictionary<string, GameManager.Powers> spawnCoor =
+		new Dictionary<string, GameManager.Powers>(){
+		{ "3,3", GameManager.Powers.NOTHING},
+		{ "3,6", GameManager.Powers.NOTHING},
+		{ "6,3", GameManager.Powers.NOTHING},
+		{ "6,6", GameManager.Powers.NOTHING}
+	};
+	public GameManager.Powers[] BagPack;
+
 
     System.Random pseudoRandom;
 
@@ -151,6 +170,7 @@ public class MapManager : MonoBehaviour
 		power63 = GameManager.Powers.NOTHING;
 		power66 = GameManager.Powers.NOTHING;
 		power36 = GameManager.Powers.NOTHING;
+		BagPack = new GameManager.Powers[]{ GameManager.Powers.NOTHING, GameManager.Powers.NOTHING };
     }
 
     public static MapManager getInstance()
@@ -299,25 +319,26 @@ public class MapManager : MonoBehaviour
 			GameManager.currentGameTurn = GameManager.GameTurn.PLAYERTURN;
 			GameManager.currentGameState = GameManager.GameState.ACTIVE;
 		}
-//		if (power33 != PowerManager.spawnCoor ["3,3"]) {
-//			power33 = PowerManager.spawnCoor ["3,3"];
-//			spawnPower(3, 3, power33, power33Obj);
-//		}
-//		if (power36 != PowerManager.spawnCoor ["3,6"]) {
-//			power36 = PowerManager.spawnCoor ["3,6"];
-//			spawnPower(3, 6, power36, power36Obj);
-//		}
-//		if (power66 != PowerManager.spawnCoor ["6,6"]) {
-//			power66 = PowerManager.spawnCoor ["6,6"];
-//			spawnPower(6, 6, power66, power66Obj);
-//		}
-//		if (power63 != PowerManager.spawnCoor ["6,3"]) {
-//			power63 = PowerManager.spawnCoor ["6,3"];
-//			spawnPower(6, 3, power63, power63Obj);
-//		}
+		if (power33 != spawnCoor ["3,3"]) {
+			power33 = spawnCoor ["3,3"];
+			spawnPower(3, 3, power33, power33Obj);
+		}
+		if (power36 != spawnCoor ["3,6"]) {
+			power36 = spawnCoor ["3,6"];
+			spawnPower(3, 6, power36, power36Obj);
+		}
+		if (power66 != spawnCoor ["6,6"]) {
+			power66 = spawnCoor ["6,6"];
+			spawnPower(6, 6, power66, power66Obj);
+		}
+		if (power63 != spawnCoor ["6,3"]) {
+			power63 = spawnCoor ["6,3"];
+			spawnPower(6, 3, power63, power63Obj);
+		}
 
         if (Input.GetMouseButtonDown(0))
         {
+
             Debug.Log(string.Format("GameState: {0},GameTurn: {1}", GameManager.currentGameState, GameManager.currentGameTurn));
             if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             { 
@@ -1115,13 +1136,65 @@ public class MapManager : MonoBehaviour
 	private void spawnPower(int x, int z, GameManager.Powers power, GameObject obj){
 		DestroyObject (obj);
 		if (power == GameManager.Powers.EARTHSHAKE) {
-			obj = Instantiate (earthshackObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			obj = Instantiate (earthshakeObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
 		} else if (power == GameManager.Powers.MOLEINSTINCT) {
 			obj = Instantiate (moleInjstinctObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
 		} else if (power == GameManager.Powers.EXCAVATOR) {
 			obj = Instantiate (excavatorObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
 		} else if (power == GameManager.Powers.DIAGONAL) {
 			obj = Instantiate (diagonalObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+		}
+	}
+
+	private void getPower(int x, int z){
+		if (x == 3 && z == 3) {
+			if (BagPack [0] != GameManager.Powers.NOTHING) {
+				BagPack [0] = power33;
+				button1.image.overrideSprite = spriteSelector (power33);
+			} else if (BagPack [1] != GameManager.Powers.NOTHING) {
+				BagPack [1] = power33;
+				button2.image.overrideSprite = spriteSelector (power33);
+			}
+		}
+		if (x == 3 && z == 6) {
+			if (BagPack [0] != GameManager.Powers.NOTHING) {
+				BagPack [0] = power36;
+				button1.image.overrideSprite = spriteSelector (power36);
+			} else if (BagPack [1] != GameManager.Powers.NOTHING) {
+				BagPack [1] = power36;
+				button2.image.overrideSprite = spriteSelector (power36);
+			}
+		}
+		if (x == 6 && z == 3) {
+			if (BagPack [0] != GameManager.Powers.NOTHING) {
+				BagPack [0] = power63;
+				button1.image.overrideSprite = spriteSelector (power63);
+			} else if (BagPack [1] != GameManager.Powers.NOTHING) {
+				BagPack [1] = power63;
+				button2.image.overrideSprite = spriteSelector (power63);
+			}
+		}
+		if (x == 6 && z == 6) {
+			if (BagPack [0] != GameManager.Powers.NOTHING) {
+				BagPack [0] = power66;
+				button1.image.overrideSprite = spriteSelector (power66);
+			} else if (BagPack [1] != GameManager.Powers.NOTHING) {
+				BagPack [1] = power66;
+				button2.image.overrideSprite = spriteSelector (power66);
+			}
+		}
+	}
+	private Sprite spriteSelector(GameManager.Powers power){
+		if (power == GameManager.Powers.EARTHSHAKE) {
+			return earthshakeSprite;
+		} else if (power == GameManager.Powers.MOLEINSTINCT) {
+			return moleInstrinctSprite;
+		} else if (power == GameManager.Powers.EXCAVATOR) {
+			return excavatorSprite;
+		} else if (power == GameManager.Powers.DIAGONAL) {
+			return diagonalSprite;
+		} else {
+			return buttonSprite;
 		}
 	}
 }

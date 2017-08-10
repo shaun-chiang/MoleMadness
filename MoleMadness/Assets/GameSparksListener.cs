@@ -38,10 +38,14 @@ public class GameSparksListener : MonoBehaviour {
 			int power36 = int.Parse(jsonmessage["data"]["result"]["(3,6)"].ToString().Replace("\"", ""));
 			int power66 = int.Parse(jsonmessage["data"]["result"]["(6,6)"].ToString().Replace("\"", ""));
 			int power63 = int.Parse(jsonmessage["data"]["result"]["(6,3)"].ToString().Replace("\"", ""));
-			PowerManager.spawnCoor.Add ("3,3", (GameManager.Powers)power33);
-			PowerManager.spawnCoor.Add ("3,6", (GameManager.Powers)power36);
-			PowerManager.spawnCoor.Add ("6,6", (GameManager.Powers)power66);
-			PowerManager.spawnCoor.Add ("6,3", (GameManager.Powers)power63);
+			MapManager.spawnCoor["3,3"] = (GameManager.Powers)power33;
+			MapManager.spawnCoor["3,6"] = (GameManager.Powers)power36;
+			MapManager.spawnCoor["6,6"] = (GameManager.Powers)power66;
+			MapManager.spawnCoor["6,3"] = (GameManager.Powers)power63;
+			Debug.Log("powerup33: " + power33 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			Debug.Log("powerup63: " + power63 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			Debug.Log("powerup36: " + power36 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			Debug.Log("powerup66: " + power66 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
             print("playerEnded: " + playerEnded);
             print("myId :" + myId);

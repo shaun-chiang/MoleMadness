@@ -1148,7 +1148,7 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1874556641}
   m_OnClick:
     m_PersistentCalls:
@@ -1302,8 +1302,77 @@ Prefab:
     - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
         type: 2}
       propertyPath: power_diagonal
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: earthshackObj
+      value: 
+      objectReference: {fileID: 1334349117051788, guid: 72df52e2e51484ebbb052a922f878cd0,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: diagonalObj
+      value: 
+      objectReference: {fileID: 1092512649024144, guid: 44dc3a6f87a824e7cac8f9fef8b2d100,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: excavatorObj
+      value: 
+      objectReference: {fileID: 1770933754790560, guid: 6f40d3cd1ac634741b0b639347c97ca7,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: moleInjstinctObj
+      value: 
+      objectReference: {fileID: 1089649052762084, guid: 0494baaa4825949a7b25478e4755a8a0,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: earthshakeObj
+      value: 
+      objectReference: {fileID: 1334349117051788, guid: 72df52e2e51484ebbb052a922f878cd0,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: button1
+      value: 
+      objectReference: {fileID: 1874556640}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: button2
+      value: 
+      objectReference: {fileID: 1338368025}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: earthshakeSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 98d7f093f7762465b8e8987ea15ec0cc,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: moleInstrinctSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 39793854793084be1958c0cbb6df61cb,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: diagonalSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2cb112847c76b493fbb6609897c7a521,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: excavatorSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: c039a8926bf5d487fa87033f40af6544,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: buttonSprite
+      value: 
+      objectReference: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d1bb3d0ea43e8b044a2a52e7a906e731, type: 2}
   m_IsPrefabParent: 0

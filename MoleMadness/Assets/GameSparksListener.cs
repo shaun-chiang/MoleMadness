@@ -67,8 +67,14 @@ public class GameSparksListener : MonoBehaviour {
                     GameManager.timeLeft = GameManager.timeLeftCache;
                     GameManager.timeLeftCache = -1;
                     GameManager.timerState = GameManager.TimerState.YOURTIMER;
-                    GameManager.startTimer(GameManager.timeLeft);
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
+                    if (GameManager.movesLeft <= 0)
+                    {
+                        GameManager.endTurn();
+                    } else
+                    {
+                        GameManager.startTimer(GameManager.timeLeft);
+                    }
                 } else if (GameManager.currentGameState == GameManager.GameState.SPAWNINGMOTHER)
                 {
                     Debug.Log("Your turn to spawn Mother Mole and Baby Mole.");
@@ -112,9 +118,14 @@ public class GameSparksListener : MonoBehaviour {
                         GameManager.timerState = GameManager.TimerState.OPPTIMER;
                         GameManager.timeLeft = GameManager.TURNDURATION;
                     }
+                } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
+                {
+                    // end turn triggered from stop timer to pass turn to opponent for respawn
+                    Debug.Log("end turn triggered from stop timer to pass turn to opponent for respawn");
                 }
                 else
                 {
+                    // check if it is called by stop timer
                     GameManager.endTurn();
                 }
                 

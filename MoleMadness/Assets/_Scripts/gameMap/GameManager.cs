@@ -443,4 +443,22 @@ public class GameManager
 									});
 								
 	}
+	public static void startTimer(float timeLeft)
+	{
+		new LogChallengeEventRequest().SetEventKey("START_TIMER_COUNT")
+			.SetEventAttribute("challengeInstanceId",getChallengeId())
+			.SetEventAttribute("SECONDS",(long) timeLeft)
+			.Send((response) =>
+				{
+					if (!response.HasErrors)
+					{
+						Debug.Log("Successful Start timer");
+					}
+					else
+					{
+						Debug.Log("Unsuccessful Start timer");
+					}
+				});
+
+	}
 }

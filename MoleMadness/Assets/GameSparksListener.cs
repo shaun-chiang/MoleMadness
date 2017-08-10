@@ -26,7 +26,9 @@ public class GameSparksListener : MonoBehaviour {
     void ChallengeStartedMessageHandler(ChallengeStartedMessage message)
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
-        GameManager.initGame(jsonmessage);
+        if (SceneManager.GetActiveScene().name=="Matchmaking") {
+            GameManager.initGame(jsonmessage);
+        }
     }
 
     public void GetWinMessages(ChallengeWonMessage message)

@@ -1237,7 +1237,7 @@ public class MapManager : MonoBehaviour
 					button1.image.overrideSprite = spriteSelector (power36);
 				}
 				power36 = GameManager.Powers.NOTHING;
-				spawnCoor ["3,3"] =  GameManager.Powers.NOTHING;
+				spawnCoor ["3,6"] =  GameManager.Powers.NOTHING;
 			} else if (BagPack [1] == GameManager.Powers.NOTHING) {
 				BagPack [1] = power36;
 				if (power36 != GameManager.Powers.NOTHING) {

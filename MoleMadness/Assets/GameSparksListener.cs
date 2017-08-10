@@ -61,8 +61,6 @@ public class GameSparksListener : MonoBehaviour {
                     Debug.Log("Your turn to respawn baby mole");
                     GameManager.startRespawnTimer();
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
-<<<<<<< HEAD
-=======
                 } else if (GameManager.timerState == GameManager.TimerState.OPPRESPAWNTIMER)
                 {
                     Debug.Log("Your opponent had respawned the baby mole, it is your turn now.");
@@ -82,7 +80,6 @@ public class GameSparksListener : MonoBehaviour {
                     Debug.Log("Your turn to spawn Mother Mole and Baby Mole.");
                     // Do not start timer
                     GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
->>>>>>> ab29fc25c13e4ecbc94f333f3b166cef7706e931
                 }
                 else
                 {

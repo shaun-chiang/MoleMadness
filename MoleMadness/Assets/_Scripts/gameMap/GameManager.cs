@@ -342,22 +342,7 @@ public class GameManager
                 if (!response.HasErrors)
                 {
                     Debug.Log("Successful stop timer");
-<<<<<<< HEAD
-=======
 
-                    //if (timerState == TimerState.OPPRESPAWNTIMER)
-                    //{
-                    //    timeLeft = RESPAWNDURATION;
-                    //}
-                    //else if (timerState == TimerState.OPPRESPAWNTIMER)
-                    //{
-                    //    timeLeft = timeLeftCache;
-                    //    timeLeftCache = -1;
-                    //    timerState = TimerState.YOURTIMER;
-
-                    //    timeLeft = RESPAWNDURATION;
-                    //}
->>>>>>> ab29fc25c13e4ecbc94f333f3b166cef7706e931
                 }
                 else
                 {
@@ -451,5 +436,23 @@ public class GameManager
 									}
 									});
 								
+	}
+	public static void startTimer(float timeLeft)
+	{
+		new LogChallengeEventRequest().SetEventKey("START_TIMER_COUNT")
+			.SetEventAttribute("challengeInstanceId",getChallengeId())
+			.SetEventAttribute("SECONDS",(long) timeLeft)
+			.Send((response) =>
+				{
+					if (!response.HasErrors)
+					{
+						Debug.Log("Successful Start timer");
+					}
+					else
+					{
+						Debug.Log("Unsuccessful Start timer");
+					}
+				});
+
 	}
 }

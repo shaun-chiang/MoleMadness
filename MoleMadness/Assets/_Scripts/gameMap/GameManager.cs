@@ -168,12 +168,14 @@ public class GameManager
                         Debug.Log("Opponent baby mole hit");
                         oppBabyHealth -= 1;
                         mapManagerInstance.oppBabyText.text = "Opp Baby: " + oppBabyHealth;
+
+                        // record timeleft for start timer later
                         timeLeftCache = timeLeft;
                         timerState = TimerState.OPPRESPAWNTIMER;
                         timeLeft = RESPAWNDURATION;
+
                         stopTimer();
                         mapManagerInstance.instructionText.text = "Waiting for opponent to respawn baby";
-                        endTurn();
                     }
                     else
                     {
@@ -237,7 +239,8 @@ public class GameManager
                         timeLeftCache = -1;
 
                         mapManagerInstance.timerText.text = timeLeft.ToString();
-                    } else
+                    }
+                    else
                     {
                         // init moves
                         movesLeft = 3;
@@ -256,6 +259,25 @@ public class GameManager
             });
     }
 
+    public static void startTimer(float timeLeft)
+    {
+        new LogChallengeEventRequest().SetEventKey("START_TIMER_COUNT")
+            .SetEventAttribute("challengeInstanceId",getChallengeId())
+            .SetEventAttribute("SECONDS",(long) timeLeft)
+            .Send((response) =>
+            {
+                if (!response.HasErrors)
+                {
+                    Debug.Log("Successful Start timer");
+                }
+                else
+                {
+                    Debug.Log("Unsuccessful Start timer");
+                }
+            });
+
+    }
+
     public static void endTurn()
     {
         new LogChallengeEventRequest().SetEventKey("action_ENDTURN")
@@ -266,23 +288,31 @@ public class GameManager
                 {
                     Debug.Log("Successful End Turn");
 
-                    if (timerState == TimerState.OPPRESPAWNTIMER)
-                    {
-                        timeLeft = RESPAWNDURATION;
-                    }
+                    timerState = TimerState.OPPTIMER;
+                    timeLeft = TURNDURATION;
+
+                    mapManagerInstance.timerText.text = timeLeft.ToString();
+                    mapManagerInstance.clearAllSelections();
+
+                    //if (timerState == TimerState.OPPRESPAWNTIMER)
+                    //{
+                    //    timeLeft = RESPAWNDURATION;
+                    //}
                     //else if (currentGameState == GameState.RESPAWNBABY)
                     //{
                     //    Debug.Log("Baby Spawned, switching back to opp timer");
                     //    timerState = TimerState.OPPTIMER;
                     //    timeLeft = timeLeftCache;
                     //}
-                    else
-                    {
-                        timerState = TimerState.OPPTIMER;
-                        timeLeft = TURNDURATION;
-                    }
-                    mapManagerInstance.timerText.text = timeLeft.ToString();
-                    mapManagerInstance.clearAllSelections();
+                    //else
+                    //{
+                    //    timerState = TimerState.OPPTIMER;
+                    //    timeLeft = TURNDURATION;
+                    //}
+
+                    //mapManagerInstance.timerText.text = timeLeft.ToString();
+                    //mapManagerInstance.clearAllSelections();
+
                     //if (!initPositionComplete)
                     //{
                     //    initPositionComplete = true;
@@ -292,12 +322,13 @@ public class GameManager
                 }
                 else
                 {
-                    if (currentGameState == GameState.RESPAWNBABY)
-                    {
-                        Debug.Log("Timer expired, switching back to opp timer");
-                        timerState = TimerState.OPPTIMER;
-                        timeLeft = timeLeftCache;
-                    } else if (timerState == TimerState.YOURTIMER)
+                    //if (currentGameState == GameState.RESPAWNBABY)
+                    //{
+                    //    Debug.Log("Timer expired, switching back to opp timer");
+                    //    timerState = TimerState.OPPTIMER;
+                    //    timeLeft = timeLeftCache;
+                    //} else 
+                    if (timerState == TimerState.YOURTIMER)
                     {
                         timerState = TimerState.OPPTIMER;
                         timeLeft = TURNDURATION;
@@ -327,6 +358,7 @@ public class GameManager
                 else
                 {
                     Debug.Log("Unsuccessful Start Respawn timer");
+                    Debug.Log(response.JSONString);
                 }
             });
     }
@@ -340,10 +372,34 @@ public class GameManager
                 if (!response.HasErrors)
                 {
                     Debug.Log("Successful stop timer");
+
+                    if (timerState == TimerState.OPPRESPAWNTIMER)
+                    {
+                        timeLeft = RESPAWNDURATION;
+                    } else if (timerState == TimerState.OPPRESPAWNTIMER)
+                    {
+                        timeLeft = timeLeftCache;
+                        timeLeftCache = -1;
+                        timerState = TimerState.YOURTIMER;
+                        startTimer(timeLeft);
+
+                        timeLeft = RESPAWNDURATION;
+                    }
                 }
                 else
                 {
                     Debug.Log("Unsuccessful stop timer");
+                    Debug.Log(response.JSONString);
+
+                    if (currentGameState == GameState.RESPAWNBABY)
+                    {
+                        Debug.Log("Timer expired, switching back to opp timer");
+                        timerState = TimerState.OPPTIMER;
+                        timeLeft = timeLeftCache;
+                    }
+                    
+                    mapManagerInstance.timerText.text = timeLeft.ToString();
+                    mapManagerInstance.clearAllSelections();
                 }
             });
 

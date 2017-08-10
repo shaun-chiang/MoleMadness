@@ -29,3 +29,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Matchmaking.unity
     guid: b320e935b3e214e44b39be75e55d6ad0
+  - enabled: 1
+    path: Assets/_Scenes/PostMatchLose.unity
+    guid: 2282378d15ed6da46b2d01f3db903800

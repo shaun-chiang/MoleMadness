@@ -582,6 +582,7 @@ public class MapManager : MonoBehaviour
 					}
 				}
 				clearAllSelections();
+				getPower (playerTile.x, playerTile.z);
 			}
 			positions = new List<Vector3> ();
 			playerSteps = 2;
@@ -1148,6 +1149,7 @@ public class MapManager : MonoBehaviour
 
 	private void getPower(int x, int z){
 		if (x == 3 && z == 3) {
+			DestroyObject (power33Obj);
 			if (BagPack [0] != GameManager.Powers.NOTHING) {
 				BagPack [0] = power33;
 				button1.image.overrideSprite = spriteSelector (power33);
@@ -1157,6 +1159,7 @@ public class MapManager : MonoBehaviour
 			}
 		}
 		if (x == 3 && z == 6) {
+			DestroyObject (power36Obj);
 			if (BagPack [0] != GameManager.Powers.NOTHING) {
 				BagPack [0] = power36;
 				button1.image.overrideSprite = spriteSelector (power36);
@@ -1166,6 +1169,7 @@ public class MapManager : MonoBehaviour
 			}
 		}
 		if (x == 6 && z == 3) {
+			DestroyObject (power63Obj);
 			if (BagPack [0] != GameManager.Powers.NOTHING) {
 				BagPack [0] = power63;
 				button1.image.overrideSprite = spriteSelector (power63);
@@ -1175,6 +1179,7 @@ public class MapManager : MonoBehaviour
 			}
 		}
 		if (x == 6 && z == 6) {
+			DestroyObject (power66Obj);
 			if (BagPack [0] != GameManager.Powers.NOTHING) {
 				BagPack [0] = power66;
 				button1.image.overrideSprite = spriteSelector (power66);

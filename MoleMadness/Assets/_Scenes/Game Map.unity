@@ -856,7 +856,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1893735175}
+      - m_Target: {fileID: 0}
         m_MethodName: activateButton
         m_Mode: 3
         m_Arguments:
@@ -1153,7 +1153,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1893735175}
+      - m_Target: {fileID: 0}
         m_MethodName: activateButton
         m_Mode: 3
         m_Arguments:
@@ -1315,9 +1315,6 @@ Prefab:
       propertyPath: endSound
       value: 
       objectReference: {fileID: 1422295405}
-      propertyPath: power_earthshake
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
         type: 2}
       propertyPath: power_diagonal

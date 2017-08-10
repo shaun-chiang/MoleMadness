@@ -66,6 +66,7 @@ public class GameSparksListener : MonoBehaviour {
                     GameManager.timeLeftCache = -1;
                     GameManager.timerState = GameManager.TimerState.YOURTIMER;
                     GameManager.startTimer(GameManager.timeLeft);
+                    GameManager.setTurn(GameManager.GameTurn.PLAYERTURN);
                 }
                 else
                 {
@@ -87,7 +88,12 @@ public class GameSparksListener : MonoBehaviour {
                 {
                     Debug.Log("randomly respawning baby.");
                     MapManager.getInstance().randomBabyRespawn();
-                    GameManager.stopTimer();
+
+                    // this stop timer fails normally if player respawn baby within time.
+                    // it acts as a fail safe
+                    // actually no need end cause startrespawntimer would have ended that
+                    //GameManager.stopTimer();
+
                 } else
                 {
                     GameManager.endTurn();
@@ -119,6 +125,7 @@ public class GameSparksListener : MonoBehaviour {
                 } else if (newField == "respawn")
                 {
                     Debug.Log("Opponent respawn his baby mole");
+                    // here 1
                 } else
                 {
                     Debug.Log("Opponent made a move");

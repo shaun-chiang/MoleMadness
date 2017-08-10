@@ -855,7 +855,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1338368026}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1893735175}
+        m_MethodName: activateButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1338368026
@@ -1142,12 +1153,12 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: 
-        m_Mode: 1
+      - m_Target: {fileID: 1893735175}
+        m_MethodName: activateButton
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1168,7 +1179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.44550174, g: 0.73154455, b: 0.75735295, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1304,6 +1315,83 @@ Prefab:
       propertyPath: endSound
       value: 
       objectReference: {fileID: 1422295405}
+      propertyPath: power_earthshake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: power_diagonal
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: earthshackObj
+      value: 
+      objectReference: {fileID: 1334349117051788, guid: 72df52e2e51484ebbb052a922f878cd0,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: diagonalObj
+      value: 
+      objectReference: {fileID: 1092512649024144, guid: 44dc3a6f87a824e7cac8f9fef8b2d100,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: excavatorObj
+      value: 
+      objectReference: {fileID: 1770933754790560, guid: 6f40d3cd1ac634741b0b639347c97ca7,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: moleInjstinctObj
+      value: 
+      objectReference: {fileID: 1089649052762084, guid: 0494baaa4825949a7b25478e4755a8a0,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: earthshakeObj
+      value: 
+      objectReference: {fileID: 1334349117051788, guid: 72df52e2e51484ebbb052a922f878cd0,
+        type: 2}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: button1
+      value: 
+      objectReference: {fileID: 1874556640}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: button2
+      value: 
+      objectReference: {fileID: 1338368025}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: earthshakeSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 98d7f093f7762465b8e8987ea15ec0cc,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: moleInstrinctSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 39793854793084be1958c0cbb6df61cb,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: diagonalSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2cb112847c76b493fbb6609897c7a521,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: excavatorSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: c039a8926bf5d487fa87033f40af6544,
+        type: 3}
+    - target: {fileID: 114684308490080270, guid: d1bb3d0ea43e8b044a2a52e7a906e731,
+        type: 2}
+      propertyPath: buttonSprite
+      value: 
+      objectReference: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d1bb3d0ea43e8b044a2a52e7a906e731, type: 2}
   m_IsPrefabParent: 0
@@ -1421,7 +1509,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.33288276, g: 0.57801986, b: 0.9632353, a: 0}
+  m_BackGroundColor: {r: 0.40678617, g: 0.259, b: 0.028, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0

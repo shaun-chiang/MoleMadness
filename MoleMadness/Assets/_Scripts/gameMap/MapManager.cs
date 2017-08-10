@@ -1,15 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using GameSparks.Api.Responses;
 using GameSparks.Api.Requests;
 
+[RequireComponent(typeof(Button))]
 public class MapManager : MonoBehaviour
 {
-
-    bool generating;
-
+	bool generating; 
     public static MapManager mapManagerInstance;
     public static GameManager gameManagerInstance;
     public static GameObject mapInstance;
@@ -45,12 +45,23 @@ public class MapManager : MonoBehaviour
 	public float pathHeight;
 	public List<Vector3> positions;
 
+
 	//Animation
 	public GameObject animation;
+
 
     //Sound
     public AudioSource endSound;
     public AudioSource startSound;
+
+	//Buttons
+	public Button button1;
+	public Button button2;
+	public Sprite earthshakeSprite;
+	public Sprite moleInstrinctSprite;
+	public Sprite diagonalSprite;
+	public Sprite excavatorSprite;
+	public Sprite buttonSprite;
 
     //Player Steps and Position information
     public Tile currentTile; // Path position - The current movement
@@ -70,6 +81,27 @@ public class MapManager : MonoBehaviour
 	private bool excavator_active = false;
 	public bool power_moleInstinct;
 	public Tile babyMolePosition;
+	public GameManager.Powers power33;
+	public GameManager.Powers power36;
+	public GameManager.Powers power66;
+	public GameManager.Powers power63;
+	public GameObject power33Obj;
+	public GameObject power36Obj;
+	public GameObject power66Obj;
+	public GameObject power63Obj;
+	public GameObject moleInjstinctObj;
+	public GameObject earthshakeObj;
+	public GameObject diagonalObj;
+	public GameObject excavatorObj;
+	public static Dictionary<string, GameManager.Powers> spawnCoor =
+		new Dictionary<string, GameManager.Powers>(){
+		{ "3,3", GameManager.Powers.NOTHING},
+		{ "3,6", GameManager.Powers.NOTHING},
+		{ "6,3", GameManager.Powers.NOTHING},
+		{ "6,6", GameManager.Powers.NOTHING}
+	};
+	public GameManager.Powers[] BagPack;
+
 
     System.Random pseudoRandom;
 
@@ -138,6 +170,11 @@ public class MapManager : MonoBehaviour
 		power_earthshake = false;
 		power_excavator = false;
 		power_moleInstinct = false;
+		power33 = GameManager.Powers.NOTHING;
+		power63 = GameManager.Powers.NOTHING;
+		power66 = GameManager.Powers.NOTHING;
+		power36 = GameManager.Powers.NOTHING;
+		BagPack = new GameManager.Powers[]{ GameManager.Powers.NOTHING, GameManager.Powers.NOTHING };
     }
 
     public static MapManager getInstance()
@@ -174,6 +211,9 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
+
+		button1.image.overrideSprite = spriteSelector (BagPack[0]);
+		button2.image.overrideSprite = spriteSelector (BagPack[1]);
         if (GameManager.timerState != GameManager.TimerState.OFF)
         {
             GameManager.timeLeft -= Time.deltaTime;
@@ -286,8 +326,26 @@ public class MapManager : MonoBehaviour
 			GameManager.currentGameTurn = GameManager.GameTurn.PLAYERTURN;
 			GameManager.currentGameState = GameManager.GameState.ACTIVE;
 		}
+		if (power33 != spawnCoor ["3,3"]) {
+			power33 = spawnCoor ["3,3"];
+			spawnPower(3, 3, power33, power33Obj);
+		}
+		if (power36 != spawnCoor ["3,6"]) {
+			power36 = spawnCoor ["3,6"];
+			spawnPower(3, 6, power36, power36Obj);
+		}
+		if (power66 != spawnCoor ["6,6"]) {
+			power66 = spawnCoor ["6,6"];
+			spawnPower(6, 6, power66, power66Obj);
+		}
+		if (power63 != spawnCoor ["6,3"]) {
+			power63 = spawnCoor ["6,3"];
+			spawnPower(6, 3, power63, power63Obj);
+		}
+
         if (Input.GetMouseButtonDown(0))
         {
+
             Debug.Log(string.Format("GameState: {0},GameTurn: {1}", GameManager.currentGameState, GameManager.currentGameTurn));
             if (Physics.Raycast(ray, out hit, Mathf.Infinity))
             { 
@@ -337,7 +395,7 @@ public class MapManager : MonoBehaviour
                             GameManager.timeLeft = GameManager.timeLeftCache;
                             GameManager.timeLeftCache = -1;
 
-                            GameManager.stopTimer();
+                            GameManager.endTurn();
                         } else
                         {
                             initBaby(x, z);
@@ -497,7 +555,7 @@ public class MapManager : MonoBehaviour
 						float z = hit.point.z;
 						Debug.Log (string.Format ("UPPP x: {0}, z: {1}", x, z));
 						Debug.Log (string.Format ("current x: {0}, z: {1}", currentTile.x, currentTile.z));
-						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && z<=currentTile.z+1 ) {
+						if (x>=currentTile.x && x<=currentTile.x +1 && z>=currentTile.z  && (z<=currentTile.z+1) && currentTile!=playerTile) {
 							Debug.Log ("in");
                             // check move will include delayed clearSelection and getPath in the callback to synchronize with moveUpdate
                             checkMove(currentTile.x, currentTile.z);
@@ -531,6 +589,7 @@ public class MapManager : MonoBehaviour
 					}
 				}
 				clearAllSelections();
+				getPower (playerTile.x, playerTile.z);
 			}
 			positions = new List<Vector3> ();
 			playerSteps = 2;
@@ -1082,4 +1141,227 @@ public class MapManager : MonoBehaviour
         }
         return stringMap;
     }
+	private void spawnPower(int x, int z, GameManager.Powers power, GameObject obj){
+		if (power == GameManager.Powers.EARTHSHAKE) {
+			if (x == 3 && z ==3){
+				DestroyObject (power33Obj);
+				power33Obj = Instantiate (earthshakeObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 3 && z ==6){
+				DestroyObject (power36Obj);
+				power36Obj = Instantiate (earthshakeObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==6){
+				DestroyObject (power66Obj);
+				power66Obj = Instantiate (earthshakeObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==3){
+				DestroyObject (power63Obj);
+				power63Obj = Instantiate (earthshakeObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+		} else if (power == GameManager.Powers.MOLEINSTINCT) {
+			if (x == 3 && z ==3){
+				DestroyObject (power33Obj);
+				power33Obj = Instantiate (moleInjstinctObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 3 && z ==6){
+				DestroyObject (power36Obj);
+				power36Obj = Instantiate (moleInjstinctObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==6){
+				DestroyObject (power66Obj);
+				power66Obj = Instantiate (moleInjstinctObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==3){
+				DestroyObject (power63Obj);
+				power63Obj = Instantiate (moleInjstinctObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+		} else if (power == GameManager.Powers.EXCAVATOR) {
+			if (x == 3 && z ==3){
+				DestroyObject (power33Obj);
+				power33Obj = Instantiate (excavatorObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 3 && z ==6){
+				DestroyObject (power36Obj);
+				power36Obj = Instantiate (excavatorObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==6){
+				DestroyObject (power66Obj);
+				power66Obj = Instantiate (excavatorObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==3){
+				DestroyObject (power63Obj);
+				power63Obj = Instantiate (excavatorObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+		} else if (power == GameManager.Powers.DIAGONAL) {
+			if (x == 3 && z ==3){
+				DestroyObject (power33Obj);
+				power33Obj = Instantiate (diagonalObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 3 && z ==6){
+				DestroyObject (power36Obj);
+				power36Obj = Instantiate (diagonalObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==6){
+				DestroyObject (power66Obj);
+				power66Obj = Instantiate (diagonalObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}
+			if (x == 6 && z ==3){
+				DestroyObject (power63Obj);
+				power63Obj = Instantiate (diagonalObj, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * x, 0.13f, transform.position.y + TILE_OFFSET + TILE_SIZE * z), transform.rotation);
+			}		
+		}
+	}
+
+	private void getPower(int x, int z){
+		if (x == 3 && z == 3) {
+			DestroyObject (power33Obj);
+			if (BagPack [0] == GameManager.Powers.NOTHING) {
+				BagPack [0] = power33;
+				if (power33 != GameManager.Powers.NOTHING) {
+					button1.image.overrideSprite = spriteSelector (power33);
+				}
+				power33 = GameManager.Powers.NOTHING;
+				spawnCoor ["3,3"] =  GameManager.Powers.NOTHING;
+			} else if (BagPack [1] == GameManager.Powers.NOTHING) {
+				BagPack [1] = power33;
+				if (power33 != GameManager.Powers.NOTHING) {
+					button2.image.overrideSprite = spriteSelector (power33);
+				}
+				power33 = GameManager.Powers.NOTHING;
+				spawnCoor ["3,3"] =  GameManager.Powers.NOTHING;
+			}
+			GameManager.pickupPower ("(3,3)");
+		}
+		if (x == 3 && z == 6) {
+			DestroyObject (power36Obj);
+			if (BagPack [0] == GameManager.Powers.NOTHING) {
+				BagPack [0] = power36;
+				if (power36 != GameManager.Powers.NOTHING) {
+					button1.image.overrideSprite = spriteSelector (power36);
+				}
+				power36 = GameManager.Powers.NOTHING;
+				spawnCoor ["3,3"] =  GameManager.Powers.NOTHING;
+			} else if (BagPack [1] == GameManager.Powers.NOTHING) {
+				BagPack [1] = power36;
+				if (power36 != GameManager.Powers.NOTHING) {
+					button2.image.overrideSprite = spriteSelector (power36);
+				}
+				power36 = GameManager.Powers.NOTHING;
+				spawnCoor ["3,6"] =  GameManager.Powers.NOTHING;
+			}
+			GameManager.pickupPower ("(3,6)");
+		}
+		if (x == 6 && z == 3) {
+			DestroyObject (power63Obj);
+			if (BagPack [0] == GameManager.Powers.NOTHING) {
+				BagPack [0] = power63;
+				if (power63 != GameManager.Powers.NOTHING) {
+					button1.image.overrideSprite = spriteSelector (power63);
+				}
+				power63 = GameManager.Powers.NOTHING;
+				spawnCoor ["6,3"] =  GameManager.Powers.NOTHING;
+			} else if (BagPack [1] == GameManager.Powers.NOTHING) {
+				BagPack [1] = power63;
+				if (power63 != GameManager.Powers.NOTHING) {
+					button2.image.overrideSprite = spriteSelector (power63);
+				}
+				power63 = GameManager.Powers.NOTHING;
+				spawnCoor ["6,3"] =  GameManager.Powers.NOTHING;
+			}
+			GameManager.pickupPower ("(6,3)");
+		}
+		if (x == 6 && z == 6) {
+			DestroyObject (power66Obj);
+			if (BagPack [0] == GameManager.Powers.NOTHING) {
+				BagPack [0] = power66;
+				if (power66 != GameManager.Powers.NOTHING) {
+					button1.image.overrideSprite = spriteSelector (power66);
+				}
+				power66 = GameManager.Powers.NOTHING;
+				spawnCoor ["6,6"] =  GameManager.Powers.NOTHING;
+			} else if (BagPack [1] == GameManager.Powers.NOTHING) {
+				BagPack [1] = power66;
+				if (power66 != GameManager.Powers.NOTHING) {
+					button2.image.overrideSprite = spriteSelector (power66);
+				}
+				power66 = GameManager.Powers.NOTHING;
+				spawnCoor ["6,6"] =  GameManager.Powers.NOTHING;
+			}
+			GameManager.pickupPower ("(6,6)");
+		}
+	}
+	private Sprite spriteSelector(GameManager.Powers power){
+		if (power == GameManager.Powers.EARTHSHAKE) {
+			return earthshakeSprite;
+		} else if (power == GameManager.Powers.MOLEINSTINCT) {
+			return moleInstrinctSprite;
+		} else if (power == GameManager.Powers.EXCAVATOR) {
+			return excavatorSprite;
+		} else if (power == GameManager.Powers.DIAGONAL) {
+			return diagonalSprite;
+		} else {
+			return buttonSprite;
+		}
+	}
+
+	public void activateButton(int i){
+		if (BagPack [i] == GameManager.Powers.DIAGONAL) {
+			power_diagonal = true;
+			BagPack [i] = GameManager.Powers.NOTHING;
+		} else if (BagPack [i] == GameManager.Powers.EXCAVATOR) {
+			power_excavator = true;
+			excavatorTile = map [playerTile.x, playerTile.z];
+			excavator = Instantiate (machine, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), transform.rotation);
+			BagPack [i] = GameManager.Powers.NOTHING;
+		} else if (BagPack [i] == GameManager.Powers.MOLEINSTINCT) {
+			power_moleInstinct = true;
+			DestroyObject (arrow);
+			if (babyMolePosition.z > playerTile.z) {
+				if (babyMolePosition.x == playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.5f), transform.rotation);
+				} else if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.4f), Quaternion.Euler (0, 45, 0));
+				} else {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z + 0.4f), Quaternion.Euler (0, 315, 0));
+				}
+
+			} else if (babyMolePosition.z < playerTile.z) {
+				if (babyMolePosition.x == playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.5f), Quaternion.Euler (0, 180, 0));
+				} else if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.4f), Quaternion.Euler (0, 135, 0));
+				} else {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.4f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z - 0.4f), Quaternion.Euler (0, 225, 0));
+				}
+			} else {
+				if (babyMolePosition.x > playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x + 0.5f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), Quaternion.Euler (0, 90, 0));
+				} else if (babyMolePosition.x < playerTile.x) {
+					arrow = Instantiate (direction, new Vector3 (transform.position.x + TILE_OFFSET + TILE_SIZE * playerTile.x - 0.5f, 0.1f, transform.position.y + TILE_OFFSET + TILE_SIZE * playerTile.z), Quaternion.Euler (0, 270, 0));
+				}
+			}
+			BagPack [i] = GameManager.Powers.NOTHING;
+		} else if (BagPack [i] == GameManager.Powers.EARTHSHAKE) {
+			if (power_earthshake) {
+				power_earthshake = false;
+				clearAllRedSelections();
+			} else {
+				power_earthshake = true;
+				int x = (int)playerTile.x;
+				int z = (int)playerTile.z;
+				for (int w = 0; w < width; w++) {
+					for (int h = 0; h < height; h++) {
+						if ((w == x && h > z) || (w == x && h < z) || (w > x && h == z) || (w < x && h == z)) {
+							castRedSelection (w, h);
+						}
+					}
+				}
+			}
+			BagPack [i] = GameManager.Powers.NOTHING;
+		}
+
+
+	}
+		
 }

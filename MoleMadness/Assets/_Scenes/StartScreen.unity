@@ -1144,7 +1144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ca1dbee09467cc4bba6cbf7ab30f1a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  font: {fileID: 12800000, guid: c44e265304245fb45a68711483bb6e4d, type: 3}
+  font: {fileID: 0}
 --- !u!1 &1435821945
 GameObject:
   m_ObjectHideFlags: 0

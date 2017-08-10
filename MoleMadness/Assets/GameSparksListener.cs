@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GameSparks.Api.Messages;
-using UnityEngine.SceneManagement;
 
 public class GameSparksListener : MonoBehaviour {
 
@@ -14,8 +13,6 @@ public class GameSparksListener : MonoBehaviour {
         {
             ChallengeStartedMessage.Listener += ChallengeStartedMessageHandler;
             ScriptMessage.Listener += GetMessages;
-            ChallengeWonMessage.Listener += GetWinMessages;
-            ChallengeLostMessage.Listener += GetLostMessages;
             GameSparksManager.ListenersInitialized = true;
             Debug.Log("Listeners Added!");
         } else
@@ -26,18 +23,7 @@ public class GameSparksListener : MonoBehaviour {
     void ChallengeStartedMessageHandler(ChallengeStartedMessage message)
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
-        if (SceneManager.GetActiveScene().name=="Matchmaking") {
-            GameManager.initGame(jsonmessage);
-        }
-    }
-
-    public void GetWinMessages(ChallengeWonMessage message)
-    {
-        SceneManager.LoadScene("PostMatchWin");
-    }
-    public void GetLostMessages(ChallengeLostMessage message)
-    {
-        SceneManager.LoadScene("PostMatchLose");
+        GameManager.initGame(jsonmessage);
     }
 
     public void GetMessages(ScriptMessage message)
@@ -48,12 +34,26 @@ public class GameSparksListener : MonoBehaviour {
             JSONObject jsonmessage = new JSONObject(message.JSONString);
             string playerEnded = jsonmessage["data"]["TURNENDED"].ToString().Replace("\"", "");
             string myId = PlayerPrefs.GetString("playerId").Replace("\"", "");
+			int power33 = int.Parse(jsonmessage["data"]["result"]["(3,3)"].ToString().Replace("\"", ""));
+			int power36 = int.Parse(jsonmessage["data"]["result"]["(3,6)"].ToString().Replace("\"", ""));
+			int power66 = int.Parse(jsonmessage["data"]["result"]["(6,6)"].ToString().Replace("\"", ""));
+			int power63 = int.Parse(jsonmessage["data"]["result"]["(6,3)"].ToString().Replace("\"", ""));
+			MapManager.spawnCoor["3,3"] = (GameManager.Powers)power33;
+			MapManager.spawnCoor["3,6"] = (GameManager.Powers)power36;
+			MapManager.spawnCoor["6,6"] = (GameManager.Powers)power66;
+			MapManager.spawnCoor["6,3"] = (GameManager.Powers)power63;
+			Debug.Log("powerup33: " + power33 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			Debug.Log("powerup63: " + power63 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			Debug.Log("powerup36: " + power36 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+			Debug.Log("powerup66: " + power66 + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
             print("playerEnded: " + playerEnded);
             print("myId :" + myId);
             Debug.Log(string.Format("Going in to getMessage Checks! Turn: {0},State: {1}, You ended: {2}", GameManager.currentGameTurn, GameManager.currentGameState, playerEnded == myId));
             if (playerEnded != myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
             {
                 // opponent ended
+                Debug.Log("Your Opponent ended his turn, it is now your turn.");
 
                 MapManager.getInstance().startSound.Play();
 
@@ -130,8 +130,9 @@ public class GameSparksListener : MonoBehaviour {
                 {
                     // check if it is called by stop timer
                     GameManager.endTurn();
+
                 }
-                
+                GameManager.endTurn();
                 GameManager.setTurn(GameManager.GameTurn.OPPONENTTURN);
             } else if (playerEnded == myId && GameManager.currentGameTurn == GameManager.GameTurn.OPPONENTTURN)
             {
@@ -158,7 +159,6 @@ public class GameSparksListener : MonoBehaviour {
                 } else if (newField == "respawn")
                 {
                     Debug.Log("Opponent respawn his baby mole");
-                    // here 1
                 } else
                 {
                     Debug.Log("Opponent made a move");

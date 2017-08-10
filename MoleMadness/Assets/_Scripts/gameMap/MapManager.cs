@@ -48,9 +48,12 @@ public class MapManager : MonoBehaviour
 	//Animation
 	public GameObject animation;
 
+    //Sound
+    public AudioSource endSound;
+    public AudioSource startSound;
 
-	//Player Steps and Position information
-	public Tile currentTile; // Path position - The current movement
+    //Player Steps and Position information
+    public Tile currentTile; // Path position - The current movement
 	public Tile playerTile; // Player's position
 	public Tile excavatorTile; // Excavator's position
 	public int playerSteps = 2;

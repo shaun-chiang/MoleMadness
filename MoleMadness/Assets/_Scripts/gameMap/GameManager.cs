@@ -46,6 +46,13 @@ public class GameManager
         return gameManagerinstance;
     }
 
+    public static void resetGame()
+    {
+        initPositionComplete = false;
+        p2JustInit = false;
+        timerState = TimerState.OFF;
+    }
+
     public static string getChallengeId()
     {
         return PlayerPrefs.GetString("GameSeed");

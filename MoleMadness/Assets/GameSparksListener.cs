@@ -55,6 +55,8 @@ public class GameSparksListener : MonoBehaviour {
             {
                 // opponent ended
 
+                MapManager.getInstance().startSound.Play();
+
                 if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {
                     // You need to respawn your baby, start respawn timer instead
@@ -96,6 +98,7 @@ public class GameSparksListener : MonoBehaviour {
             {
                 // Your turn ended
                 Debug.Log("Your turn endedd.");
+                MapManager.getInstance().endSound.Play();
 
                 if (GameManager.currentGameState == GameManager.GameState.RESPAWNBABY)
                 {

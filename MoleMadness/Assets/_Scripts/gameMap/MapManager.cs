@@ -219,7 +219,7 @@ public class MapManager : MonoBehaviour
             }
             else
             {
-                timerText.text = GameManager.timeLeft.ToString();
+                timerText.text = Math.Ceiling(GameManager.timeLeft).ToString();
             }
 
             if (GameManager.timerState == GameManager.TimerState.YOURRESPAWNTIMER)
@@ -324,19 +324,23 @@ public class MapManager : MonoBehaviour
 		}
 		if (power33 != spawnCoor ["3,3"]) {
 			power33 = spawnCoor ["3,3"];
-			spawnPower(3, 3, power33, power33Obj);
+            DestroyObject(power33Obj);
+            spawnPower(3, 3, power33, power33Obj);
 		}
 		if (power36 != spawnCoor ["3,6"]) {
 			power36 = spawnCoor ["3,6"];
-			spawnPower(3, 6, power36, power36Obj);
+            DestroyObject(power36Obj);
+            spawnPower(3, 6, power36, power36Obj);
 		}
 		if (power66 != spawnCoor ["6,6"]) {
 			power66 = spawnCoor ["6,6"];
-			spawnPower(6, 6, power66, power66Obj);
+            DestroyObject(power66Obj);
+            spawnPower(6, 6, power66, power66Obj);
 		}
 		if (power63 != spawnCoor ["6,3"]) {
 			power63 = spawnCoor ["6,3"];
-			spawnPower(6, 3, power63, power63Obj);
+            DestroyObject(power63Obj);
+            spawnPower(6, 3, power63, power63Obj);
 		}
 
         if (Input.GetMouseButtonDown(0))

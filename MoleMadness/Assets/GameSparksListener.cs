@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GameSparks.Api.Messages;
+using UnityEngine.SceneManagement;
 
 public class GameSparksListener : MonoBehaviour {
 
@@ -12,6 +13,8 @@ public class GameSparksListener : MonoBehaviour {
         if (!GameSparksManager.ListenersInitialized)
         {
             ChallengeStartedMessage.Listener += ChallengeStartedMessageHandler;
+            ChallengeWonMessage.Listener += ChallengeWonMessageHandler;
+            ChallengeLostMessage.Listener += ChallengeLostMessageHandler;
             ScriptMessage.Listener += GetMessages;
             GameSparksManager.ListenersInitialized = true;
             Debug.Log("Listeners Added!");
@@ -24,6 +27,17 @@ public class GameSparksListener : MonoBehaviour {
     {
         JSONObject jsonmessage = new JSONObject(message.JSONString);
         GameManager.initGame(jsonmessage);
+    }
+
+    void ChallengeWonMessageHandler(ChallengeWonMessage message)
+    {
+        JSONObject jsonmessage = new JSONObject(message.JSONString);
+        SceneManager.LoadScene("PostMatchWin");
+    }
+    void ChallengeLostMessageHandler(ChallengeLostMessage message)
+    {
+        JSONObject jsonmessage = new JSONObject(message.JSONString);
+        SceneManager.LoadScene("PostMatchLose");
     }
 
     public void GetMessages(ScriptMessage message)
